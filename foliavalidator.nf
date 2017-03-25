@@ -38,6 +38,7 @@ process foliavalidator {
     set -u
     date=\$(date +"%Y-%m-%d %H:%M:%S")
     echo "--------------- \$date ---------------" > ${doc}.foliavalidator
+    echo "md5 checksum: "\$(md5sum ${doc}) >> ${doc}.foliavalidator
     foliavalidator ${doc} 2>> ${doc}.foliavalidator
     if [ \$? -eq 0 ]; then
         echo \$(readlink ${doc})"\tOK" >> ${doc}.foliavalidator
