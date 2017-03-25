@@ -36,7 +36,9 @@ process foliavalidator {
         source ${virtualenv}/bin/activate
     fi
     set -u
-    foliavalidator ${doc} 2> ${doc}.foliavalidator
+    date=\$(date +"%Y-%m-%d %H:%M:%S")
+    echo "--------------- \$date ---------------" > ${doc}.foliavalidator
+    foliavalidator ${doc} 2>> ${doc}.foliavalidator
     if [ \$? -eq 0 ]; then
         echo \$(readlink ${doc})"\tOK" >> ${doc}.foliavalidator
     else
