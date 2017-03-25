@@ -5,13 +5,26 @@ vim: syntax=groovy
 -*- mode: groovy;-*-
 */
 
-params.dir = "./corpus"
+log.info "--------------------------"
+log.info "FoLiA Validator Pipeline"
+log.info "--------------------------"
+
 params.extension = "folia.xml"
 params.virtualenv = ""
 params.outreport = "./foliavalidation.report"
 params.outsummary = "./foliavalidation.summary"
 
-log.info "FoLiA Validator"
+if (params.containsKey('help') || !params.containsKey('dir')) {
+    log.info "Usage:"
+    log.info "  foliavalidator.nf --dir DIRECTORY [OPTIONS]"
+    log.info ""
+    log.info "Options:"
+    log.info "  --dir DIRECTORY          Path to the corpus direction"
+    log.info "  --extension EXTENSION    Extension of FoLiA documents (default: folia.xml)"
+    log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
+    exit 2
+}
+
 
 documents = Channel.fromPath(params.dir + "/**." + params.extension)
 
