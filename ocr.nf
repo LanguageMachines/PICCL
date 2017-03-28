@@ -29,7 +29,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
 pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
 
 process pdfimages {
-    //Extracted images per page from PDF
+    //Extracted images from PDF
     input:
     file pdfdocument from pdfdocuments
 
@@ -43,18 +43,20 @@ process pdfimages {
 }
 
 pdfimages
-    .collect { basename, images -> [[basename],images].combinations() }
+    .collect { documentname, images -> [[documentname],images].combinations() }
     .flatten()
     .collate(2)
     .into { pageimages }
 
 process tesseract {
-    input:
-    set val(basename), file(pageimage) from pageimages
-    val language from params.language
+    //Do the actual OCR using Tesseract: outputs a hOCR document for each input page image
 
+    input:
+    set val(documentname), file(pageimage) from pageimages
+    val language from params.language
+https://encrypted.google.com/search?hl=en&q=central%20architecture#q=piccl+architecture+reynaert&hl=en&nirf=piccolo%20architecture%20reynaert&start=10&*
     output:
-    set val(basename), file("${pageimage.baseName}" + ".hocr") into ocrpages
+    set val(documentname), file("${pageimage.baseName}" + ".hocr") into ocrpages
 
     script:
     """
@@ -63,12 +65,14 @@ process tesseract {
 }
 
 process ocrpages_to_foliapages {
+    //Convert Tesseract hOCR output to FoLiA
+
     input:
-    set val(basename), file(pagehocr) from ocrpages
+    set val(documentname), file(pagehocr) from ocrpages
     val virtualenv from params.virtualenv
 
     output:
-    set val(basename), file("${pagehocr.baseName}" + ".tif.folia.xml") into foliapages
+    set val(documentname), file("${pagehocr.baseName}" + ".tif.folia.xml") into foliapages
 
     script:
     """
@@ -82,6 +86,8 @@ process ocrpages_to_foliapages {
     """
 }
 
+//Collect all pages for a given document
+//transforms [(documentname, hocrpage)] output to [(documentname, [hocrpages])], grouping pages per base name
 foliapages
     .groupTuple(sort: {
         //sort by file name (not full path)
@@ -90,14 +96,16 @@ foliapages
     .into { groupfoliapages }
 
 process foliacat {
+    //Concatenate separate FoLiA pages pertaining to the same document into a single document again
+
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
-    set val(basename), file("*.tif.folia.xml") from groupfoliapages
+    set val(documentname), file("*.tif.folia.xml") from groupfoliapages
     val virtualenv from params.virtualenv
 
     output:
-    file "${basename}.folia.xml" into foliaoutput
+    file "${documentname}.folia.xml" into foliaoutput
 
     script:
     """
@@ -108,7 +116,7 @@ process foliacat {
     set -u
 
     foliainput=\$(ls *.tif.folia.xml | sort)
-    foliacat -i ${basename} -o ${basename}.folia.xml \$foliainput
+    foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
     """
 }
 
