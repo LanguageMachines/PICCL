@@ -11,7 +11,7 @@ log.info "--------------------------"
 
 params.virtualenv = ""
 params.language = "nld"
-params.outputdir = "foliaoutput"
+params.outputdir = "folia_ocr_output"
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "Usage:"
