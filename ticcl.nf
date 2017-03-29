@@ -22,7 +22,7 @@ params.clip = 10
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet')) {
     log.info "Usage:"
-    log.info "  ocr.nf [OPTIONS]"
+    log.info "  ticcl.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents with an OCR text layer)"
