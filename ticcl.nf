@@ -220,6 +220,7 @@ process foliacorrect {
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
+    val virtualenv from params.virtualenv
 
     output:
     file "*.folia.xml" into folia_ticcl_documents
