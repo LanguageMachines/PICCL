@@ -26,7 +26,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents with an OCR text layer)"
-    log.info "  --lexicon FILE           Path to lexicon file (*.dict)
+    log.info "  --lexicon FILE           Path to lexicon file (*.dict)"
     log.info "  --alphabet FILE          Path to alphabet file (*.chars)"
     log.info "  --charconfus FILE        Path to character confusion list (*.confusion)"
     log.info""
