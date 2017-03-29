@@ -102,7 +102,7 @@ process anahash {
     val virtualenv from params.virtualenv
 
     output:
-    file "anahash" into anahashfile
+    file "${corpusfreqlist_clean}.anahash" into anahashfile
 
     script:
 
