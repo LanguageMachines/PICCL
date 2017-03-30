@@ -45,18 +45,19 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 
-lexicon = Channel.fromPath(params.lexicon)
-alphabet = Channel.fromPath(params.alphabet)
-charconfuslist = Channel.fromPath(params.charconfus)
+lexicon = Channel.fromPath(params.lexicon).ifEmpty("Lexicon file not found")
+alphabet = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 
-folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
+charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusion file not found")
+
+
+folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).ifEmpty("No input documents found")
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
 process corpusfrequency {
     //Process corpus into frequency file for TICCL
-
     input:
-    file "*." + params.extension from folia_ocr_documents_forcorpusfrequency
+    file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
     val virtualenv from params.virtualenv
     val inputclass from params.inputclass
     val threads from params.threads
@@ -230,7 +231,7 @@ process foliacorrect {
     cpus params.threads
 
     input:
-    file "*." + params.extension from folia_ocr_documents_forfoliacorrect
+    file "doc*." + params.extension from folia_ocr_documents_forfoliacorrect
     file rankedlist from rankedlist
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
@@ -239,7 +240,7 @@ process foliacorrect {
     val threads from params.threads
 
     output:
-    file "*.folia.xml" into folia_ticcl_documents
+    file "*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
 
     script:
     """
