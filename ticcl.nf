@@ -11,7 +11,7 @@ log.info "--------------------------"
 
 params.virtualenv = ""
 params.language = "nld"
-params.extensions = "folia.xml"
+params.extension = "folia.xml"
 params.outputdir = "folia_ticcl_output"
 params.inputclass = "OCR"
 params.lexicon = ""
@@ -19,8 +19,9 @@ params.artifrq = 10000000
 params.alphabet = ""
 params.distance = 2
 params.clip = 10
+params.threads = 6
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet') || !params.containsKey('charconfus')) {
     log.info "Usage:"
     log.info "  ticcl.nf [OPTIONS]"
     log.info ""
@@ -39,6 +40,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)"
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
+    log.info "  --threads INT            Number of cores to use for multi-threaded tasks (defaults to --cores)"
     exit 2
 }
 
@@ -48,7 +50,7 @@ alphabet = Channel.fromPath(params.alphabet)
 charconfuslist = Channel.fromPath(params.charconfus)
 
 folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
-folia_ocr_documents.into { folia_ocr_document_forcorpusfrequency, folia_ocr_documents_forfoliacorrect }
+folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
 process corpusfrequency {
     //Process corpus into frequency file for TICCL
@@ -57,6 +59,7 @@ process corpusfrequency {
     file "*." + params.extension from folia_ocr_documents_forcorpusfrequency
     val virtualenv from params.virtualenv
     val inputclass from params.inputclass
+    val threads from params.threads
 
     output:
     file "corpus.wordfreqlist.tsv" into corpusfreqlist
@@ -100,7 +103,7 @@ process ticclunk {
 }
 
 //split channel
-corpusfreqlist_clean.into { corpusfreqlist_clean_foranahash; corpusfreqlist_clean_forresolver }
+corpusfreqlist_clean.into { corpusfreqlist_clean_foranahash; corpusfreqlist_clean_forresolver; corpusfreqlist_clean_forindexer }
 
 process anahash {
     /*
@@ -111,10 +114,11 @@ process anahash {
     file corpusfreqlist from corpusfreqlist_clean_foranahash
     file alphabet from alphabet
     val virtualenv from params.virtualenv
+    val artifrq from params.artifrq
 
     output:
-    file "${corpusfreqlist_clean}.anahash" into anahashlist
-    file "${corpusfreqlist_clean}.corpusfoci" into corpusfocilist
+    file "${corpusfreqlist}.anahash" into anahashlist
+    file "${corpusfreqlist}.corpusfoci" into corpusfocilist
 
     script:
 
@@ -136,16 +140,18 @@ charconfuslist.into { charconfuslist_forindexer; charconfuslist_forrank }
 
 process indexer {
     //Computes an index from anagram hashes to
+    cpus params.threads
 
     input:
+    file corpusfreqlist from corpusfreqlist_clean_forindexer //only used for naming purposes, not real input
     file anahashlist from anahashlist_forindexer
     file charconfuslist from charconfuslist_forindexer
     file corpusfocilist from corpusfocilist
     val virtualenv from params.virtualenv
+    val threads from params.threads
 
     output:
-    file "${corpusfreqlist_clean}.anahash" into anahashlist
-    file "${corpusfreqlist_clean}.indexNT" into index
+    file "${corpusfreqlist}.indexNT" into index
 
     script:
     """
@@ -155,13 +161,15 @@ process indexer {
     fi
     set -u
 
-    TICCL-indexerNT --hash ${anahashlist} --charconf ${charconfuslist} --foci ${corpusfocilist} -o ${corpusfreqlist_clean}`  #TODO: add -t threads option again
+    TICCL-indexerNT --hash ${anahashlist} --charconf ${charconfuslist} --foci ${corpusfocilist} -o ${corpusfreqlist} -t ${threads}
     """
     // -o option is a prefix only, extension indexNT will be appended
 }
 
 process resolver {
     //Resolves numerical confusions back to word form confusions using TICCL-LDcalc
+    cpus params.threads
+
     input:
     file index from index
     file anahashlist from anahashlist_forresolver
@@ -169,6 +177,7 @@ process resolver {
     val distance from params.distance
     val artifrq from params.artifrq
     val virtualenv from params.virtualenv
+    val threads from params.threads
 
     output:
     file "${corpusfreqlist}.ldcalc" into wordconfusionlist
@@ -181,20 +190,24 @@ process resolver {
     fi
     set -u
 
-	TICCL-LDcalc --index ${index} --hash ${anahashlist} --clean ${corpusfreqlist} --LD ${distance} --artifrq ${artifrq} -o ${corpusfreqlist}.ldcalc #TODO: add -t threads option again
+	TICCL-LDcalc --index ${index} --hash ${anahashlist} --clean ${corpusfreqlist} --LD ${distance} --artifrq ${artifrq} -o ${corpusfreqlist}.ldcalc -t ${threads}
     """
 }
 
 alphabet_forrank = Channel.fromPath(params.alphabet)
 
 process rank {
+    cpus params.threads
+
     input:
+    file wordconfusionlist from wordconfusionlist
     file alphabet from alphabet_forrank
     file charconfuslist from charconfuslist_forrank
     val distance from params.distance
     val artifrq from params.artifrq
     val clip from params.clip
     val virtualenv from params.virtualenv
+    val threads from params.threads
 
     output:
     file "${wordconfusionlist}.ranked" into rankedlist
@@ -207,12 +220,14 @@ process rank {
     fi
     set -u
 
-    TICCL-rank --alph ${alphabet} --charconf ${charconfuslist} -o ${wordconfusionlist}.ranked --debugfile ${wordconfusionlist}.debug.ranked --artifrq ${artifrq} --clip ${clip} --skipcols=10,11 ${wordconfusionlist} #TODO: add -t threads option again
+    TICCL-rank --alph ${alphabet} --charconf ${charconfuslist} -o ${wordconfusionlist}.ranked --debugfile ${wordconfusionlist}.debug.ranked --artifrq ${artifrq} --clip ${clip} --skipcols=10,11  -t ${threads} ${wordconfusionlist}
     """
 }
 
 process foliacorrect {
     publishDir params.outputdir, mode: 'copy', overwrite: true
+
+    cpus params.threads
 
     input:
     file "*." + params.extension from folia_ocr_documents_forfoliacorrect
@@ -221,6 +236,7 @@ process foliacorrect {
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
     val virtualenv from params.virtualenv
+    val threads from params.threads
 
     output:
     file "*.folia.xml" into folia_ticcl_documents
@@ -237,7 +253,7 @@ process foliacorrect {
     mkdir inputdir
     mv *.${extension} inputdir
 
-    FoLiA-correct --nums 10 -e ${extension} -O . --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist} inputdir #TODO: add -t threads option again
+    FoLiA-correct --nums 10 -e ${extension} -O . --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${threads} inputdir
     """
 }
 
