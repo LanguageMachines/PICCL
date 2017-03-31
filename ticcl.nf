@@ -226,7 +226,6 @@ process rank {
 }
 
 process foliacorrect {
-    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     cpus params.threads
 
@@ -258,6 +257,17 @@ process foliacorrect {
     """
 }
 
+/*process foliacollect {
+    //Collects all FoLiA output files, renames them according to the FoLiA's id and publishes them
+
+    publishDir params.outputdir, mode: 'copy', overwrite: true
+
+    input:
+    file document from folia_
+
+
+
+}*/
 
 folia_ticcl_documents.subscribe { println it }
 
