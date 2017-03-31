@@ -25,6 +25,9 @@ process bulkprocessfiles {
     #unseparable meaningful action that transforms all input files on the basis
     #of all others and yields new output files for each
     cp *.txt outputdir/
+    for f in outputdir/*; do
+        mv \$f outputdir/test.\$(basename \$f)
+    done
     """
 }
 

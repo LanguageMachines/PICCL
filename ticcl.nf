@@ -227,10 +227,12 @@ process rank {
 
 process foliacorrect {
 
+    publishDir params.outputdir, mode: 'copy', overwrite: true
+
     cpus params.threads
 
     input:
-    file "doc*." + params.extension from folia_ocr_documents_forfoliacorrect
+    file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect()
     file rankedlist from rankedlist
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
@@ -239,7 +241,7 @@ process foliacorrect {
     val threads from params.threads
 
     output:
-    file "*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
+    file "outputdir/*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
 
     script:
     """
@@ -250,24 +252,11 @@ process foliacorrect {
     set -u
 
     #some bookkeeping
-    mkdir inputdir
-    mv *.${extension} inputdir
+    mkdir outputdir
 
-    FoLiA-correct --nums 10 -e ${extension} -O . --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${threads} inputdir
+    FoLiA-correct --nums 10 -e ${extension} -O outputdir/ --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${threads} .
     """
 }
-
-/*process foliacollect {
-    //Collects all FoLiA output files, renames them according to the FoLiA's id and publishes them
-
-    publishDir params.outputdir, mode: 'copy', overwrite: true
-
-    input:
-    file document from folia_
-
-
-
-}*/
 
 folia_ticcl_documents.subscribe { println it }
 
