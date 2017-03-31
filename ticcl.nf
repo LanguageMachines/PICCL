@@ -241,7 +241,7 @@ process foliacorrect {
     val threads from params.threads
 
     output:
-    file "outputdir/*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
+    file "*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
 
     script:
     """
@@ -255,6 +255,7 @@ process foliacorrect {
     mkdir outputdir
 
     FoLiA-correct --nums 10 -e ${extension} -O outputdir/ --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${threads} .
+    mv outputdir/*.xml .
     """
 }
 
