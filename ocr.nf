@@ -54,7 +54,7 @@ process tesseract {
     input:
     set val(documentname), file(pageimage) from pageimages
     val language from params.language
-https://encrypted.google.com/search?hl=en&q=central%20architecture#q=piccl+architecture+reynaert&hl=en&nirf=piccolo%20architecture%20reynaert&start=10&*
+
     output:
     set val(documentname), file("${pageimage.baseName}" + ".hocr") into ocrpages
 
