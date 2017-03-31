@@ -198,6 +198,7 @@ process resolver {
 alphabet_forrank = Channel.fromPath(params.alphabet)
 
 process rank {
+    //Rank output
     cpus params.threads
 
     input:
@@ -226,6 +227,7 @@ process rank {
 }
 
 process foliacorrect {
+    //Correct the input documents using the ranked list, produces final output documents with <t class="Ticcl"> and <str>
 
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
