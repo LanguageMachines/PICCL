@@ -15,7 +15,7 @@ process bulkprocessfiles {
     file alldocuments from textdocuments.collect()
 
     output:
-    file "output/*.txt" into textoutput
+    file "outputdir/*.txt" into textoutput
 
     """
     mkdir outputdir
