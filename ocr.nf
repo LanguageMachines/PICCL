@@ -40,7 +40,7 @@ if (params.inputtype == "pdfimages") {
     pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
 
     process pdfimages {
-        //Extracted images from PDF
+        //Extract images from PDF
         input:
         file pdfdocument from pdfdocuments
 
@@ -54,6 +54,7 @@ if (params.inputtype == "pdfimages") {
     }
 
 
+    //Convert (documentname, [imagefiles]) channel to [(documentname, imagefile)]
     pdfimages
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
@@ -71,9 +72,6 @@ if (params.inputtype == "pdfimages") {
             def documentname = filename.tokenize('-')[0..-2].join('-') ? filename.find('-') != null : filename
             [ documentname, filename ]
         }
-        .collect { documentname, imagefiles -> [[documentname],imagesfiles].combinations() }
-        .flatten()
-        .collate(2)
         .into { pageimages }
 
 } else if (params.inputtype == "pdftext") {
