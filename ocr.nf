@@ -10,43 +10,83 @@ log.info "OCR Pipeline"
 log.info "--------------------------"
 
 params.virtualenv = ""
-params.language = "nld"
 params.outputdir = "folia_ocr_output"
+params.inputtype = "pdfimages"
 
-if (params.containsKey('help') || !params.containsKey('inputdir')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
     log.info "Usage:"
-    log.info "  ocr.nf --inputdir DIRECTORY [OPTIONS]"
+    log.info "  ocr.nf [PARAMETERS]"
     log.info ""
-    log.info "Options:"
+    log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory"
-    log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
-    log.info "  --language LANGUAGE      Language"
+    log.info "  --language LANGUAGE      Language (iso-639-3)"
+    log.info ""
+    log.info "Optional parameters:"
+    log.info "  --inputtype STR          Specify input type, the following are supported:"
+    log.info "          pdfimages (extension *.pdf)  - Scanned PDF documents (image content) [default]"
+    log.info "          pdftext (extension *.pdf)    - PDF documents with a proper text layer [not implemented yet]"
+    log.info "          tif (\$document-\$sequencenumber.tif)  - Images per page (adhere to the naming convention!)"
+    log.info "          jpg (\$document-\$sequencenumber.jpg)  - Images per page"
+    log.info "          png (\$document-\$sequencenumber.png)  - Images per page"
+    log.info "          gif (\$document-\$sequencenumber.gif)  - Images per page"
+    log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents) [default: " + params.outputdir + "]"
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     exit 2
 }
 
 
-pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
+if (params.inputtype == "pdfimages") {
 
-process pdfimages {
-    //Extracted images from PDF
-    input:
-    file pdfdocument from pdfdocuments
+    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
 
-    output:
-    set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.tif") into pdfimages
+    process pdfimages {
+        //Extracted images from PDF
+        input:
+        file pdfdocument from pdfdocuments
 
-    script:
-    """
-    pdfimages  -tiff -p ${pdfdocument} ${pdfdocument.baseName}
-    """
+        output:
+        set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.tif") into pdfimages
+
+        script:
+        """
+        pdfimages  -tiff -p ${pdfdocument} ${pdfdocument.baseName}
+        """
+    }
+
+
+    pdfimages
+        .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
+        .flatten()
+        .collate(2)
+        .into { pageimages }
+
+} else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
+
+    //input is a set of images: $documentname-$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variery of formats
+    //we group and transform the data into a pageimages channel, structure will be: [documentname, [images]]
+
+   Channel
+        .frompath(params.inputdir+"/**." + params.inputtype)
+        .collect { filename ->
+            def documentname = filename.tokenize('-')[0..-2].join('-') ? filename.find('-') != null : filename
+            [ documentname, filename ]
+        }
+        .collect { documentname, imagefiles -> [[documentname],imagesfiles].combinations() }
+        .flatten()
+        .collate(2)
+        .into { pageimages }
+
+} else if (params.inputtype == "pdftext") {
+
+    log.error "pdftext inputtype is not implemented yet"
+    exit 2
+
+} else {
+
+    log.error "No such input type: " + params.inputtype
+    exit 2
+
 }
-
-pdfimages
-    .collect { documentname, images -> [[documentname],images].combinations() }
-    .flatten()
-    .collate(2)
-    .into { pageimages }
 
 process tesseract {
     //Do the actual OCR using Tesseract: outputs a hOCR document for each input page image
