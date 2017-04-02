@@ -6,7 +6,7 @@ vim: syntax=groovy
 */
 
 log.info "----------------------------------"
-log.info "Tokenisation Pipeline using ucto"
+log.info "Frog pipeline
 log.info "----------------------------------"
 
 def env = System.getenv()
@@ -15,17 +15,17 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 
 params.extension = "txt"
 params.inputformat = "text"
-params.outputdir = "folia_tokenized_output"
+params.outputdir = "folia_frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
+params.skip = ""
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
+if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "Usage:"
-    log.info "  tokenize.nf"
+    log.info "  frog.nf"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Path to the corpus directory"
-    log.info "  --language STR           The language to tokenise for (eng,nld,spa,por,ita,fra,deu,tur,rus,generic)"
     log.info ""
     log.info "Optional parameters:"
     log.info "  --extension EXTENSION    Extension of input documents (default: txt, suggestion: folia.xml)"
@@ -34,6 +34,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --sentenceperline        Indicates that the input (plain text only) is already in a one sentence per line format, skips sentence detection (default: false)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --inputclass CLASS       Set the FoLiA text class to use as input (default: current)"
+    log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
     exit 2
 }
 
@@ -44,41 +45,16 @@ if ((params.extension.find('xml') != null)  || (params.extension.find('folia') !
 inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension)
 
 if (params.inputformat == "folia") {
-    process tokenize_folia2folia {
+    process frog_folia2folia {
         publishDir params.outputdir, mode: 'copy', overwrite: true
 
         input:
         file inputdocument from inputdocuments
-        val language from params.language
-        val inputclass from params.inputclass
+		val skip from params.skip
+		val inputclass from params.inputclass
 
         output:
-        file "${inputdocument.baseName}.tok.folia.xml" into tokoutput
-
-        script:
-        """
-        set +u
-        if [ ! -z "${virtualenv}" ]; then
-            source ${virtualenv}/bin/activate
-        fi
-        set -u
-
-        ID="${inputdocument.baseName}"
-        ucto -L ${language} -X --id \$ID --inputclass ${inputclass} -F ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
-        """
-    }
-} else {
-    //assume text
-    process tokenize_text2folia {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
-
-        input:
-        file inputdocument from inputdocuments
-        val language from params.language
-        val sentenceperline from params.sentenceperline
-
-        output:
-        file "${inputdocument.baseName}.tok.folia.xml" into tokoutput
+        file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
 
         script:
         """
@@ -92,9 +68,41 @@ if (params.inputformat == "folia") {
         if [ \$sentenceperline -eq 1 ]; then
             opts="\$opts -n"
         fi
+        if [ ! -z "$skip" ]; then
+			skip="--skip=${skip}"
+		fi
 
-        ID="${inputdocument.baseName}"
-        ucto -L ${language} \$opts -X --id \$ID ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
+        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --textclass ${inputclass} --id ${inputdocument.baseName} -x ${inputdocument}
+        """
+} else {
+    //assume text
+    process frog_text2folia {
+        publishDir params.outputdir, mode: 'copy', overwrite: true
+
+        input:
+        file inputdocument from inputdocuments
+        val sentenceperline from params.sentenceperline
+		val skip from params.skip
+
+        output:
+        file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        opts=""
+        if [ \$sentenceperline -eq 1 ]; then
+            opts="\$opts -n"
+        fi
+        if [ ! -z "$skip" ]; then
+			skip="--skip=${skip}"
+		fi
+        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --id ${inputdocument.baseName} -t ${inputdocument}
         """
     }
 }
