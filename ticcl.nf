@@ -41,6 +41,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
     log.info "  --threads INT            Number of cores to use for multi-threaded tasks (defaults to --cores)"
+    log.info "  --corpusfreqlist FILE    Corpus frequency list"
     exit 2
 }
 
@@ -54,27 +55,35 @@ charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusio
 folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).ifEmpty("No input documents found")
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
-process corpusfrequency {
-    //Process corpus into frequency file for TICCL
-    input:
-    file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
-    val virtualenv from params.virtualenv
-    val inputclass from params.inputclass
-    val threads from params.threads
+if (params.containsKey('corpusfreqlist') {
+    //corpus frequency list explicitly provided
+    corpusfreqlist = Channel.fromPath(params.corpusfreqlist)
+} else {
 
-    output:
-    file "corpus.wordfreqlist.tsv" into corpusfreqlist
+    process corpusfrequency {
+        publishDir params.outputdir, mode: 'copy', overwrite: true
 
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
+        //Process corpus into frequency file for TICCL
+        input:
+        file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
+        val virtualenv from params.virtualenv
+        val inputclass from params.inputclass
+        val threads from params.threads
 
-    FoLiA-stats --class "$inputclass" -s -t $threads -e folia.xml --lang=none --ngram 1 -o corpus .
-    """
+        output:
+        file "corpus.wordfreqlist.tsv" into corpusfreqlist
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        FoLiA-stats --class "$inputclass" -s -t $threads -e folia.xml --lang=none --ngram 1 -o corpus .
+        """
+    }
 }
 
 process ticclunk {
