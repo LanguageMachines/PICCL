@@ -8,11 +8,15 @@ variants etc).
 PICCL and TICCL constitute original research by Martin Reynaert (Tilburg University & Radboud University Nijmegen), and
 is currently developed in the scope of the [CLARIAH](https://www.clariah.nl) project.
 
-This repository hosts the relevant workflows that constitute PICCL, powered by [Nextflow](https://www.nextflow.io).
-These will be shipped as part of our [LaMachine](https://proycon.github.io/LaMachine) software distribution. The
-combination of these enable the PICCL workflow to be portable and scalable; it can be executed accross multiple
-computing nodes on a high performance cluster such as SGE, LSF, SLURM, PBS, HTCondor, Kubernetes and Amazon AWS. Consult
-the [Nextflow documentation](https://www.nextflow.io/docs/latest/index.html) for details regarding this.
+This repository hosts the relevant workflows that constitute PICCL, powered by
+[Nextflow](https://www.nextflow.io).  These will be shipped as part of our
+[LaMachine](https://proycon.github.io/LaMachine) software distribution. The
+combination of these enable the PICCL workflow to be portable and scalable; it
+can be executed accross multiple computing nodes on a high performance cluster
+such as SGE, LSF, SLURM, PBS, HTCondor, Kubernetes and Amazon AWS.
+Parallellisation is handled automatically. Consult the [Nextflow
+documentation](https://www.nextflow.io/docs/latest/index.html) for details
+regarding this.
 
 All the modules that make up TICCL are part of the [TicclTools](https://github.com/LanguageMachines/ticcltools)
 collection, and are not part of the current repository. Certain other required components are in the
@@ -52,11 +56,14 @@ next section. In addition, you can also download example corpora (>300MB), which
 
 ## Command line interface
 
-PICCL comes with the following complementary workflows:
+PICCL comes with the following workflows, most of them complement one or more others:
 
  * ``ocr.nf``   - A pipeline for Optical Character Recognition using [Tesseract](https://github.com/tesseract-ocr/tesseract); takes PDF documents or images of scanned pages and produces [FoLiA](https://proycon.github.io/folia) documents.
  * ``ticcl.nf`` - The Text-induced Corpus Clean-up system: performs OCR-postcorrection, takes as input the result from
    ``ocr.nf`` and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
+ * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
+ * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
+ * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
 
 The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/LaMachine`` parameter if you
 are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage

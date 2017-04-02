@@ -15,19 +15,19 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outreport = "./foliavalidation.report"
 params.outsummary = "./foliavalidation.summary"
 
-if (params.containsKey('help') || !params.containsKey('dir')) {
+if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "Usage:"
-    log.info "  foliavalidator.nf --dir DIRECTORY [OPTIONS]"
+    log.info "  foliavalidator.nf --inputdir DIRECTORY [OPTIONS]"
     log.info ""
     log.info "Options:"
-    log.info "  --dir DIRECTORY          Path to the corpus direction"
+    log.info "  --inputdir DIRECTORY     Path to the corpus directory"
     log.info "  --extension EXTENSION    Extension of FoLiA documents (default: folia.xml)"
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     exit 2
 }
 
 
-documents = Channel.fromPath(params.dir + "/**." + params.extension)
+documents = Channel.fromPath(params.inputdir + "/**." + params.extension)
 
 validationresults = Channel.create()
 report = Channel.create()

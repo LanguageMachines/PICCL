@@ -271,5 +271,5 @@ process foliacorrect {
     """
 }
 
-folia_ticcl_documents.subscribe { println it }
+folia_ticcl_documents.subscribe { println "TICCL output document written to " +  params.outputdir + "/" + it.name }
 

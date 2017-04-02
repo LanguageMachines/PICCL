@@ -163,4 +163,5 @@ process foliacat {
     """
 }
 
-foliaoutput.subscribe { println it }
+
+foliaoutput.subscribe { println "OCR output document written to " +  params.outputdir + "/" + it.name }
