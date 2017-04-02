@@ -8,9 +8,10 @@ vim: syntax=groovy
 log.info "--------------------------"
 log.info "FoLiA Validator Pipeline"
 log.info "--------------------------"
+def env = System.getenv()
 
 params.extension = "folia.xml"
-params.virtualenv = ""
+params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outreport = "./foliavalidation.report"
 params.outsummary = "./foliavalidation.summary"
 

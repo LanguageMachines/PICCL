@@ -9,7 +9,9 @@ log.info "--------------------------"
 log.info "OCR Pipeline"
 log.info "--------------------------"
 
-params.virtualenv = ""
+def env = System.getenv()
+
+params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outputdir = "folia_ocr_output"
 params.inputtype = "pdfimages"
 
@@ -69,7 +71,7 @@ if (params.inputtype == "pdfimages") {
    Channel
         .frompath(params.inputdir+"/**." + params.inputtype)
         .collect { filename ->
-            def documentname = filename.tokenize('-')[0..-2].join('-') ? filename.find('-') != null : filename
+            def documentname = filename.find('-') != null ? filename.tokenize('-')[0..-2].join('-') : filename
             [ documentname, filename ]
         }
         .into { pageimages }

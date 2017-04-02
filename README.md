@@ -18,7 +18,7 @@ The modules that make up TICCL are part of the [TicclTools](https://github.com/L
 
 ## Installation
 
-PICCL is shipped as a part of [LaMachine](https://proycon.github.io/LaMachine). Inside LaMachine, the command line interface is invoked as follows:
+PICCL is already shipped as a part of [LaMachine](https://proycon.github.io/LaMachine). Inside LaMachine, the command line interface is invoked as follows:
 
     $ nextflow run LanguageMachines/PICCL
 
@@ -33,10 +33,12 @@ Subsequently ensure to always run it with the ``-with-docker proycon/LaMachine``
 
 We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input TICCL and have to be downloaded once as follows;
 
-    $ nextflow run LanguageMachines/PICCL/download-data.sh
+    $ nextflow run LanguageMachines/PICCL/download-data.nf
 
 This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
-next section.
+next section. In addition, you can also download example corporai(>300MB), which will be placed in a ``corpora/`` directory:
+
+    $ nextflow run LanguageMachines/PICCL/download-examples.nf
 
 # Usage
 
@@ -47,11 +49,15 @@ PICCL comes with the following complementary workflows:
    ``ocr.nf`` and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
 
 The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/LaMachine`` parameter if you
-are not already in LaMachine):
+are not already in LaMachine), running with the ``--help`` parameter or absence of any parameters will output usage
+information.
 
     $ nextflow run LanguageMachines/PICCL/ocr.nf
 
 
+
+This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
+next section.
 
 
 

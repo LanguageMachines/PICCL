@@ -9,7 +9,9 @@ log.info "--------------------------"
 log.info "TICCL Pipeline"
 log.info "--------------------------"
 
-params.virtualenv = ""
+def env = System.getenv()
+
+params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.language = "nld"
 params.extension = "folia.xml"
 params.outputdir = "folia_ticcl_output"
