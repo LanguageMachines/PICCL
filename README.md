@@ -31,6 +31,13 @@ Subsequently ensure to always run it with the ``-with-docker proycon/LaMachine``
 
     $ nextflow run LanguageMachines/PICCL -with-docker proycon/LaMachine
 
+We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input TICCL and have to be downloaded once as follows;
+
+    $ nextflow run LanguageMachines/PICCL/download-data.sh
+
+This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
+next section.
+
 # Usage
 
 PICCL comes with the following complementary workflows:
@@ -43,6 +50,7 @@ The workflows can be explicitly invoked through NextFlow as follows (add the ``-
 are not already in LaMachine):
 
     $ nextflow run LanguageMachines/PICCL/ocr.nf
+
 
 
 
