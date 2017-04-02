@@ -17,6 +17,7 @@ params.extension = "txt"
 params.inputformat = "text"
 params.outputdir = "folia_tokenized_output"
 params.sentenceperline = false
+params.inputclass = "current"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
     log.info "Usage:"
@@ -32,6 +33,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     log.info "  --sentenceperline        Indicates that the input (plain text only) is already in a one sentence per line format, skips sentence detection (default: false)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
+    log.info "  --inputclass CLASS       Set the FoLiA text class to use as input (default: current)"
     exit 2
 }
 
@@ -48,6 +50,7 @@ if (params.inputformat == "folia") {
         input:
         file inputdocument from inputdocuments
         val language from params.language
+        val inputclass from params.inputclass
 
         output:
         file "${inputdocument.baseName}.tok.folia.xml" into tokoutput
@@ -61,7 +64,7 @@ if (params.inputformat == "folia") {
         set -u
 
         ID="${inputdocument.baseName}"
-        ucto -L ${language} -X --id \$ID -F ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
+        ucto -L ${language} -X --id \$ID --inputclass ${inputclass} -F ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
         """
     }
 } else {
