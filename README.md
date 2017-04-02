@@ -62,21 +62,31 @@ The workflows can be explicitly invoked through NextFlow as follows (add the ``-
 are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage
 information.
 
-    $ nextflow run LanguageMachines/PICCL/ocr.nf
+    $ nextflow run LanguageMachines/PICCL/ocr.nf --help
+    $ nextflow run LanguageMachines/PICCL/ticcl.nf --help
 
 An example of an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
-directory. It OCRs the ``OllevierGeets.pdf`` file:
+directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image data, therefore we choose the
+``pdfimages`` input type.
 
-    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng
+    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --inputtype pdfimages --language eng
 
-The result will be a file ``OllevierGeets.folia.xml`` in the ``folia_ocr_output/`` directory. This in turn can serve as
+Alternative input types are images per page, in which case ``inputtype`` is set to either ``tif``, ``jpg``, ``gif`` or ``png``. These input files should be placed in the designated input directory and follow the naming convention
+``$documentname-$sequencenumber.$extension``, for example ``harrypotter-032.png``. An example invocation on dutch
+scanned pages in the example collection would be:
+
+    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld
+
+In case of the first example the result will be a file ``OllevierGeets.folia.xml`` in the ``folia_ocr_output/`` directory. This in turn can serve as
 input for the TICCL workflow, which will attempt to correct OCR errors:
 
     $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
 
 Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
 ``download-data.nf``. Result will be file ``OllevierGeets.folia.ticcl.xml`` in the ``folia_ticcl_output/`` directory,
-containing enriched corrections.
+containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
+
+    $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion
 
 
 ## Webapplication / RESTful webservice

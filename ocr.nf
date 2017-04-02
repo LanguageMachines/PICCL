@@ -39,7 +39,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 
 if (params.inputtype == "pdfimages") {
 
-    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
+    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
 
     process pdfimages {
         //Extract images from PDF
@@ -66,15 +66,17 @@ if (params.inputtype == "pdfimages") {
 } else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
 
     //input is a set of images: $documentname-$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variery of formats
-    //we group and transform the data into a pageimages channel, structure will be: [documentname, [images]]
+    //we group and transform the data into a pageimages channel, structure will be: [(documentname, pagefile)
+
 
    Channel
-        .frompath(params.inputdir+"/**." + params.inputtype)
-        .collect { filename ->
-            def documentname = filename.find('-') != null ? filename.tokenize('-')[0..-2].join('-') : filename
-            [ documentname, filename ]
+        .fromPath(params.inputdir+"/**." + params.inputtype)
+        .map { pagefile ->
+            def documentname = pagefile.baseName.find('-') != null ? pagefile.baseName.tokenize('-')[0..-2].join('-') : pagefile.baseName
+            [ documentname, pagefile ]
         }
         .into { pageimages }
+
 
 } else if (params.inputtype == "pdftext") {
 
@@ -87,6 +89,7 @@ if (params.inputtype == "pdfimages") {
     exit 2
 
 }
+
 
 process tesseract {
     //Do the actual OCR using Tesseract: outputs a hOCR document for each input page image
@@ -112,7 +115,7 @@ process ocrpages_to_foliapages {
     val virtualenv from params.virtualenv
 
     output:
-    set val(documentname), file("${pagehocr.baseName}" + ".tif.folia.xml") into foliapages
+    set val(documentname), file("${pagehocr.baseName}" + ".tif.folia.xml") into foliapages //TODO: verify this also works if input is not TIF or PDF?
 
     script:
     """
