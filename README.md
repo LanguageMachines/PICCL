@@ -8,11 +8,19 @@ variants etc).
 PICCL and TICCL constitute original research by Martin Reynaert (Tilburg University & Radboud University Nijmegen), and
 is currently developed in the scope of the [CLARIAH](https://www.clariah.nl) project.
 
-This repository hosts the relevant workflows that constitute PICCL, powered by
-[Nextflow](https://www.nextflow.io). These will be shipped as part of our
-[LaMachine](https://proycon.github.io/LaMachine) software distribution.
+This repository hosts the relevant workflows that constitute PICCL, powered by [Nextflow](https://www.nextflow.io).
+These will be shipped as part of our [LaMachine](https://proycon.github.io/LaMachine) software distribution. The
+combination of these enable the PICCL workflow to be portable and scalable; it can be executed accross multiple
+computing nodes on a high performance cluster such as SGE, LSF, SLURM, PBS, HTCondor, Kubernetes and Amazon AWS. Consult
+the [Nextflow documentation](https://www.nextflow.io/docs/latest/index.html) for details regarding this.
 
-The modules that make up TICCL are part of the [TicclTools](https://github.com/LanguageMachines/ticcltools) collection.
+All the modules that make up TICCL are part of the [TicclTools](https://github.com/LanguageMachines/ticcltools)
+collection, and are not part of the current repository. Certain other required components are in the
+[FoLiA-Utils](https://github.com/LanguageMachines/foliautils) collection. There is no need to install either of these or
+other dependencies manually.
+
+PICCL makes extensive use of the [FoLiA](https://proycon.github.io/folia) format, a rich XML-based format for linguistic
+annotation.
 
 **Important Note**: This is a new experimental version in early stages of development; for the old version consult [this repository](https://github.com/martinreynaert/TICCL). Integration in LaMachine is not released yet at this stage.
 
@@ -62,7 +70,7 @@ directory. It OCRs the ``OllevierGeets.pdf`` file:
     $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng
 
 The result will be a file ``OllevierGeets.folia.xml`` in the ``folia_ocr_output/`` directory. This in turn can serve as
-input for the ticcl workflow:
+input for the TICCL workflow, which will attempt to correct OCR errors:
 
     $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
 
