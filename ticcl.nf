@@ -41,7 +41,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
     log.info "  --threads INT            Number of cores to use for multi-threaded tasks (defaults to --cores)"
-    log.info "  --corpusfreqlist FILE    Corpus frequency list"
+    log.info "  --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)"
     exit 2
 }
 
