@@ -36,7 +36,7 @@ We have prepared PICCL for work in many languages, mainly on the basis of availa
     $ nextflow run LanguageMachines/PICCL/download-data.nf
 
 This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
-next section. In addition, you can also download example corporai(>300MB), which will be placed in a ``corpora/`` directory:
+next section. In addition, you can also download example corpora (>300MB), which will be placed in a ``corpora/`` directory:
 
     $ nextflow run LanguageMachines/PICCL/download-examples.nf
 
@@ -49,15 +49,31 @@ PICCL comes with the following complementary workflows:
    ``ocr.nf`` and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
 
 The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/LaMachine`` parameter if you
-are not already in LaMachine), running with the ``--help`` parameter or absence of any parameters will output usage
+are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage
 information.
 
     $ nextflow run LanguageMachines/PICCL/ocr.nf
 
+An example of an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
+directory. It OCRs the ``OllevierGeets.pdf`` file:
+
+    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng
+
+The result will be a file ``OllevierGeets.folia.xml`` in the ``folia_ocr_output/`` directory. This in turn can serve as
+input for the ticcl workflow:
+
+    $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
+
+Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
+``download-data.nf``. Result will be file ``OllevierGeets.folia.ticcl.xml`` in the ``folia_ticcl_output/`` directory,
+containing enriched corrections.
 
 
-This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
-next section.
+
+
+
+
+
 
 
 

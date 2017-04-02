@@ -57,11 +57,10 @@ charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusio
 folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).ifEmpty("No input documents found")
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
-if (params.containsKey('corpusfreqlist') {
+if (params.containsKey('corpusfreqlist')) {
     //corpus frequency list explicitly provided
     corpusfreqlist = Channel.fromPath(params.corpusfreqlist)
 } else {
-
     process corpusfrequency {
         publishDir params.outputdir, mode: 'copy', overwrite: true
 
