@@ -42,6 +42,8 @@ next section. In addition, you can also download example corpora (>300MB), which
 
 # Usage
 
+## Command line interface
+
 PICCL comes with the following complementary workflows:
 
  * ``ocr.nf``   - A pipeline for Optical Character Recognition using [Tesseract](https://github.com/tesseract-ocr/tesseract); takes PDF documents or images of scanned pages and produces [FoLiA](https://proycon.github.io/folia) documents.
@@ -69,6 +71,10 @@ Note that here we pass a language-specific lexicon file, alphabet file, and char
 containing enriched corrections.
 
 
+## Webapplication / RESTful webservice
+
+PICCL will also become available as a webapplication and RESTful webservice soon, powered by
+[CLAM](https://proycon.github.io/clam).
 
 
 
