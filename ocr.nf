@@ -12,7 +12,7 @@ log.info "--------------------------"
 def env = System.getenv()
 
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
-params.outputdir = "folia_ocr_output"
+params.outputdir = "ocr_output"
 params.inputtype = "pdfimages"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
