@@ -7,4 +7,4 @@ install:
     - sudo apt-get -qq update
     - sudo apt-get -qq -y install docker.io
 script:
-	- bash test-with-docker.sh
+    - bash test-with-docker.sh
