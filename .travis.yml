@@ -5,7 +5,7 @@ jdk:
     - openjdk8
 install:
     - sudo apt-get -qq update
-    - sudo apt-get -qq -y install docker.io curl
+    - sudo apt-get -qq -y install curl
     - curl -fsSL get.nextflow.io | bash
 script:
     - bash test-with-docker.sh
