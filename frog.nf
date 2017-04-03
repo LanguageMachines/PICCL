@@ -102,6 +102,7 @@ if (params.inputformat == "folia") {
         if [ ! -z "$skip" ]; then
 			skip="--skip=${skip}"
 		fi
+
         frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --id ${inputdocument.baseName} -t ${inputdocument}
         """
     }

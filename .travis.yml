@@ -1,0 +1,10 @@
+language: groovy
+dist: trusty
+sudo: true
+jdk:
+    - openjdk8
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get -qq -y install docker.io
+script:
+	- bash test-with.docker.sh
