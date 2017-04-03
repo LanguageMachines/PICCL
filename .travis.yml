@@ -9,4 +9,4 @@ install:
     - curl -fsSL get.nextflow.io | bash
     - docker pull proycon/lamachine
 script:
-    - bash test-with-docker.sh
+    - bash test.sh
