@@ -39,9 +39,9 @@ following to obtain PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
 
-Subsequently ensure to always run it with the ``-with-docker proycon/LaMachine`` parameter:
+Subsequently ensure to always run it with the ``-with-docker proycon/lamachine`` parameter:
 
-    $ nextflow run LanguageMachines/PICCL -with-docker proycon/LaMachine
+    $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine
 
 We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input TICCL and have to be downloaded once as follows;
 
@@ -65,7 +65,7 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
 
-The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/LaMachine`` parameter if you
+The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/lamachine`` parameter if you
 are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage
 information.
 
