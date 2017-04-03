@@ -23,6 +23,6 @@ process download {
     rm -Rf corpora
     rm corpora.tar.gz
     #adhere to naming convention
-    for i in `seq 0 9`; do mv corpora/TIFF/NLD/dpo_35_030${i}_master.tif corpora/TIFF/NLD/dpo_35-030${i}.tif; done
+    for i in `seq 0 9`; do mv corpora/TIFF/NLD/dpo_35_030\${i}_master.tif corpora/TIFF/NLD/dpo_35-030\${i}.tif; done
     """
 }
