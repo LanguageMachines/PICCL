@@ -86,6 +86,7 @@ if (params.containsKey('corpusfreqlist')) {
 
 process ticclunk {
     //Filter a wordfrequency list
+    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
     file corpusfreqlist from corpusfreqlist //corpus frequency list in FoLiA-stats format
@@ -117,6 +118,7 @@ process anahash {
     /*
         Read a clean wordfrequency list , and hash all items.
     */
+    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
     file corpusfreqlist from corpusfreqlist_clean_foranahash
@@ -148,6 +150,7 @@ charconfuslist.into { charconfuslist_forindexer; charconfuslist_forrank }
 
 process indexer {
     //Computes an index from anagram hashes to
+    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
     file corpusfreqlist from corpusfreqlist_clean_forindexer //only used for naming purposes, not real input
@@ -174,6 +177,7 @@ process indexer {
 
 process resolver {
     //Resolves numerical confusions back to word form confusions using TICCL-LDcalc
+    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
     file index from index
@@ -202,6 +206,7 @@ alphabet_forrank = Channel.fromPath(params.alphabet)
 
 process rank {
     //Rank output
+    publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
     file wordconfusionlist from wordconfusionlist
