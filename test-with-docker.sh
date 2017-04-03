@@ -23,6 +23,6 @@ rm -Rf folia_ocr_output folia_ticcl_output
 echo "Second batch: OCR">&2
 nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld -with-docker proycon/lamachine || exit 2
 echo "Second batch: TICCL">&2
-nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion -with-docker proycon/lamachine || exit 2
+nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir folia_ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion -with-docker proycon/lamachine || exit 2
 
 ls folia_ticcl_output/*xml || exit 2
