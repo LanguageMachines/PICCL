@@ -242,7 +242,7 @@ process foliacorrect {
     val virtualenv from params.virtualenv
 
     output:
-    file "*.folia.ticcl.xml" into folia_ticcl_documents //pending https://github.com/LanguageMachines/ticcltools/issues/3
+    file "*.ticcl.folia.xml" into folia_ticcl_documents
 
     script:
     """
