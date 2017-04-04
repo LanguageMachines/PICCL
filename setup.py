@@ -20,7 +20,7 @@ setup(
     keywords = "rest nlp computational_linguistics rest",
     url = "https://github.com/LanguageMachines/PICCL",
     packages=['picclservice'],
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",

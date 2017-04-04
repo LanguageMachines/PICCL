@@ -53,15 +53,15 @@ SYSTEM_DESCRIPTION = "PICCL"
 
 host = os.uname()[1]
 if 'VIRTUAL_ENV' in os.environ:
-    ROOT = "/tmp/piccl.clam.projects/"
 
     HOST = host
     PORT = 8080
 
     PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccl') #Path that holds the data/ and corpora/ dirs
     if not os.path.exists(PICCLDATAROOT):
-        raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf")
-    URLPREFIX = '/piccl/'
+        raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
+
+    ROOT = PICCLDATAROOT + "/projects/"
 else:
     raise Exception("I don't know where I'm running from! Add a section in the configuration corresponding to this host (" + os.uname()[1]+")")
 
@@ -122,6 +122,7 @@ STYLE = 'classic'
 
 #Here you can specify additional interface options (space separated list), see the documentation for all allowed options
 #INTERFACEOPTIONS = "inputfromweb" #allow CLAM to download its input from a user-specified url
+INTERFACEOPTIONS = "disableliveinput"
 
 # ======== PREINSTALLED DATA ===========
 
@@ -138,10 +139,16 @@ LANGUAGECHOICES = [('eng','English'),('nld','Dutch'),('fin','Finnish'),('fra','F
 
 INPUTSOURCES = []
 if os.path.exists(PICCLDATAROOT + "/corpora/TIFF/NLD"):
-    INPUTSOURCES.append(InputSource(id='dutchimages', label="PhilosTEI Demonstrator data: Martinet DPO_35 Scanned page images (tif)",
+    INPUTSOURCES.append(InputSource(id='dutchtif', label="[Dutch] PhilosTEI Demonstrator data: Martinet DPO_35 Scanned page images (tif format)",
         path=PICCLDATAROOT + "/corpora/TIFF/NLD/",
         metadata=TiffImageFormat(None),
-        inputtemplate='image'
+        inputtemplate='tif'
+    ))
+if os.path.exists(PICCLDATAROOT + "/corpora/PDF/ENG"):
+    INPUTSOURCES.append(InputSource(id='englishpdf', label="[English] PhilosTEI Demonstrator data: Geets paper (PDF format)",
+        path=PICCLDATAROOT + "/corpora/PDF/ENG/",
+        metadata=PDFFormat(None),
+        inputtemplate='pdfimages'
     ))
 
 PROFILES = [
@@ -160,7 +167,7 @@ PROFILES = [
     #),
 
     Profile(
-        InputTemplate('tif', TiffImageFormat, 'Image',
+        InputTemplate('tif', TiffImageFormat, 'TIF image of a scanned page',
            extension='tif',
            multi=True,
         ),
@@ -170,14 +177,14 @@ PROFILES = [
            unique=True,
         ),
         OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            extension='.ticcl.folia.xml', #pending
+            extension='ticcl.folia.xml', #pending
             multi=True,
         ),
     ),
 
     Profile(
-        InputTemplate('PDF', PDFFormat, 'PDF',
-           extension='.pdf',
+        InputTemplate('pdfimages', PDFFormat, 'PDF document containing scanned pages',
+           extension='pdf',
            multi=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Variant Output',
@@ -187,7 +194,7 @@ PROFILES = [
         ),
         OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
             removeextension='.pdf',
-            extension='.ticcl.folia.xml',
+            extension='ticcl.folia.xml',
             multi=True,
         ),
     ),

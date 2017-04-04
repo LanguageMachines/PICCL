@@ -15,6 +15,8 @@ from __future__ import print_function, unicode_literals, division, absolute_impo
 
 #import some general python modules:
 import sys
+import os
+import glob
 
 #import CLAM-specific modules. The CLAM API makes a lot of stuff easily accessible.
 import clam.common.data
@@ -60,11 +62,14 @@ if not os.path.exists(datadir):
 #loop over all data files and copy (symlink actually to save diskspace and time) to the current working directory (project dir)
 for f in glob.glob(datadir + '/*'):
     if f.split('.')[-1] == 'dict':
-        os.symlink('lexicon.lst', f)
+        if os.path.exists('lexicon.lst'): os.unlink('lexicon.lst') #remove any existing
+        os.symlink(f, 'lexicon.lst')
     if f.split('.')[-1] == 'chars':
-        os.symlink('alphabet.lst', f)
+        if os.path.exists('alphabet.lst'): os.unlink('alphabet.lst') #remove any existing
+        os.symlink(f, 'alphabet.lst')
     if f.split('.')[-1] == 'confusion':
-        os.symlink('confusion.lst', f)
+        if os.path.exists('confusion.lst'): os.unlink('confusion.lst') #remove any existing
+        os.symlink(f, 'confusion.lst')
 
 if not os.path.exists('lexicon.lst'):
     errmsg = "ERROR: Unable to find lexicon file for language '" + clamdata['lang'] + "' in path " + piccldataroot
@@ -88,7 +93,7 @@ inputtype = ''
 for inputfile in clamdata.input:
    inputtemplate = inputfile.metadata.inputtemplate
    if inputtemplate == 'pdfimages':
-       inputtype = 'pdfimages'
+        inputtype = 'pdfimages'
    elif inputtemplate == 'tif':
         inputtype == 'tif'
    elif inputtemplate == 'jpg':
@@ -106,15 +111,19 @@ if not inputtype:
 
 
 clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'" -with-trace') );
+os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" );
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
+print("OCR pipeline trace summary",file=sys.stderr)
+print("-------------------------------",file=sys.stderr)
 print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output --outputdir i" + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus charconfus.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace"  );
+os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
+print("TICCL pipeline trace summary",file=sys.stderr)
+print("-------------------------------",file=sys.stderr)
 print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 
 #A nice status message to indicate we're done
