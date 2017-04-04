@@ -6,7 +6,7 @@ vim: syntax=groovy
 */
 
 log.info "----------------------------------"
-log.info "Frog pipeline
+log.info "Frog pipeline"
 log.info "----------------------------------"
 
 def env = System.getenv()
@@ -52,6 +52,7 @@ if (params.inputformat == "folia") {
         file inputdocument from inputdocuments
 		val skip from params.skip
 		val inputclass from params.inputclass
+        val virtualenv from params.virtualenv
 
         output:
         file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
@@ -74,6 +75,7 @@ if (params.inputformat == "folia") {
 
         frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --textclass ${inputclass} --id ${inputdocument.baseName} -x ${inputdocument}
         """
+    }
 } else {
     //assume text
     process frog_text2folia {
@@ -83,6 +85,7 @@ if (params.inputformat == "folia") {
         file inputdocument from inputdocuments
         val sentenceperline from params.sentenceperline
 		val skip from params.skip
+        val virtualenv from params.virtualenv
 
         output:
         file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
@@ -96,7 +99,7 @@ if (params.inputformat == "folia") {
         set -u
 
         opts=""
-        if [ \$sentenceperline -eq 1 ]; then
+        if [ $sentenceperline -eq 1 ]; then
             opts="\$opts -n"
         fi
         if [ ! -z "$skip" ]; then
