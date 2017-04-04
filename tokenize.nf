@@ -15,7 +15,7 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 
 params.extension = "txt"
 params.inputformat = "text"
-params.outputdir = "folia_tokenized_output"
+params.outputdir = "tokenized_output"
 params.sentenceperline = false
 params.inputclass = "current"
 
@@ -51,6 +51,7 @@ if (params.inputformat == "folia") {
         file inputdocument from inputdocuments
         val language from params.language
         val inputclass from params.inputclass
+        val virtualenv from params.virtualenv
 
         output:
         file "${inputdocument.baseName}.tok.folia.xml" into tokoutput
@@ -76,6 +77,7 @@ if (params.inputformat == "folia") {
         file inputdocument from inputdocuments
         val language from params.language
         val sentenceperline from params.sentenceperline
+        val virtualenv from params.virtualenv
 
         output:
         file "${inputdocument.baseName}.tok.folia.xml" into tokoutput

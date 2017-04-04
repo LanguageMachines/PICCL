@@ -15,7 +15,7 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 
 params.extension = "txt"
 params.inputformat = "text"
-params.outputdir = "folia_frog_output"
+params.outputdir = "frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
 params.skip = ""
