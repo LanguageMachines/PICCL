@@ -5,7 +5,7 @@ if [ "$USER" == "travis" ]; then
    export PATH="/home/travis/build/LanguageMachines/PICCL:$PATH"
 fi
 
-PICCL="nextflow run LanguageMachine/PICCL"
+PICCL="nextflow run LanguageMachines/PICCL"
 if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ]; then
     #we are in LaMachine, no need for docker
     WITHDOCKER=""
