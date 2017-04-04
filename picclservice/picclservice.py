@@ -260,11 +260,6 @@ PROFILES = [
 #
 COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT
 
-#Or for the shell variant:
-#COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.sh $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY $PARAMETERS"
-
-#Or if you only use the action paradigm, set COMMAND = None
-
 # ======== PARAMETER DEFINITIONS ===========
 
 #The global parameters (for the project paradigm) are subdivided into several
