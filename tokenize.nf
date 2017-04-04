@@ -91,7 +91,7 @@ if (params.inputformat == "folia") {
         set -u
 
         opts=""
-        if [ \$sentenceperline -eq 1 ]; then
+        if [ ${sentenceperline} -eq 1 ]; then
             opts="\$opts -n"
         fi
 
