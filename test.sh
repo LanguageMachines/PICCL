@@ -32,14 +32,22 @@ echo "======== Testing OCR (eng) with inputtype pdfimages ======">&2
 $PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdfimages $WITHDOCKER || exit 2
 echo "======== Testing TICCL (eng) =========">&2
 $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
-ls ticcl_output/*xml || exit 2
 
+ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
 echo "======== Testing OCR (nld) with inputtype tif ==========">&2
 $PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
 echo "======== Testing TICCL (nld) ============ ">&2
 $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
+
+ls ticcl_output/*xml || exit 2
+rm -Rf ocr_output ticcl_output
+
+echo "======== Testing OCR (eng) with inputtype djvu ======">&2
+$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
+echo "======== Testing TICCL (eng) =========">&2
+$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
 

@@ -96,18 +96,8 @@ if not os.path.exists('confusion.lst'):
 inputtype = ''
 for inputfile in clamdata.input:
    inputtemplate = inputfile.metadata.inputtemplate
-   if inputtemplate == 'pdfimages':
-        inputtype = 'pdfimages'
-   elif inputtemplate == 'tif':
-        inputtype == 'tif'
-   elif inputtemplate == 'jpg':
-        inputtype == 'jpg'
-   elif inputtemplate == 'png':
-        inputtype == 'png'
-   elif inputtemplate == 'gif':
-        inputtype == 'gif'
-   elif inputtemplate == 'foliaocr':
-        inputtype == 'foliaocr'
+   if inputtemplate in ('pdfimages', 'tif','jpg','png','gif','foliaocr','textocr'):
+        inputtype = inputtemplate
 
 if not inputtype:
     errmsg = "ERROR: Unable to deduce input type on the basis of input files (should not happen)!"
@@ -117,6 +107,9 @@ if not inputtype:
 
 if inputtype == 'foliaocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+elif inputtype == 'textocr':
+    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    ticcl_inputtype = "text"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
     os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ); #use original clamdata['lang'] (may be deu_frak)
@@ -126,9 +119,10 @@ else:
     print("-------------------------------",file=sys.stderr)
     print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
     ticclinputdir = "ocr_output"
+    ticcl_inputtype = "folia"
 
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
+os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
 print("TICCL pipeline trace summary",file=sys.stderr)

@@ -31,13 +31,39 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "          jpg (\$document-\$sequencenumber.jpg)  - Images per page"
     log.info "          png (\$document-\$sequencenumber.png)  - Images per page"
     log.info "          gif (\$document-\$sequencenumber.gif)  - Images per page"
+    log.info "          djvu (extension *.djvu)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents) [default: " + params.outputdir + "]"
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     exit 2
 }
 
 
-if (params.inputtype == "pdfimages") {
+if (params.inputtype == "djvu") {
+    djvudocuments = Channel.fromPath(params.inputdir+"/**.djvu").view { "Input document (djvu): " + it }
+
+    process djvu {
+       //Extract images from DJVU
+
+       input:
+       file djvudocument from djvudocuments
+
+       output:
+       set val("${djvudocument.baseName}"), file("${djvudocument.baseName}*.tif") into djvuimages
+
+       script:
+       """
+       ddjvu -format=tiff -eachpage ${djvudocument} ${djvudocument.baseName}-%d.tif
+       """
+    }
+
+    //Convert (documentname, [imagefiles]) channel to [(documentname, imagefile)]
+    djvuimages
+        .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
+        .flatten()
+        .collate(2)
+        .into { pageimages }
+
+} else if (params.inputtype == "pdfimages") {
 
     pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
 
@@ -110,12 +136,17 @@ process tesseract {
 process ocrpages_to_foliapages {
     //Convert Tesseract hOCR output to FoLiA
 
+    errorStrategy 'ignore' //not the most elegant solution, but sometimes 'empty' hocr files get fed that won't produce a folia file
+
     input:
     set val(documentname), file(pagehocr) from ocrpages
     val virtualenv from params.virtualenv
 
+    //when:
+    //pagehocr.text =~ /ocrx_word/
+
     output:
-    set val(documentname), file("${pagehocr.baseName}" + ".tif.folia.xml") into foliapages //TODO: verify this also works if input is not TIF or PDF?
+    set val(documentname), file("${pagehocr.baseName}" + "*.folia.xml") into foliapages //TODO: verify this also works if input is not TIF or PDF?
 
     script:
     """

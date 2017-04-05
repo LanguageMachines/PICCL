@@ -14,6 +14,7 @@ def env = System.getenv()
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.language = "nld"
 params.extension = "folia.xml"
+params.inputtype = "folia"
 params.outputdir = "ticcl_output"
 params.inputclass = "OCR"
 params.lexicon = ""
@@ -35,8 +36,9 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "Optional parameters:"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
-    log.info "  --extension STR          Extension of FoLiA document in input directory (default: folia.xml)"
+    log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)"
     log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well"
+    log.info "  --inputtype STR          Input type can be either 'folia' (default) or text"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
     log.info "  --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)"
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
@@ -51,8 +53,36 @@ alphabet = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 
 charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusion file not found")
 
+if (params.inputtype == "folia") {
+    folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
+} else if (params.inputtype == "text") {
+    textdocuments = Channel.fromPath(params.inputdir+"/**.txt")
 
-folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).ifEmpty("No input documents found")
+    process txt2folia {
+        input:
+        file textdocument from textdocuments
+        val virtualenv from params.virtualenv
+
+        output:
+        file "${textdocument.baseName}.folia.xml" into folia_ocr_documents
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        FoLiA-txt --class OCR -t 1 -O . ${textdocument}
+        """
+
+    }
+} else {
+    log.error "No such inputtype: " + params.inputtype
+    exit 2
+}
+
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
 if (params.containsKey('corpusfreqlist')) {

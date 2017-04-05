@@ -145,11 +145,21 @@ if os.path.exists(PICCLDATAROOT + "/corpora/TIFF/NLD"):
         inputtemplate='tif'
     ))
 if os.path.exists(PICCLDATAROOT + "/corpora/PDF/ENG"):
-    INPUTSOURCES.append(InputSource(id='englishpdf', label="[English] Demonstrator data: Geets paper (PDF format)",
+    INPUTSOURCES += [InputSource(id='englishpdf', label="[English] Demonstrator data: Geets paper (PDF format)",
         path=PICCLDATAROOT + "/corpora/PDF/ENG/",
         metadata=PDFFormat(None),
         inputtemplate='pdfimages'
-    ))
+    ),
+    InputSource(id='englishimageslarge', label="[English] Demonstrator data: Russell -- Western Philosophy (DJVU format)",
+        path=TICCLDIR + "corpora/DJVU/ENG/",
+        metadata=DjVuFormat(None),
+        inputtemplate='djvu'
+    ),
+    InputSource(id='englishtxt', label="[English] Demonstrator data: Russell -- Western Philosophy (Plain text format)",
+        path=TICCLDIR + "corpora/TXT/ENG/",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='textocr'
+    )]
 if os.path.exists(PICCLDATAROOT + "/corpora/FOLIA/DEU-FRAK"):
     INPUTSOURCES += [InputSource(id='germandata', label="[German Fraktur] Demonstrator data: Bolzano Gold Standard post-OCR FoLiA xml",
         path=PICCLDATAROOT + "/corpora/FOLIA/DEU-FRAK/",
@@ -218,6 +228,40 @@ PROFILES = [
     Profile(
         InputTemplate('pdfimages', PDFFormat, 'PDF document containing scanned pages',
            extension='pdf',
+           multi=True,
+        ),
+        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+           SetMetaField('encoding','utf-8'),
+           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
+           unique=True,
+        ),
+        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
+            removeextension='.pdf',
+            extension='ticcl.folia.xml',
+            multi=True,
+        ),
+    ),
+
+    Profile(
+        InputTemplate('djvu', PDFFormat, 'DJVU document containing scanned pages',
+           extension='djvu',
+           multi=True,
+        ),
+        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+           SetMetaField('encoding','utf-8'),
+           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
+           unique=True,
+        ),
+        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
+            removeextension='.pdf',
+            extension='ticcl.folia.xml',
+            multi=True,
+        ),
+    ),
+
+    Profile(
+        InputTemplate('textocr', PDFFormat, 'Post-OCR text document',
+           extension='txt',
            multi=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
