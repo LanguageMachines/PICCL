@@ -152,7 +152,7 @@ if os.path.exists(PICCLDATAROOT + "/corpora/PDF/ENG"):
     ))
 if os.path.exists(PICCLDATAROOT + "/corpora/FOLIA/DEU-FRAK"):
     INPUTSOURCES += [InputSource(id='germandata', label="[German Fraktur] Demonstrator data: Bolzano Gold Standard post-OCR FoLiA xml",
-        path=PICCLDATAROOT + "corpora/FOLIA/DEU-FRAK/",
+        path=PICCLDATAROOT + "/corpora/FOLIA/DEU-FRAK/",
         metadata=FoLiAXMLFormat(None, encoding='utf-8'),
         inputtemplate='foliaocr'
     ),
@@ -173,7 +173,7 @@ if os.path.exists(PICCLDATAROOT + "/corpora/PDF/FRA"):
         inputtemplate='pdfimages'
     )]
 if os.path.exists(PICCLDATAROOT + "/corpora/OCR"):
-    INPUTSOURCE += [InputSource(id='dutchnew', label="[Dutch] TEST data: VUDNC Kalliopi Selection",
+    INPUTSOURCES += [InputSource(id='dutchnew', label="[Dutch] TEST data: VUDNC Kalliopi Selection",
         path=PICCLDATAROOT + "/corpora/OCR/VUDNCtest/",
         metadata=FoLiAXMLFormat(None, encoding='utf-8'),
         inputtemplate='foliaocr'
