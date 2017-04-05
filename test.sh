@@ -44,12 +44,12 @@ $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
-echo "======== Testing OCR (eng) with inputtype djvu ======">&2
-$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
-echo "======== Testing TICCL (eng) =========">&2
-$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+#echo "======== Testing OCR (eng) with inputtype djvu ======">&2
+#$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
+#echo "======== Testing TICCL (eng) =========">&2
+#$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
-ls ticcl_output/*xml || exit 2
+#ls ticcl_output/*xml || exit 2
 
 if [ ! -d text_input ]; then
     mkdir text_input
