@@ -52,9 +52,12 @@ clam.common.status.write(statusfile, "Starting...")
 
 #=========================================================================================================================
 
-datadir = os.path.join(piccldataroot,'data','int',clamdata['lang'])
+lang = clamdata['lang']
+if lang == 'deu_frak': lang = 'deu' #Fraktur German is german for all other intents and purposes
+
+datadir = os.path.join(piccldataroot,'data','int',lang)
 if not os.path.exists(datadir):
-    errmsg = "ERROR: Unable to find data files for language '" + clamdata['lang'] + "' in path " + piccldataroot
+    errmsg = "ERROR: Unable to find data files for language '" + lang + "' in path " + piccldataroot
     clam.common.status.write(statusfile, errmsg,0) # status update
     print(errmsg,file=sys.stderr)
     sys.exit(4)
@@ -72,17 +75,17 @@ for f in glob.glob(datadir + '/*'):
         os.symlink(f, 'confusion.lst')
 
 if not os.path.exists('lexicon.lst'):
-    errmsg = "ERROR: Unable to find lexicon file for language '" + clamdata['lang'] + "' in path " + piccldataroot
+    errmsg = "ERROR: Unable to find lexicon file for language '" + lang + "' in path " + piccldataroot
     clam.common.status.write(statusfile, errmsg,0) # status update
     print(errmsg,file=sys.stderr)
     sys.exit(4)
 if not os.path.exists('alphabet.lst'):
-    errmsg = "ERROR: Unable to find alphabet file for language '" + clamdata['lang'] + "' in path " + piccldataroot
+    errmsg = "ERROR: Unable to find alphabet file for language '" + lang + "' in path " + piccldataroot
     clam.common.status.write(statusfile, errmsg,0) # status update
     print(errmsg,file=sys.stderr)
     sys.exit(4)
 if not os.path.exists('confusion.lst'):
-    errmsg = "ERROR: Unable to find confusion file for language '" + clamdata['lang'] + "' in path " + piccldataroot
+    errmsg = "ERROR: Unable to find confusion file for language '" + lang + "' in path " + piccldataroot
     clam.common.status.write(statusfile, errmsg,0) # status update
     print(errmsg,file=sys.stderr)
     sys.exit(4)
@@ -102,6 +105,8 @@ for inputfile in clamdata.input:
         inputtype == 'png'
    elif inputtemplate == 'gif':
         inputtype == 'gif'
+   elif inputtemplate == 'foliaocr':
+        inputtype == 'foliaocr'
 
 if not inputtype:
     errmsg = "ERROR: Unable to deduce input type on the basis of input files (should not happen)!"
@@ -109,17 +114,20 @@ if not inputtype:
     print(errmsg,file=sys.stderr)
     sys.exit(5)
 
+if inputtype == 'foliaocr':
+    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+else:
+    clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
+    os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ); #use original clamdata['lang'] (may be deu_frak)
 
-clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" );
-
-#Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
-print("OCR pipeline trace summary",file=sys.stderr)
-print("-------------------------------",file=sys.stderr)
-print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
+    print("OCR pipeline trace summary",file=sys.stderr)
+    print("-------------------------------",file=sys.stderr)
+    print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    ticclinputdir = "ocr_output"
 
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
+os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
 print("TICCL pipeline trace summary",file=sys.stderr)

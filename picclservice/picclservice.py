@@ -135,21 +135,54 @@ INTERFACEOPTIONS = "disableliveinput"
 #Define your profiles here. This is required for the project paradigm, but can be set to an empty list if you only use the action paradigm.
 
 
-LANGUAGECHOICES = [('eng','English'),('nld','Dutch'),('fin','Finnish'),('fra','French'),('deu','German'),('deu-frak','German Fraktur'),('ell','Greek (Modern)'),('grc','Greek (Classical)'),('isl','Icelandic'),('ita','Italian'),('lat','Latin'),('pol','Polish'),('por','Portuguese'),('rus','Russian'),('spa','Spanish'),('swe','Swedish')]
+LANGUAGECHOICES = [('eng','English'),('nld','Dutch'),('fin','Finnish'),('fra','French'),('deu','German'),('deu_frak','German Fraktur'),('ell','Greek (Modern)'),('grc','Greek (Classical)'),('isl','Icelandic'),('ita','Italian'),('lat','Latin'),('pol','Polish'),('por','Portuguese'),('rus','Russian'),('spa','Spanish'),('swe','Swedish')]
 
 INPUTSOURCES = []
 if os.path.exists(PICCLDATAROOT + "/corpora/TIFF/NLD"):
-    INPUTSOURCES.append(InputSource(id='dutchtif', label="[Dutch] PhilosTEI Demonstrator data: Martinet DPO_35 Scanned page images (tif format)",
+    INPUTSOURCES.append(InputSource(id='dutchtif', label="[Dutch] Demonstrator data: Martinet DPO_35 Scanned page images (tif format)",
         path=PICCLDATAROOT + "/corpora/TIFF/NLD/",
         metadata=TiffImageFormat(None),
         inputtemplate='tif'
     ))
 if os.path.exists(PICCLDATAROOT + "/corpora/PDF/ENG"):
-    INPUTSOURCES.append(InputSource(id='englishpdf', label="[English] PhilosTEI Demonstrator data: Geets paper (PDF format)",
+    INPUTSOURCES.append(InputSource(id='englishpdf', label="[English] Demonstrator data: Geets paper (PDF format)",
         path=PICCLDATAROOT + "/corpora/PDF/ENG/",
         metadata=PDFFormat(None),
         inputtemplate='pdfimages'
     ))
+if os.path.exists(PICCLDATAROOT + "/corpora/FOLIA/DEU-FRAK"):
+    INPUTSOURCES += [InputSource(id='germandata', label="[German Fraktur] Demonstrator data: Bolzano Gold Standard post-OCR FoLiA xml",
+        path=PICCLDATAROOT + "corpora/FOLIA/DEU-FRAK/",
+        metadata=FoLiAXMLFormat(None, encoding='utf-8'),
+        inputtemplate='foliaocr'
+    ),
+    InputSource(id='germanPDFbook', label="[German Fraktur] Demonstrator data: Bolzano Wissenschaftslehre PDF-images - full book",
+        path=PICCLDATAROOT + "/corpora/PDF/DEU-FRAK/BolzanoWLfull",
+        metadata=PDFFormat(None),
+        inputtemplate='pdfimages'
+    ),
+    InputSource(id='germanPDFdemo', label="[German Fraktur] Demonstrator data: Bolzano Wissenschaftslehre PDF-images - Vorrede only",
+        path=PICCLDATAROOT + "/corpora/PDF/DEU-FRAK/BolzanoWLdemo",
+        metadata=PDFFormat(None),
+        inputtemplate='pdfimages'
+    )]
+if os.path.exists(PICCLDATAROOT + "/corpora/PDF/FRA"):
+    INPUTSOURCES += [InputSource(id='frenchimagessmall', label="[French] Demonstrator data: Delpher dpo-7270 (PDF-images)",
+        path=PICCLDATAROOT + "/corpora/PDF/FRA/",
+        metadata=PDFFormat(None),
+        inputtemplate='pdfimages'
+    )]
+if os.path.exists(PICCLDATAROOT + "/corpora/OCR"):
+    INPUTSOURCE += [InputSource(id='dutchnew', label="[Dutch] TEST data: VUDNC Kalliopi Selection",
+        path=PICCLDATAROOT + "/corpora/OCR/VUDNCtest/",
+        metadata=FoLiAXMLFormat(None, encoding='utf-8'),
+        inputtemplate='foliaocr'
+    ),
+    InputSource(id='dutchold', label="[Dutch (old)] TEST data: DPO35 Kalliopi Selection",
+        path=PICCLDATAROOT + "/corpora/OCR/DPO35test/",
+        metadata=FoLiAXMLFormat(None, encoding='utf-8'),
+        inputtemplate='foliaocr'
+    )]
 
 PROFILES = [
 
@@ -185,6 +218,23 @@ PROFILES = [
     Profile(
         InputTemplate('pdfimages', PDFFormat, 'PDF document containing scanned pages',
            extension='pdf',
+           multi=True,
+        ),
+        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+           SetMetaField('encoding','utf-8'),
+           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
+           unique=True,
+        ),
+        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
+            removeextension='.pdf',
+            extension='ticcl.folia.xml',
+            multi=True,
+        ),
+    ),
+
+    Profile(
+        InputTemplate('foliaocr', FoLiAXMLFormat, 'FoLiA with OCR text layer',
+           extension='folia.xml',
            multi=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
