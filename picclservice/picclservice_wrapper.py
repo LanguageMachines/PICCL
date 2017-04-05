@@ -17,6 +17,7 @@ from __future__ import print_function, unicode_literals, division, absolute_impo
 import sys
 import os
 import glob
+import shutil
 
 #import CLAM-specific modules. The CLAM API makes a lot of stuff easily accessible.
 import clam.common.data
@@ -133,6 +134,10 @@ os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinpu
 print("TICCL pipeline trace summary",file=sys.stderr)
 print("-------------------------------",file=sys.stderr)
 print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+
+
+#cleanup
+shutil.rmtree('work')
 
 #A nice status message to indicate we're done
 clam.common.status.write(statusfile, "All done!",100) # status update
