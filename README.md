@@ -74,9 +74,50 @@ are not already in LaMachine, this applies to all examples in this section), run
 information.
 
     $ nextflow run LanguageMachines/PICCL/ocr.nf --help
-    $ nextflow run LanguageMachines/PICCL/ticcl.nf --help
+    --------------------------
+    OCR Pipeline
+    --------------------------
+    Usage:
+      ocr.nf [PARAMETERS]
 
-An example of an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
+    Mandatory parameters:
+      --inputdir DIRECTORY     Input directory
+      --language LANGUAGE      Language (iso-639-3)
+
+    Optional parameters:
+      --inputtype STR          Specify input type, the following are supported:
+              pdfimages (extension *.pdf)  - Scanned PDF documents (image content) [default]
+              pdftext (extension *.pdf)    - PDF documents with a proper text layer [not implemented yet]
+              tif ($document-$sequencenumber.tif)  - Images per page (adhere to the naming convention!)
+              jpg ($document-$sequencenumber.jpg)  - Images per page
+              png ($document-$sequencenumber.png)  - Images per page
+              gif ($document-$sequencenumber.gif)  - Images per page
+              djvu (extension *.djvu)
+      --outputdir DIRECTORY    Output directory (FoLiA documents) [default: ocr_output]
+      --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)
+
+
+    $ nextflow run LanguageMachines/PICCL/ticcl.nf --help
+    --------------------------
+    TICCL Pipeline
+    --------------------------
+    Usage:
+      ticcl.nf [OPTIONS]
+
+    Mandatory parameters:
+      --inputdir DIRECTORY     Input directory (FoLiA documents with an OCR text layer)
+      --lexicon FILE           Path to lexicon file (*.dict)
+      --alphabet FILE          Path to alphabet file (*.chars)
+      --charconfus FILE        Path to character confusion list (*.confusion)
+
+    Optional parameters:
+      --outputdir DIRECTORY    Output directory (FoLiA documents)
+      --language LANGUAGE      Language
+      --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)
+      --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well
+
+
+An example of invoking an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
 directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image data, therefore we choose the
 ``pdfimages`` input type.
 
@@ -94,7 +135,7 @@ input for the TICCL workflow, which will attempt to correct OCR errors:
     $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
 
 Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
-``download-data.nf``. Result will be file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
+``download-data.nf``. Result will be a file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
 containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
 
     $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion

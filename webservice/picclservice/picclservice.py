@@ -151,12 +151,12 @@ if os.path.exists(PICCLDATAROOT + "/corpora/PDF/ENG"):
         inputtemplate='pdfimages'
     ),
     InputSource(id='englishimageslarge', label="[English] Demonstrator data: Russell -- Western Philosophy (DJVU format)",
-        path=TICCLDIR + "corpora/DJVU/ENG/",
+        path=PICCLDATAROOT + "/corpora/DJVU/ENG/",
         metadata=DjVuFormat(None),
         inputtemplate='djvu'
     ),
     InputSource(id='englishtxt', label="[English] Demonstrator data: Russell -- Western Philosophy (Plain text format)",
-        path=TICCLDIR + "corpora/TXT/ENG/",
+        path=PICCLDATAROOT + "/corpora/TXT/ENG/",
         metadata=PlainTextFormat(None, encoding='utf-8'),
         inputtemplate='textocr'
     )]
