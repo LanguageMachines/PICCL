@@ -55,7 +55,11 @@ host = os.uname()[1]
 if 'VIRTUAL_ENV' in os.environ:
 
     HOST = host
-    PORT = 8080
+    if host == 'applejack': #production configuration in Nijmegen
+        PORT= 443
+        URLPREFIX = "piccl"
+    else:
+        PORT = 8080
 
     PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccldata') #Path that holds the data/ and corpora/ dirs
     if not os.path.exists(PICCLDATAROOT):
