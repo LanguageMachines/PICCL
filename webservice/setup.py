@@ -18,7 +18,7 @@ setup(
     keywords = "rest nlp computational_linguistics rest",
     url = "https://github.com/LanguageMachines/PICCL",
     packages=['picclservice'],
-    long_description="A set of workflows for OCR and post-correction,
+    long_description="A set of workflows for OCR and post-correction",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
