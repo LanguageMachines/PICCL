@@ -34,5 +34,5 @@ setup(
     ],
     package_data = {'picclservice':['picclservice/*.wsgi'] },
     include_package_data=True,
-    install_requires=['CLAM >= 2.1.7']
+    install_requires=['CLAM >= 2.1.10']
 )

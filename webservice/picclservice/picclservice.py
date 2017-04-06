@@ -57,11 +57,23 @@ if 'VIRTUAL_ENV' in os.environ:
     HOST = host
     PORT = 8080
 
-    PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccl') #Path that holds the data/ and corpora/ dirs
+    PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccldata') #Path that holds the data/ and corpora/ dirs
     if not os.path.exists(PICCLDATAROOT):
         raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
 
-    ROOT = PICCLDATAROOT + "/projects/"
+    ROOT = PICCLDATAROOT + "/clamdata/"
+elif os.path.exists('/var/piccldata'):
+    #assume we are running in LaMachine docker or VM:
+
+    HOST = host
+    PORT = 80 #(for HTTPS set this to 443)
+    URLPREFIX = '/piccl/'
+
+    PICCLDATAROOT = '/var/piccldata' #Path that holds the data/ and corpora/ dirs
+    if not os.path.exists(PICCLDATAROOT):
+        raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
+
+    ROOT = PICCLDATAROOT + "/clamdata/"
 else:
     raise Exception("I don't know where I'm running from! Add a section in the configuration corresponding to this host (" + os.uname()[1]+")")
 
@@ -196,19 +208,6 @@ if os.path.exists(PICCLDATAROOT + "/corpora/OCR"):
 
 PROFILES = [
 
-    #Profile(
-    #    InputTemplate('folia', FoLiAXMLFormat, 'FoLiA XML',
-    #        extension='.xml',
-    #        acceptarchive=True,
-    #        multi=True,
-    #    ),
-    #    lexiconinputtemplate, #variable containing the input template defined earlier
-    #    OutputTemplate('ranked', FoLiAXMLFormat, 'Ranked List of Correction Candidates',
-    #        filename='ranked',
-    #        unique=True,
-    #    ),
-    #),
-
     Profile(
         InputTemplate('tif', TiffImageFormat, 'TIF image of a scanned page',
            extension='tif',
@@ -293,47 +292,6 @@ PROFILES = [
         ),
     ),
 
-    #Profile(
-    #    InputTemplate('textinput', PlainTextFormat, 'Plain-Text Input',
-    #        StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-    #        #MSWordConverter(id='msword',label='Convert from MS Word Document'),
-    #        #PDFtoTextConverter(id='pdf',label='Convert from PDF Document'),
-    #        acceptarchive=True,
-    #        extension='.txt',
-    #        multi=True,
-    #    ),
-    #    lexiconinputtemplate,  #variable containing the input template defined earlier
-    #    OutputTemplate('ranked', PlainTextFormat, 'Variant Output',
-    #       SetMetaField('encoding','utf-8'),
-    #       filename='ranked',
-    #       unique=True,
-    #    ),
-    #),
-
-    #Profile(
-    #    InputTemplate('frqlistinput', PlainTextFormat, 'Frequency List Input',
-    #        StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-    #        extension='.tsv',
-    #        unique=True,
-    #    ),
-    #    lexiconinputtemplate,  #variable containing the input template defined earlier
-    #    OutputTemplate('ranked', PlainTextFormat, 'Variant Output',
-    #        SetMetaField('encoding','utf-8'),
-    #        filename='ranked',
-    #        unique=True,
-    #    ),
-    #),
-    #Profile(
-    #    InputTemplate('DJVU', DjVuFormat, 'DJVU',
-    #       extension='.djvu',
-    #       multi=True,
-    #    ),
-    #    OutputTemplate('folia', FoLiAXMLFormat, 'resultaat',
-    #        removeextension='.djvu',
-    #        extension='.folia.xml',
-    #        multi=True,
-    #    ),
-    #),
 ]
 
 # ======== COMMAND ===========
