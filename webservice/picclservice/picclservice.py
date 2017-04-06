@@ -28,6 +28,7 @@ from clam.common.digestauth import pwhash
 import clam
 import sys
 import os
+from base64 import b64decode as D
 
 REQUIRE_VERSION = 0.99
 
