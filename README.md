@@ -162,6 +162,7 @@ In the LaMachine Virtual Machine or within the Docker container:
     $ cd /var/piccldata
     $ sudo nextflow run LanguageMachines/PICCL/download-data.nf
     $ sudo nextflow run LanguageMachines/PICCL/download-examples.nf
+    $ sudo mkdir clamdata && sudo chown vagrant clamdata
 
 In the LaMachine Local Virtual Environment:
 
