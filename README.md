@@ -102,8 +102,13 @@ containing enriched corrections. The second example, on the dutch corpus data, c
 
 ## Webapplication / RESTful webservice
 
-PICCL will also become available as a webapplication and RESTful webservice soon, powered by
-[CLAM](https://proycon.github.io/clam).
+PICCL is also available as a webapplication and RESTful webservice, powered by
+[CLAM](https://proycon.github.io/clam). To install the webservice, clone this git repository and then run:
+
+    $ cd webservice
+    $ python3 setup.py install
+
+
 
 
 
