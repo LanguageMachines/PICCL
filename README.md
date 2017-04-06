@@ -160,15 +160,15 @@ In the LaMachine Virtual Machine or within the Docker container:
 
     $ sudo mkdir /var/piccldata
     $ cd /var/piccldata
-    $ sudo nextflow LanguageMachines/PICCL/download-data.nf
-    $ sudo nextflow LanguageMachines/PICCL/download-examples.nf
+    $ sudo nextflow run LanguageMachines/PICCL/download-data.nf
+    $ sudo nextflow run LanguageMachines/PICCL/download-examples.nf
 
 In the LaMachine Local Virtual Environment:
 
     (lamachine)$ mkdir $VIRTUAL_ENV/piccldata
     (lamachine)$ cd $VIRTUAL_ENV/piccldata
-    (lamachine)$ nextflow LanguageMachines/PICCL/download-data.nf
-    (lamachine)$ nextflow LanguageMachines/PICCL/download-examples.nf
+    (lamachine)$ nextflow run LanguageMachines/PICCL/download-data.nf
+    (lamachine)$ nextflow run LanguageMachines/PICCL/download-examples.nf
 
 ### Usage
 
