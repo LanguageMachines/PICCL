@@ -28,6 +28,7 @@ from clam.common.digestauth import pwhash
 import clam
 import sys
 import os
+from base64 import b64decode as D
 
 REQUIRE_VERSION = 0.99
 
@@ -55,7 +56,24 @@ host = os.uname()[1]
 if 'VIRTUAL_ENV' in os.environ:
 
     HOST = host
-    PORT = 8080
+    if host == 'applejack': #production configuration in Nijmegen
+        HOST = "webservices-lst.science.ru.nl"
+        PORT= 443
+        URLPREFIX = "piccl"
+        USERS_MYSQL = {
+            'host': 'mysql-clamopener.science.ru.nl',
+            'user': 'clamopener',
+            'password': D(open(os.environ['CLAMOPENER_KEYFILE']).read().strip()),
+            'database': 'clamopener',
+            'table': 'clamusers_clamusers'
+        }
+        DEBUG = False
+        REALM = "WEBSERVICES-LST"
+        DIGESTOPAQUE = open(os.environ['CLAM_DIGESTOPAQUEFILE']).read().strip()
+        SECRET_KEY = open(os.environ['CLAM_SECRETKEYFILE']).read().strip()
+        ADMINS = ['proycon','antalb','wstoop']
+    else:
+        PORT = 8080
 
     PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccldata') #Path that holds the data/ and corpora/ dirs
     if not os.path.exists(PICCLDATAROOT):

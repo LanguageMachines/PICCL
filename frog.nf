@@ -111,4 +111,4 @@ if (params.inputformat == "folia") {
     }
 }
 
-tokoutput.subscribe { println "Tokenizer output document written to " +  params.outputdir + "/" + it.name }
+tokoutput.subscribe { println "Frog output document written to " +  params.outputdir + "/" + it.name }
