@@ -73,21 +73,36 @@ if (params.inputtype == "djvu") {
         file pdfdocument from pdfdocuments
 
         output:
-        set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.tif") into pdfimages
+        set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.p?m") into pdfimages_bitmap
 
-        script:
+        script: //#older versions of pdfimages can not do tiff directly, we have to accommodate this so do conversion in two steps
         """
-        pdfimages  -tiff -p ${pdfdocument} ${pdfdocument.baseName}
+        pdfimages -p ${pdfdocument} ${pdfdocument.baseName}
         """
     }
 
 
     //Convert (documentname, [imagefiles]) channel to [(documentname, imagefile)]
-    pdfimages
+    pdfimages_bitmap
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
         .collate(2)
-        .into { pageimages }
+        .into { pageimages_bitmap }
+
+
+    process bitmap2tif {
+        //Convert images to tif
+        input:
+        set val(basename), file(bitmapimage) from pageimages_bitmap
+
+        output:
+        set val(basename), file("${bitmapimage.baseName}.tif") into pageimages
+
+        script:
+        """
+        convert ${bitmapimage} ${bitmapimage.baseName}.tif
+        """
+    }
 
 } else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
 
