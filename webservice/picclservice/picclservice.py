@@ -72,6 +72,7 @@ if 'VIRTUAL_ENV' in os.environ:
         DIGESTOPAQUE = open(os.environ['CLAM_DIGESTOPAQUEFILE']).read().strip()
         SECRET_KEY = open(os.environ['CLAM_SECRETKEYFILE']).read().strip()
         ADMINS = ['proycon','antalb','wstoop']
+        MAXLOADAVG = 20.0
     else:
         PORT = 8080
 
@@ -116,10 +117,10 @@ ADMINS = None #List of usernames that are administrator and can access the admin
 #USERS = { user1': '4f8dh8337e2a5a83734b','user2': pwhash('username', REALM, 'secret') }
 
 #Amount of free memory required prior to starting a new process (in MB!), Free Memory + Cached (without swap!). Set to 0 to disable this check (not recommended)
-REQUIREMEMORY = 10
+REQUIREMEMORY = 1024
 
 #Maximum load average at which processes are still started (first number reported by 'uptime'). Set to 0 to disable this check (not recommended)
-MAXLOADAVG = 4.0
+#MAXLOADAVG = 4.0
 
 #Minimum amount of free diskspace in MB. Set to 0 to disable this check (not recommended)
 DISK = '/dev/sda1' #set this to the disk where ROOT is on
