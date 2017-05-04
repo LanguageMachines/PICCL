@@ -112,12 +112,12 @@ process frog_folia2folia {
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
-    file inputdocument from foliadocuments_tokenized
+    file inputdocument from foliadocuments_modernized
     val skip from params.skip
     val virtualenv from params.virtualenv
 
     output:
-    file "${inputdocument.baseName}.frog.folia.xml" into foliadocument_frogged
+    file "${inputdocument.baseName}.frog.folia.xml" into foliadocuments_frogged
 
     script:
     """
@@ -136,4 +136,4 @@ process frog_folia2folia {
     """
     }
 
-foliadocuments.subscribe { println it }
+foliadocuments_frogged.subscribe { println it }
