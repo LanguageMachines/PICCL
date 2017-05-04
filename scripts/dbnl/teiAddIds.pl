@@ -39,7 +39,7 @@ my $counter = 1;
 $twig->parsefile($file);
 
 # show results
-if (open(OUTFILE,"| gzip -c > $outDir/$idno.xml.gz")) {
+if (open(OUTFILE,">$idno.ids.xml" )) {  #,"| gzip -c > $outDir/$idno.xml.gz")) {
    $twig->flush(\*OUTFILE);
    close(OUTFILE);
 }
