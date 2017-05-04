@@ -112,7 +112,7 @@ process frog_folia2folia {
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
-    file inputdocument from inputdocuments
+    file inputdocument from foliadocuments_tokenized
     val skip from params.skip
     val virtualenv from params.virtualenv
 
