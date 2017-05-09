@@ -7,18 +7,18 @@ use XML::Twig;
 use strict;
 
 my $command = $0;
-my $oztFile = "$baseDir/etc/dbnl_ozt_ids.txt"; #TODO: <proycon> where does this file come from?
 my $outDir = ".";
+
+# get the file name
+if ((not defined $ARGV[0] or $ARGV[0] eq "") or (not defined $ARGV[1] or $ARGV[1] eq "")) {
+   die "usage: $command tei_file oztfile\n";
+}
+my $file = $ARGV[0];
+my $oztFile = $ARGV[1];
 my %oztFiles = ();
 &readOZTs();
 my $oztCounter = 0;
 my $divCounter = 0;
-
-# get the file name
-if (not defined $ARGV[0] or $ARGV[0] eq "") {
-   die "usage: $command file\n";
-}
-my $file = $ARGV[0];
 my $cleanFile = $file;
 $cleanFile =~ s/\.xml$//;
 $cleanFile =~ s/.*\///;

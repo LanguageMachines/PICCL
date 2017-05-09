@@ -18,8 +18,9 @@ params.language = "nld"
 params.extension = "xml"
 params.outputdir = "dbnl_output"
 params.skip = "mcpa"
+params.oztids = "data/dbnl_ozt_ids.txt"
 
-if (params.containsKey('help') || !params.containsKey('inputdir') !! !params.containsKey('dictionary')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary')) {
     log.info "Usage:"
     log.info "  dbnl.nf [OPTIONS]"
     log.info ""
@@ -30,6 +31,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') !! !params.con
     log.info "Optional parameters:"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
+    log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
@@ -39,6 +41,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') !! !params.con
 
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
 dictionary = Channel.fromPath(params.dictionary)
+oztfile = Channel.fromPath(params.oztids)
 
 process teiAddIds {
     //Add ID attribute to TEI file
@@ -46,13 +49,14 @@ process teiAddIds {
     input:
     file teidocument from teidocuments
     val baseDir from baseDir
+    file oztfile from oztfile
 
     output:
     file "${teidocument.baseName}.ids.xml" into tei_id_documents
 
     script:
     """
-    ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument}
+    ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument} ${oztfile}
     """
 }
 
@@ -63,7 +67,7 @@ process teiExtractText {
     file teidocument from tei_id_documents
 
     output:
-    file teidocument.baseName + ".folia.xml" into foliadocuments
+    file "${teidocument.baseName}.folia.xml" into foliadocuments
 
     script:
     """
@@ -103,6 +107,7 @@ process modernize {
     input:
     file foliadocument from foliadocuments_tokenized
     file dictionary from dictionary
+    val virtualenv from params.virtualenv
 
     output:
     file "${foliadocument.baseName}.translated.folia.xml" into foliadocuments_modernized
