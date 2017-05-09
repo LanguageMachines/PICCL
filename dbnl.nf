@@ -11,8 +11,6 @@ log.info "--------------------------"
 
 def env = System.getenv()
 
-println "BaseDir: " + baseDir
-
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.language = "nld"
 params.extension = "xml"
