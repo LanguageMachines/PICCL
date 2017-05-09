@@ -154,4 +154,4 @@ process frog_folia2folia {
     """
     }
 
-foliadocuments_frogged.subscribe { println it }
+foliadocuments_frogged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
