@@ -19,12 +19,13 @@ params.extension = "xml"
 params.outputdir = "dbnl_output"
 params.skip = "mcpa"
 
-if (params.containsKey('help') || !params.containsKey('inputdir')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') !! !params.containsKey('dictionary')) {
     log.info "Usage:"
     log.info "  dbnl.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory (TEI documents)"
+    log.info "  --dictionary FILE        Modernisation dictionary"
     log.info""
     log.info "Optional parameters:"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
@@ -37,6 +38,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
 
 
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
+dictionary = Channel.fromPath(params.dictionary)
 
 process teiAddIds {
     //Add ID attribute to TEI file
@@ -93,18 +95,27 @@ process tokenize_ucto {
 }
 
 
+//TODO: runs one a per-document basis now: transform to multithreaded
 process modernize {
     //translate the document to contemporary dutch for PoS tagging
     //adds an extra <t class="contemporary"> layer
+
     input:
     file foliadocument from foliadocuments_tokenized
+    file dictionary from dictionary
 
     output:
-    file "${foliadocument.baseName}.modernized.folia.xml" into foliadocuments_modernized
+    file "${foliadocument.baseName}.translated.folia.xml" into foliadocuments_modernized
 
     script:
     """
-    #TODO
+    set +u
+    if [ ! -z "${virtualenv}" ]; then
+        source ${virtualenv}/bin/activate
+    fi
+    set -u
+
+    FoLiA-wordtranslate -d ${dictionary} ${foliadocument}
     """
 }
 
