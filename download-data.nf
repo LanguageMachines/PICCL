@@ -18,9 +18,7 @@ process download {
     script:
     """
     wget http://ticclops.uvt.nl/TICCL.languagefiles.ALLavailable.20160421.tar.gz -O data.tar.gz
-    tar -xvzf data.tar.gz
-    mv data/* .
-    rm -Rf data
+    tar --one-top-level=data -xvzf data.tar.gz
     rm data.tar.gz
     """
 }
