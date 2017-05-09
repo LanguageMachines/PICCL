@@ -39,6 +39,10 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 
+def getbasename(File file) {
+    file.name.split("\\.", 2)[0]
+}
+
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
 dictionary = Channel.fromPath(params.dictionary)
 oztfile = Channel.fromPath(params.oztids)
@@ -67,11 +71,11 @@ process teiExtractText {
     file teidocument from tei_id_documents
 
     output:
-    file "${teidocument.baseName}.folia.xml" into foliadocuments
+    file "${teidocument.getBaseName(2)}.folia.xml" into foliadocuments
 
     script:
     """
-    ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > ${teidocument.baseName}.folia.xml
+    ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > ${teidocument.getBaseName(2)}.folia.xml
     """
 }
 
@@ -84,7 +88,7 @@ process tokenize_ucto {
     val virtualenv from params.virtualenv
 
     output:
-    file "${inputdocument.baseName}.tok.folia.xml" into foliadocuments_tokenized
+    file "${inputdocument.getBaseName(2)}.tok.folia.xml" into foliadocuments_tokenized
 
     script:
     """
@@ -94,7 +98,7 @@ process tokenize_ucto {
     fi
     set -u
 
-    ucto -L ${language} -X -F ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
+    ucto -L ${language} -X -F ${inputdocument} ${inputdocument.getBaseName(2)}.tok.folia.xml
     """
 }
 
@@ -110,7 +114,7 @@ process modernize {
     val virtualenv from params.virtualenv
 
     output:
-    file "${foliadocument.baseName}.translated.folia.xml" into foliadocuments_modernized
+    file "${foliadocument.getBaseName(2)}.translated.folia.xml" into foliadocuments_modernized
 
     script:
     """
@@ -120,7 +124,7 @@ process modernize {
     fi
     set -u
 
-    FoLiA-wordtranslate -d ${dictionary} ${foliadocument}
+    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} ${foliadocument}
     """
 }
 
@@ -133,7 +137,7 @@ process frog_folia2folia {
     val virtualenv from params.virtualenv
 
     output:
-    file "${inputdocument.baseName}.frog.folia.xml" into foliadocuments_frogged
+    file "${inputdocument.getBaseName(3)}.frog.folia.xml" into foliadocuments_frogged
 
     script:
     """
@@ -148,7 +152,7 @@ process frog_folia2folia {
         skip="--skip=${skip}"
     fi
 
-    frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --textclass contemporary -x ${inputdocument}
+    frog \$opts -X ${inputdocument.getBaseName(3)}.frog.folia.xml --textclass contemporary -x ${inputdocument}
     """
     }
 
