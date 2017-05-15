@@ -1,6 +1,13 @@
 language: groovy
 dist: trusty
 sudo: true
+notifications:
+  irc:
+    channels:
+      - "irc.uvt.nl#gitlama"
+    template:
+      - "%{repository_slug}#%{build_number} %{message} --> %{build_url}"
+    skip_join: true
 jdk:
     - openjdk8
 install:
