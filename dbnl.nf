@@ -17,6 +17,8 @@ params.extension = "xml"
 params.outputdir = "dbnl_output"
 params.skip = "mcpa"
 params.oztids = "data/dbnl_ozt_ids.txt"
+params.preservation = "/dev/null"
+params.rules = "/dev/null"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary')) {
     log.info "Usage:"
@@ -27,6 +29,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --dictionary FILE        Modernisation dictionary"
     log.info""
     log.info "Optional parameters:"
+    log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
+    log.info "  --rules FILE             Substitution rules"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
@@ -109,6 +113,8 @@ process modernize {
     input:
     file foliadocument from foliadocuments_tokenized
     file dictionary from dictionary
+    file preservation from preservation
+    file rules from rules
     val virtualenv from params.virtualenv
 
     output:
@@ -122,7 +128,7 @@ process modernize {
     fi
     set -u
 
-    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} ${foliadocument}
+    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} -p ${preservation} -r ${rules} ${foliadocument}
     """
 }
 
