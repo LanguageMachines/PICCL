@@ -47,6 +47,8 @@ def getbasename(File file) {
 
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
 dictionary = Channel.fromPath(params.dictionary)
+preservationlexicon = Channel.fromPath(params.preservation)
+rulefile = Channel.fromPath(params.rules)
 oztfile = Channel.fromPath(params.oztids)
 
 process teiAddIds {
@@ -113,8 +115,8 @@ process modernize {
     input:
     file foliadocument from foliadocuments_tokenized
     file dictionary from dictionary
-    file preservation from preservation
-    file rules from rules
+    file preservationlexicon from preservationlexicon
+    file rulefile from rulefile
     val virtualenv from params.virtualenv
 
     output:
@@ -128,7 +130,7 @@ process modernize {
     fi
     set -u
 
-    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} -p ${preservation} -r ${rules} ${foliadocument}
+    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} ${foliadocument}
     """
 }
 
