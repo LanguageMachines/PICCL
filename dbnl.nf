@@ -122,7 +122,8 @@ foliadocuments_names2 = Channel.create()
 foliadocuments_tokenized2 = Channel.create() //holds the files
 
 foliadocuments_tokenized
-    .separate(foliadocuments_names1, foliadocuments_tokenized1, foliadocuments_names2, foliadocuments_tokenized2 ) { file -> [file.getBaseName(2), file, file.getBaseName(2), file] }
+    .separate(foliadocuments_names1, foliadocuments_tokenized1, foliadocuments_names2, foliadocuments_tokenized2 ) { file -> tuple( file.getBaseName(3), file, file.getBaseName(3), file ) }
+
 
     //.into { folia_documents_tokenized1, folia_documents_tokenized2 }
 
@@ -130,8 +131,8 @@ process frog_original {
     //Linguistic enrichment on the original text of the document (pre-modernization)
 
     input:
-    val documentname from foliadocuments_names1.buffer(size: 1000, remainder: true)
-    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized1.buffer(size: 1000, remainder: true)
+    val documentname from foliadocuments_names1 //.buffer(size: 1000, remainder: true)
+    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized1 //.buffer(size: 1000, remainder: true)
     val skip from params.skip
     val virtualenv from params.virtualenv
 
@@ -156,10 +157,10 @@ process frog_original {
     mv *.folia.xml input/
 
     #output will be in cwd
-    frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/
+    frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
 
     #set proper output extension
-    mmv "\\*.folia.xml" "\\#1.frogoriginal.folia.xml"
+    mmv "*.tok.folia.xml" "#1.frogoriginal.folia.xml"
     """
 }
 
@@ -170,8 +171,8 @@ process modernize_and_frog {
     //adds an extra <t class="contemporary"> layer
 
     input:
-    val documentname from foliadocuments_names2.buffer(size: 1000, remainder: true)
-    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized2.buffer(size: 1000, remainder: true)
+    val documentname from foliadocuments_names2 //.buffer(size: 1000, remainder: true)
+    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized2 //.buffer(size: 1000, remainder: true)
     val skip from params.skip
     val virtualenv from params.virtualenv
 
@@ -181,7 +182,7 @@ process modernize_and_frog {
     val virtualenv from params.virtualenv
 
     output:
-    file "${documentname}.translated.folia.xml" into foliadocuments_frogged_modernized mode flatten
+    file "${documentname}.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
 
     script:
     """
@@ -191,19 +192,24 @@ process modernize_and_frog {
     fi
     set -u
 
+    opts=""
+    if [ ! -z "$skip" ]; then
+        skip="--skip=${skip}"
+    fi
+
     mkdir modernization_work
     mv *.folia.xml modernization_work
 
     FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} modernization_work/
 
     mkdir froginput
-    mv modernization_work/*.translated.folia.xml froginput/
+    mv *.translated.folia.xml froginput/
 
     #output will be in cwd
-    frog \$opts --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
+    frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
 
     #set proper output extension
-    mmv "\\*.folia.xml" "\\#1.frogmodernized.folia.xml"
+    mmv "*.tok.translated.folia.xml" "#1.frogmodernized.folia.xml"
     """
 }
 
@@ -229,6 +235,7 @@ process merge {
 
     input:
     set val(basename), file(modernfile), file(originalfile) from foliadocuments_pairs
+    val skip from params.skip
     val virtualenv from params.virtualenv
 
     output:
