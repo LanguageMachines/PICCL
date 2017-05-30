@@ -68,7 +68,7 @@ process teiAddIds {
     """
 }
 
-process teiExtractText {
+process tei2folia {
     //Extract text from TEI documents and convert to FoLiA
 
     input:
@@ -79,7 +79,14 @@ process teiExtractText {
 
     script:
     """
-    ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > ${teidocument.getBaseName(2)}.folia.xml
+    ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > tmp.xml
+
+    #Delete any empty paragraphs (invalid FoLiA)
+    ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
+
+    #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
+    ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > ${teidocument.getBaseName(2)}.folia.xml
+
     """
 }
 
@@ -106,44 +113,30 @@ process tokenize_ucto {
     """
 }
 
+//split the tokenized documents into two channels
+// 1) input for pre-modernization linguistic enrichment (frog)
+foliadocuments_names1 = Channel.create()
+foliadocuments_tokenized1= Channel.create() //holds the files
+// 2) input for modernization and post-modernization linguistic enrichment (frog)
+foliadocuments_names2 = Channel.create()
+foliadocuments_tokenized2 = Channel.create() //holds the files
 
-//TODO: runs one a per-document basis now: transform to multithreaded
-process modernize {
-    //translate the document to contemporary dutch for PoS tagging
-    //adds an extra <t class="contemporary"> layer
+foliadocuments_tokenized
+    .separate(foliadocuments_names1, foliadocuments_tokenized1, foliadocuments_names2, foliadocuments_tokenized2 ) { file -> [file.getBaseName(2), file, file.getBaseName(2), file] }
 
-    input:
-    file foliadocument from foliadocuments_tokenized
-    file dictionary from dictionary
-    file preservationlexicon from preservationlexicon
-    file rulefile from rulefile
-    val virtualenv from params.virtualenv
+    //.into { folia_documents_tokenized1, folia_documents_tokenized2 }
 
-    output:
-    file "${foliadocument.getBaseName(2)}.translated.folia.xml" into foliadocuments_modernized
-
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
-
-    FoLiA-wordtranslate --outputclass contemporary -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} ${foliadocument}
-    """
-}
-
-process frog_folia2folia {
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+process frog_original {
+    //Linguistic enrichment on the original text of the document (pre-modernization)
 
     input:
-    file inputdocument from foliadocuments_modernized
+    val documentname from foliadocuments_names1.buffer(size: 1000, remainder: true)
+    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized1.buffer(size: 1000, remainder: true)
     val skip from params.skip
     val virtualenv from params.virtualenv
 
     output:
-    file "${inputdocument.getBaseName(3)}.frog.folia.xml" into foliadocuments_frogged
+    file "${documentname}.frogoriginal.folia.xml" into foliadocuments_frogged_original mode flatten
 
     script:
     """
@@ -158,8 +151,99 @@ process frog_folia2folia {
         skip="--skip=${skip}"
     fi
 
-    frog \$opts -X ${inputdocument.getBaseName(3)}.frog.folia.xml --textclass contemporary -x ${inputdocument}
-    """
-    }
+    #move input files to separate staging directory
+    mkdir input
+    mv *.folia.xml input/
 
-foliadocuments_frogged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+    #output will be in cwd
+    frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/
+
+    #set proper output extension
+    mmv "\\*.folia.xml" "\\#1.frogoriginal.folia.xml"
+    """
+}
+
+//foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
+
+process modernize_and_frog {
+    //translate the document to contemporary dutch for PoS tagging AND run Frog on it
+    //adds an extra <t class="contemporary"> layer
+
+    input:
+    val documentname from foliadocuments_names2.buffer(size: 1000, remainder: true)
+    file "${documentname}.tok.folia.xml" from foliadocuments_tokenized2.buffer(size: 1000, remainder: true)
+    val skip from params.skip
+    val virtualenv from params.virtualenv
+
+    file dictionary from dictionary
+    file preservationlexicon from preservationlexicon
+    file rulefile from rulefile
+    val virtualenv from params.virtualenv
+
+    output:
+    file "${documentname}.translated.folia.xml" into foliadocuments_frogged_modernized mode flatten
+
+    script:
+    """
+    set +u
+    if [ ! -z "${virtualenv}" ]; then
+        source ${virtualenv}/bin/activate
+    fi
+    set -u
+
+    mkdir modernization_work
+    mv *.folia.xml modernization_work
+
+    FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} modernization_work/
+
+    mkdir froginput
+    mv modernization_work/*.translated.folia.xml froginput/
+
+    #output will be in cwd
+    frog \$opts --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
+
+    #set proper output extension
+    mmv "\\*.folia.xml" "\\#1.frogmodernized.folia.xml"
+    """
+}
+
+
+// transform [file] -> [(basename, file)]
+foliadocuments_frogged_original
+    .map { file -> [file.getBaseName(3), file] }
+    .into { foliadocuments_frogged_original2 }
+
+// transform [file] -> [(basename, file)]
+foliadocuments_frogged_modernized
+    .map { file -> [file.getBaseName(3), file] }
+    .into { foliadocuments_frogged_modernized2 }
+
+//now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
+foliadocuments_frogged_modernized2
+    .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
+    .into { foliadocuments_pairs }
+
+process merge {
+    //merge the modernized annotations with the original ones, the original ones will be included as alternatives
+    publishDir params.outputdir, mode: 'copy', overwrite: true
+
+    input:
+    set val(basename), file(modernfile), file(originalfile) from foliadocuments_pairs
+    val virtualenv from params.virtualenv
+
+    output:
+    file "${basename}.folia.xml" into foliadocuments_merged
+
+    script:
+    """
+    set +u
+    if [ ! -z "${virtualenv}" ]; then
+        source ${virtualenv}/bin/activate
+    fi
+    set -u
+
+    foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
+    """
+}
+
+foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
