@@ -54,20 +54,15 @@ try {
 
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
 
-//dictionary = Channel.fromPath(params.dictionary)
-//preservationlexicon = Channel.fromPath(params.preservation)
-//rulefile = Channel.fromPath(params.rules)
-
-teidocuments
-    .map { f -> tuple(f, file(params.oztfile)) }
-    .set { teidocuments_withoztfile }
+oztfile = Channel.fromPath(params.oztfile)
 
 process teiAddIds {
     //Add ID attribute to TEI file
 
     input:
-    set file(teidocument), file(oztfile) from teidocuments_withoztfile
-    val baseDir from baseDir
+    each file(teidocument) from teidocuments
+    file oztfile
+    val baseDir
 
     output:
     file "${teidocument.simpleName}.ids.xml" into tei_id_documents
