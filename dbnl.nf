@@ -40,33 +40,23 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     exit 2
 }
 
-try {
-    if (!nextflow.version.matches('>= 0.25')) { //ironically available since Nextflow 0.25 only
-        log.error "Requires Nextflow >= 0.25, your version is too old"
-        exit 2
-    }
-} catch(ex) {
-    log.error "Requires Nextflow >= 0.25, your version is too old"
-    exit 2
-}
-
-def getbasename(File file) {
-    file.name.split("\\.", 2)[0]
-}
 
 teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
-dictionary = Channel.fromPath(params.dictionary)
-preservationlexicon = Channel.fromPath(params.preservation)
-rulefile = Channel.fromPath(params.rules)
-oztfile = Channel.fromPath(params.oztids)
+
+//dictionary = Channel.fromPath(params.dictionary)
+//preservationlexicon = Channel.fromPath(params.preservation)
+//rulefile = Channel.fromPath(params.rules)
+
+teidocuments
+    .map { f -> tuple(f, file(params.oztfile)) }
+    .set { teidocuments_withoztfile }
 
 process teiAddIds {
     //Add ID attribute to TEI file
 
     input:
-    each file(teidocument) from teidocuments
+    set file(teidocument), file(oztfile) from teidocuments_withoztfile
     val baseDir from baseDir
-    file(oztfile) from oztfile
 
     output:
     file "${teidocument.baseName}.ids.xml" into tei_id_documents
@@ -129,8 +119,15 @@ foliadocuments_tokenized
     .buffer( size: 1000, remainder: true)
     .collect()
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
+    //.separate( foliadocuments_batches_names; foliadocuments_batches_tokenized ) { file -> [file.getBaseName(3), file] }
 
-    //.map { file -> tuple(file.getBaseName(3), file }  // I tried this before buffer but don't know how to handle it as desired input/output
+//split into two
+/*foliadocuments_batches_tokenized
+    .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
+
+foliadocuments_batches_names
+    .into { foliadocuments_batches_names1; foliadocuments_batches_names2 }
+    */
 
 process frog_original {
     //Linguistic enrichment on the original text of the document (pre-modernization)
@@ -165,27 +162,34 @@ process frog_original {
     #output will be in cwd
     frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
 
-    #set proper output extension (output files would otherwise have same name as input files and confuse nextflow)
-    mmv "*.tok.folia.xml" "#1.frogoriginal.folia.xml"
+    #set proper output filename and extension (based on FoLiA xml:id, bypassing nextflow numbered staging names)
+    for f in *.tok.folia.xml; do
+        ID=\$(head \$f | sed -n 's/<FoLiA.*xml:id=\"\\([^\"]*\\).*/\\1/p')
+        mv \$f \$ID.frogoriginal.folia.xml
+    done
     """
 }
 
-foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
 
-/*
+//foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
+
+//add the necessary input files to each batch
+foliadocuments_batches_tokenized2
+    .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules)) }
+    .set { foliadocuments_batches_withdata }
+
 process modernize_and_frog {
     //translate the document to contemporary dutch for PoS tagging AND run Frog on it
     //adds an extra <t class="contemporary"> layer
 
     input:
-    file "*.tok.folia.xml" from foliadocuments_batches_tokenized2
+    set file("*.tok.folia.xml"), file(dictionary), file(preservationlexicon), file(rulefile) from foliadocuments_batches_withdata
     val skip from params.skip
     val virtualenv from params.virtualenv
 
-    file dictionary from dictionary
-    file preservationlexicon from preservationlexicon
-    file rulefile from rulefile
-    val virtualenv from params.virtualenv
+    //file dictionary from dictionary
+    //file preservationlexicon from preservationlexicon
+    //file rulefile from rulefile
 
     output:
     file "*.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
@@ -214,8 +218,11 @@ process modernize_and_frog {
     #output will be in cwd
     frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
 
-    #set proper output extension
-    mmv "*.tok.translated.folia.xml" "#1.frogmodernized.folia.xml"
+    #set proper output filename and extension (based on FoLiA xml:id, bypassing nextflow numbered staging names)
+    for f in *.translated.folia.xml; do
+        ID=\$(head \$f | sed -n 's/<FoLiA.*xml:id=\"\\([^\"]*\\).*/\\1/p')
+        mv \$f \$ID.frogmodernized.folia.xml
+    done
     """
 }
 
@@ -223,17 +230,17 @@ process modernize_and_frog {
 // transform [file] -> [(basename, file)]
 foliadocuments_frogged_original
     .map { file -> [file.getBaseName(3), file] }
-    .into { foliadocuments_frogged_original2 }
+    .set { foliadocuments_frogged_original2 }
 
 // transform [file] -> [(basename, file)]
 foliadocuments_frogged_modernized
     .map { file -> [file.getBaseName(3), file] }
-    .into { foliadocuments_frogged_modernized2 }
+    .set { foliadocuments_frogged_modernized2 }
 
 //now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
 foliadocuments_frogged_modernized2
     .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
-    .into { foliadocuments_pairs }
+    .set { foliadocuments_pairs }
 
 process merge {
     //merge the modernized annotations with the original ones, the original ones will be included as alternatives
@@ -260,4 +267,3 @@ process merge {
 }
 
 foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
-*/
