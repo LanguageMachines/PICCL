@@ -30,7 +30,7 @@ other dependencies manually.
 PICCL makes extensive use of the [FoLiA](https://proycon.github.io/folia) format, a rich XML-based format for linguistic
 annotation.
 
-**Important Note**: This is a new experimental version in early stages of development; for the old version consult [this repository](https://github.com/martinreynaert/TICCL). Integration in LaMachine is not released yet at this stage.
+**Important Note**: This is a new experimental version in early stages of development; for the old version consult [this repository](https://github.com/martinreynaert/TICCL).
 
 ## Installation
 
@@ -68,6 +68,7 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
  * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
+ * ``dbnl.nf`` - A pipeline for linguistic enrichment DBNL corpus data (designed for the Nederlab project)
 
 The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/lamachine`` parameter if you
 are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage
