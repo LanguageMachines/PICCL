@@ -19,6 +19,8 @@ params.skip = "mcpa"
 params.oztids = "data/dbnl_ozt_ids.txt"
 params.preservation = "/dev/null"
 params.rules = "/dev/null"
+params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
+params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary')) {
     log.info "Usage:"
@@ -37,6 +39,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
+    log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity) (DISABLED BY DEFAULT!)"
+    log.info "  --entitylinkeroptions X  Extra options to pass to entity linker"
     exit 2
 }
 
@@ -230,7 +234,10 @@ foliadocuments_frogged_modernized2
 
 process merge {
     //merge the modernized annotations with the original ones, the original ones will be included as alternatives
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+
+    if (params.entitylinking == "") {
+        publishDir params.outputdir, mode: 'copy', overwrite: true
+    }
 
     input:
     set val(basename), file(modernfile), file(originalfile) from foliadocuments_pairs
@@ -252,4 +259,38 @@ process merge {
     """
 }
 
-foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+if (params.entitylinking != "") {
+    process entitylinker {
+        publishDir params.outputdir, mode: 'copy', overwrite: true
+
+        input:
+        file document from foliadocuments_merged
+        val virtualenv from params.virtualenv
+        val methods from params.entitylinking
+        val extraoptions from params.entitylinkeroptions
+
+        output:
+        file "${document.simpleName}.linked.folia.xml" into entitylinker_output
+
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+            rootpath=${virtualenv}
+        else
+            rootpath=/opt
+        fi
+        set -u
+
+        mkdir out
+        \$rootpath/foliaentity/FoliaEntity.exe -w -m ${methods} ${extraoptions} -i ${document} -o out/
+        mv out/\$(basename ${document}) ${document.simpleName}.linked.folia.xml
+        """
+    }
+
+    entitylinker_output.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+} else {
+    foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+}
