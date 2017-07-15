@@ -22,15 +22,17 @@ params.rules = "/dev/null"
 params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
     log.info "  dbnl.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory (TEI documents)"
     log.info "  --dictionary FILE        Modernisation dictionary"
+    log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
     log.info""
     log.info "Optional parameters:"
+    log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
@@ -172,7 +174,7 @@ process frog_original {
 
 //add the necessary input files to each batch
 foliadocuments_batches_tokenized2
-    .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules)) }
+    .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules), file(params.inthistlexicon)) }
     .set { foliadocuments_batches_withdata }
 
 process modernize_and_frog {
@@ -180,7 +182,7 @@ process modernize_and_frog {
     //adds an extra <t class="contemporary"> layer
 
     input:
-    set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile) from foliadocuments_batches_withdata
+    set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
     val skip from params.skip
     val virtualenv from params.virtualenv
 
@@ -203,7 +205,12 @@ process modernize_and_frog {
     mkdir modernization_work
     mv *.folia.xml modernization_work
 
-    FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} modernization_work/
+    #if [ ! -z "${inthistlexicon}" ]; then
+    #    extraopts="-H ${inthistlexicon}"
+    #else
+    #    extraopts=""
+    #fi
+    FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
 
     mkdir froginput
     mv *.translated.folia.xml froginput/
