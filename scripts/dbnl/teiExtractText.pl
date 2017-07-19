@@ -140,6 +140,12 @@ print "\n   </text>\n</FoLiA>\n";
 
 exit(0);
 
+sub normspaces {
+    my $text = $1;
+    $text =~ s/[\t\n]+/ /g;
+    return $text;
+}
+
 sub convertToDiv {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
@@ -154,7 +160,7 @@ sub convertToDiv {
    else {
       foreach my $c ($tag->children) {
          if ($c->name eq "#PCDATA") {
-            my $newT = new XML::Twig::Elt("t",$c->text);
+            my $newT = new XML::Twig::Elt("t",normspaces($c->text));
             $c->set_text("");
             $newT->paste("last_child",$c);
             $c->set_name("p");
@@ -176,7 +182,7 @@ sub convertToP {
    my @children = $tag->children;
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    elsif (not &relevant(@children)) {
-      my $newT = new XML::Twig::Elt("t",$tag->text);
+      my $newT = new XML::Twig::Elt("t",normspaces($tag->text));
       $tag->set_text("");
       $newT->paste("last_child",$tag);
    }
@@ -217,7 +223,7 @@ sub divDeleteAttr {
          $child->set_att("xml:id","addedByTET-".$addedCounter);
          my $text = $child->text;
          $child->set_text("");
-         my $newT = new XML::Twig::Elt("t",$text);
+         my $newT = new XML::Twig::Elt("t",normspaces($text));
          $newT->paste("last_child",$child);
       }
    }
@@ -298,7 +304,7 @@ sub processHi {
       $tag->set_name("p");
       my $text = $tag->text;
       $tag->set_text("");
-      my $newT = new XML::Twig::Elt("t",$text);
+      my $newT = new XML::Twig::Elt("t",normspaces($text));
       $newT->paste("last_child",$tag);
    }
 }
@@ -313,7 +319,7 @@ sub processHead {
    $tag->set_name('head');
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
-      my $newElement = new XML::Twig::Elt('t',$tag->text);
+      my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
       my $text = $tag->text;
       $tag->set_text("");
       $newElement->paste("last_child" => $tag);
@@ -381,7 +387,7 @@ sub processItem {
    $content =~ s/\s+$//g;
    if ($content eq "") { $tag->cut; }
    else {
-      my $newT = new XML::Twig::Elt("t",$content);
+      my $newT = new XML::Twig::Elt("t",normspaces($content));
       my @children = $tag->children;
       $tag->set_text("");
       $newT->paste("last_child",$tag);
@@ -468,7 +474,7 @@ sub processSp {
       if ($speakerText =~ /^\s*$/) { $speakerTag->cut; }
       else {
          $speakerTag->set_text(""); # remove internal tags
-         my $newT = new XML::Twig::Elt("t",$speakerText);
+         my $newT = new XML::Twig::Elt("t",normspaces($speakerText));
          $newT->paste(last_child => $speakerTag);
          $speakerTag->cut;
          $speakerTag->paste(before => $tag);
@@ -529,7 +535,7 @@ sub addT {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      my $newElement = new XML::Twig::Elt("t",$content);
+      my $newElement = new XML::Twig::Elt("t",normspaces($content));
       my @children = $tag->children;
       $tag->set_text("");
       $newElement->paste('last_child',$tag);
@@ -548,7 +554,7 @@ sub processTune {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
    $tag->set_name("p");
-   my $newT = new XML::Twig::Elt("t",$tag->text);
+   my $newT = new XML::Twig::Elt("t",normspaces($tag->text));
    $tag->set_text("");
    $newT->paste('last_child',$tag);
 }
