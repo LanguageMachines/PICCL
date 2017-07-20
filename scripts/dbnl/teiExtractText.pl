@@ -352,7 +352,7 @@ sub processStage {
    # $tag->set_text($tag->text);
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
-      my $newElement = new XML::Twig::Elt('t',$tag->text);
+      my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
       my @children = $tag->children;
       $tag->set_text("");
       foreach my $c (@children) {
