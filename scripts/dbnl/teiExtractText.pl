@@ -340,8 +340,10 @@ sub processL {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      $tag->set_name('t-str');
-      $tag->set_text(normspaces($text)." ");
+      $tag->set_name('utt');
+      my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
+      $tag->set_text(" ");
+      $newElement->paste('last_child',$tag);
    }
 }
 
@@ -352,7 +354,7 @@ sub processStage {
    # $tag->set_text($tag->text);
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
-      my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
+       #my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
       my @children = $tag->children;
       $tag->set_text("");
       foreach my $c (@children) {
@@ -360,7 +362,7 @@ sub processStage {
             $c->paste("last_child",$tag);
          }
       }
-      $newElement->paste('last_child',$tag);
+      #$newElement->paste('last_child',$tag);
       if ($tag->parent->name eq "sp") {
          # ref trace: not yet possible in FoLiA
 #        my $ref = new XML::Twig::Elt('ref',"");
@@ -439,18 +441,18 @@ sub processLg {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
-   my $newElement = new XML::Twig::Elt("t","");
+   #my $newElement = new XML::Twig::Elt("t","");
    #$newElement->set_att('xml:id',$tag->{'att'}->{'xml:id'}.".t");
-   my @lines = $tag->children;
-   foreach my $line (@lines) {
-      if ($line->name eq "t-str") {
-         $line->cut;
-         if ($line->text !~ /^\s*$/) {
-            $line->paste('last_child',$newElement);
-         }
-      }
-   }
-   $newElement->paste('last_child',$tag);
+   #my @lines = $tag->children;
+   #foreach my $line (@lines) {
+   #   if ($line->name eq "utt") {
+   #      $line->cut;
+   #      if ($line->text !~ /^\s*$/) {
+   #         $line->paste('last_child',$newElement);
+   #      }
+   #   }
+   #}
+   #$newElement->paste('last_child',$tag);
 }
 
 sub processSp {
@@ -460,7 +462,7 @@ sub processSp {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
-   my $newElement = new XML::Twig::Elt("t","");
+   #my $newElement = new XML::Twig::Elt("t","");
    #$newElement->set_att('xml:id',$tag->{'att'}->{'xml:id'}.".t");
    $tag->set_att('class',"speakerturn");
    if (not defined $tag->first_child("speaker")) {
@@ -484,18 +486,18 @@ sub processSp {
          }
       }
    }
-   my @lines = $tag->children;
-   foreach my $line (@lines) {
-      if ($line->name eq "t-str" or $line->name eq "ref") {
-         $line->cut;
-         if ($line->text !~ /^\s*$/ or $line->name eq "ref") {
-            $line->paste('last_child',$newElement);
-         }
-      }
-   }
-   if ($newElement->text ne "") {
-      $newElement->paste('last_child',$tag);
-   }
+   #my @lines = $tag->children;
+   #foreach my $line (@lines) {
+   #   if ($line->name eq "utt" or $line->name eq "ref") {
+   #      $line->cut;
+   #      if ($line->text !~ /^\s*$/ or $line->name eq "ref") {
+   #         $line->paste('last_child',$newElement);
+   #      }
+   #   }
+   #}
+   #if ($newElement->text ne "") {
+   #   $newElement->paste('last_child',$tag);
+   #}
 }
 
 sub processP {
