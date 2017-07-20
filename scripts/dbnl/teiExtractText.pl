@@ -141,7 +141,7 @@ print "\n   </text>\n</FoLiA>\n";
 exit(0);
 
 sub normspaces {
-    my $text = $1;
+    my $text = $_[0];
     $text =~ s/[\t\n]+/ /g;
     return $text;
 }
@@ -341,7 +341,7 @@ sub processL {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
       $tag->set_name('t-str');
-      $tag->set_text($text." ");
+      $tag->set_text(normspaces($text)." ");
    }
 }
 
@@ -413,7 +413,7 @@ sub processFigure {
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
       $tag->set_name('p');
-      $tag->set_text($tag->text);
+      $tag->set_text(normspaces($tag->text));
       &processP($twig,$tag);
       &addT($twig,$tag);
    }
@@ -516,7 +516,7 @@ sub processT {
    else {
       my $text = $tag->text;
       $tag->del_att("xml:id");
-      $tag->set_text($text);
+      $tag->set_text(normspaces($text));
       if ($text =~ /^\s*$/) { $tag->cut; }
    }
 }
