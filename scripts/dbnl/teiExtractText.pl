@@ -142,7 +142,7 @@ exit(0);
 
 sub normspaces {
     my $text = $_[0];
-    $text =~ s/[\t\r\n]+/ /g;
+    $text =~ s/[\t\r\n\s]+/ /g;
     return $text;
 }
 
