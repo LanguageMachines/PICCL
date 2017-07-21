@@ -21,12 +21,14 @@ params.preservation = "/dev/null"
 params.rules = "/dev/null"
 params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
+params.mode = "both";
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
     log.info "  dbnl.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
+    log.info "  --mode [modernize|simple|both]"
     log.info "  --inputdir DIRECTORY     Input directory (TEI documents)"
     log.info "  --dictionary FILE        Modernisation dictionary"
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
@@ -136,6 +138,10 @@ process frog_original {
     //Linguistic enrichment on the original text of the document (pre-modernization)
     //Receives multiple input files in batches
 
+    if ((params.entitylinking == "") && (params.mode == "simple")) {
+        publishDir params.outputdir, mode: 'copy', overwrite: true
+    }
+
     input:
     file foliadocuments from foliadocuments_batches_tokenized1 //foliadocuments is a collection/batch for multiple files
     val skip from params.skip
@@ -171,99 +177,109 @@ process frog_original {
 
 
 //foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
+if ((mode == "full") || (mode =="modernize")) {
 
-//add the necessary input files to each batch
-foliadocuments_batches_tokenized2
-    .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules), file(params.inthistlexicon)) }
-    .set { foliadocuments_batches_withdata }
+    //add the necessary input files to each batch
+    foliadocuments_batches_tokenized2
+        .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules), file(params.inthistlexicon)) }
+        .set { foliadocuments_batches_withdata }
 
-process modernize_and_frog {
-    //translate the document to contemporary dutch for PoS tagging AND run Frog on it
-    //adds an extra <t class="contemporary"> layer
+    process modernize_and_frog {
+        //translate the document to contemporary dutch for PoS tagging AND run Frog on it
+        //adds an extra <t class="contemporary"> layer
 
-    input:
-    set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
-    val skip from params.skip
-    val virtualenv from params.virtualenv
+        input:
+        set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
+        val skip from params.skip
+        val virtualenv from params.virtualenv
 
-    output:
-    file "*.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
+        output:
+        file "*.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
 
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
 
-    opts=""
-    if [ ! -z "$skip" ]; then
-        skip="--skip=${skip}"
-    fi
+        opts=""
+        if [ ! -z "$skip" ]; then
+            skip="--skip=${skip}"
+        fi
 
-    mkdir modernization_work
-    mv *.folia.xml modernization_work
+        mkdir modernization_work
+        mv *.folia.xml modernization_work
 
-    #if [ ! -z "${inthistlexicon}" ]; then
-    #    extraopts="-H ${inthistlexicon}"
-    #else
-    #    extraopts=""
-    #fi
-    FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
+        #if [ ! -z "${inthistlexicon}" ]; then
+        #    extraopts="-H ${inthistlexicon}"
+        #else
+        #    extraopts=""
+        #fi
+        FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
 
-    mkdir froginput
-    mv *.translated.folia.xml froginput/
+        mkdir froginput
+        mv *.translated.folia.xml froginput/
 
-    #output will be in cwd
-    frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
+        #output will be in cwd
+        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
 
-    #set proper output extension
-    mmv "*.tok.translated.folia.xml" "#1.frogmodernized.folia.xml"
-    """
-}
-
-
-// transform [file] -> [(basename, file)]
-foliadocuments_frogged_original
-    .map { file -> [file.simpleName, file] }
-    .set { foliadocuments_frogged_original2 }
-
-// transform [file] -> [(basename, file)]
-foliadocuments_frogged_modernized
-    .map { file -> [file.simpleName, file] }
-    .set { foliadocuments_frogged_modernized2 }
-
-//now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
-foliadocuments_frogged_modernized2
-    .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
-    .set { foliadocuments_pairs }
-
-process merge {
-    //merge the modernized annotations with the original ones, the original ones will be included as alternatives
-
-    if (params.entitylinking == "") {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
+        #set proper output extension
+        mmv "*.tok.translated.folia.xml" "#1.frogmodernized.folia.xml"
+        """
     }
 
-    input:
-    set val(basename), file(modernfile), file(originalfile) from foliadocuments_pairs
-    val skip from params.skip
-    val virtualenv from params.virtualenv
 
-    output:
-    file "${basename}.folia.xml" into foliadocuments_merged
+    // transform [file] -> [(basename, file)]
+    foliadocuments_frogged_original
+        .map { file -> [file.simpleName, file] }
+        .set { foliadocuments_frogged_original2 }
 
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
+    // transform [file] -> [(basename, file)]
+    foliadocuments_frogged_modernized
+        .map { file -> [file.simpleName, file] }
+        .set { foliadocuments_frogged_modernized2 }
 
-    foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
-    """
+    //now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
+    foliadocuments_frogged_modernized2
+        .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
+        .set { foliadocuments_pairs }
+
+    if (mode == "both") {
+        process merge {
+            //merge the modernized annotations with the original ones, the original ones will be included as alternatives
+
+            if (params.entitylinking == "") {
+                publishDir params.outputdir, mode: 'copy', overwrite: true
+            }
+
+            input:
+            set val(basename), file(modernfile), file(originalfile) from foliadocuments_pairs
+            val skip from params.skip
+            val virtualenv from params.virtualenv
+
+            output:
+            file "${basename}.folia.xml" into foliadocuments_merged
+
+            script:
+            """
+            set +u
+            if [ ! -z "${virtualenv}" ]; then
+                source ${virtualenv}/bin/activate
+            fi
+            set -u
+
+            foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
+            """
+        }
+    }
+} else {
+    //simple mode
+
+    foliadocuments_frogged_original
+        .into { foliadocuments_merged }
+
 }
 
 if (params.entitylinking != "") {
