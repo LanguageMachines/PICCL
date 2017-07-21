@@ -293,7 +293,7 @@ if (params.entitylinking != "") {
 
         mkdir out
         \$rootpath/foliaentity/FoliaEntity.exe -w -m ${methods} ${extraoptions} -i ${document} -o out/
-        mv out/\$(basename ${document}) ${document.simpleName}.linked.folia.xml
+        zcat out/\$(basename ${document}).gz > ${document.simpleName}.linked.folia.xml
         """
     }
 
