@@ -177,7 +177,7 @@ process frog_original {
 
 
 //foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
-if ((mode == "full") || (mode =="modernize")) {
+if ((params.mode == "full") || (params.mode == "modernize")) {
 
     //add the necessary input files to each batch
     foliadocuments_batches_tokenized2
@@ -246,7 +246,7 @@ if ((mode == "full") || (mode =="modernize")) {
         .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
         .set { foliadocuments_pairs }
 
-    if (mode == "both") {
+    if (params.mode == "both") {
         process merge {
             //merge the modernized annotations with the original ones, the original ones will be included as alternatives
 
@@ -278,7 +278,7 @@ if ((mode == "full") || (mode =="modernize")) {
     //simple mode
 
     foliadocuments_frogged_original
-        .into { foliadocuments_merged }
+        .set { foliadocuments_merged }
 
 }
 
