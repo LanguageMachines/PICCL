@@ -177,7 +177,7 @@ process frog_original {
 
 
 //foliadocuments_frogged_original.subscribe { println "DBNL debug pipeline output document: " + it.name }
-if ((params.mode == "full") || (params.mode == "modernize")) {
+if ((params.mode == "both") || (params.mode == "modernize")) {
 
     //add the necessary input files to each batch
     foliadocuments_batches_tokenized2
