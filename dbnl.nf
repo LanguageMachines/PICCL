@@ -22,6 +22,7 @@ params.rules = "/dev/null"
 params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
 params.mode = "both";
+params.foliainput = false
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
@@ -34,6 +35,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
     log.info""
     log.info "Optional parameters:"
+    log.info "  --mode [modernize|simple|both]  Do modernisation, process original content immediately (simple), or both? Default: both"
+    log.info "  --foliainput             Input is tokenised FoLiA instead of TEI (bypasses part of the pipeline)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
@@ -59,74 +62,78 @@ try {
     exit 2
 }
 
+if (!params.foliainput) {
+    teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
 
-teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
+    oztfile = Channel.fromPath(params.oztfile)
 
-oztfile = Channel.fromPath(params.oztfile)
+    process teiAddIds {
+        //Add ID attribute to TEI file
 
-process teiAddIds {
-    //Add ID attribute to TEI file
+        input:
+        each file(teidocument) from teidocuments
+        file oztfile
+        val baseDir
 
-    input:
-    each file(teidocument) from teidocuments
-    file oztfile
-    val baseDir
+        output:
+        file "${teidocument.simpleName}.ids.xml" into tei_id_documents
 
-    output:
-    file "${teidocument.simpleName}.ids.xml" into tei_id_documents
+        script:
+        """
+        ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument} ${oztfile}
+        """
+    }
 
-    script:
-    """
-    ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument} ${oztfile}
-    """
+    process tei2folia {
+        //Extract text from TEI documents and convert to FoLiA
+
+        input:
+        file teidocument from tei_id_documents
+
+        output:
+        file "${teidocument.simpleName}.folia.xml" into foliadocuments
+
+        script:
+        """
+        ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > tmp.xml
+
+        #Delete any empty paragraphs (invalid FoLiA)
+        ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
+
+        #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
+        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > ${teidocument.simpleName}.folia.xml
+
+        """
+    }
+
+    process tokenize_ucto {
+        //tokenize the text
+
+        input:
+        file inputdocument from foliadocuments
+        val language from params.language
+        val virtualenv from params.virtualenv
+
+        output:
+        file "${inputdocument.simpleName}.tok.folia.xml" into foliadocuments_tokenized
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        ucto -L ${language} -X -F ${inputdocument} ${inputdocument.simpleName}.tok.folia.xml
+        """
+    }
+
+    //foliadocuments_tokenized.subscribe { println it }
+} else {
+    foliadocuments_tokenized = Channel.fromPath(params.inputdir+"/**.folia.xml")
 }
 
-process tei2folia {
-    //Extract text from TEI documents and convert to FoLiA
-
-    input:
-    file teidocument from tei_id_documents
-
-    output:
-    file "${teidocument.simpleName}.folia.xml" into foliadocuments
-
-    script:
-    """
-    ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > tmp.xml
-
-    #Delete any empty paragraphs (invalid FoLiA)
-    ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
-
-    #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
-    ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > ${teidocument.simpleName}.folia.xml
-
-    """
-}
-
-process tokenize_ucto {
-    //tokenize the text
-
-    input:
-    file inputdocument from foliadocuments
-    val language from params.language
-    val virtualenv from params.virtualenv
-
-    output:
-    file "${inputdocument.simpleName}.tok.folia.xml" into foliadocuments_tokenized
-
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
-
-    ucto -L ${language} -X -F ${inputdocument} ${inputdocument.simpleName}.tok.folia.xml
-    """
-}
-
-//foliadocuments_tokenized.subscribe { println it }
 
 //split the tokenized documents into batches of 1000 each, fork into two channels
 foliadocuments_tokenized
