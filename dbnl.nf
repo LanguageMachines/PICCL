@@ -167,7 +167,7 @@ process frog_original {
 
     opts=""
     if [ ! -z "$skip" ]; then
-        skip="--skip=${skip}"
+        opts="--skip=${skip}"
     fi
 
     #move input files to separate staging directory
@@ -213,7 +213,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
 
         opts=""
         if [ ! -z "$skip" ]; then
-            skip="--skip=${skip}"
+            opts="--skip=${skip}"
         fi
 
         mkdir modernization_work
