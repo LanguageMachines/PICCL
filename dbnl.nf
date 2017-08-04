@@ -199,6 +199,10 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         //translate the document to contemporary dutch for PoS tagging AND run Frog on it
         //adds an extra <t class="contemporary"> layer
 
+        if ((params.entitylinking == "") && (params.mode == "modernize")) {
+            publishDir params.outputdir, mode: 'copy', overwrite: true
+        }
+
         input:
         set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
         val skip from params.skip
@@ -242,22 +246,23 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
     }
 
 
-    // transform [file] -> [(basename, file)]
-    foliadocuments_frogged_original
-        .map { file -> [file.simpleName, file] }
-        .set { foliadocuments_frogged_original2 }
-
-    // transform [file] -> [(basename, file)]
-    foliadocuments_frogged_modernized
-        .map { file -> [file.simpleName, file] }
-        .set { foliadocuments_frogged_modernized2 }
-
-    //now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
-    foliadocuments_frogged_modernized2
-        .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
-        .set { foliadocuments_pairs }
-
     if (params.mode == "both") {
+
+        // transform [file] -> [(basename, file)]
+        foliadocuments_frogged_original
+            .map { file -> [file.simpleName, file] }
+            .set { foliadocuments_frogged_original2 }
+
+        // transform [file] -> [(basename, file)]
+        foliadocuments_frogged_modernized
+            .map { file -> [file.simpleName, file] }
+            .set { foliadocuments_frogged_modernized2 }
+
+        //now combine the two channels on basename: [ (basename, modernizedfile, originalfile) ]
+        foliadocuments_frogged_modernized2
+            .combine(foliadocuments_frogged_original2, by: 0) //0 refers to first input tuple element (basename)
+            .set { foliadocuments_pairs }
+
         process merge {
             //merge the modernized annotations with the original ones, the original ones will be included as alternatives
 
@@ -283,6 +288,9 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
 
             foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
             """
+        } else {
+            foliadocuments_frogged_modernized
+                .set { foliadocuments_merged }
         }
     }
 } else {
@@ -326,5 +334,6 @@ if (params.entitylinking != "") {
 
     entitylinker_output.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
 } else {
+    //for all modes
     foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
 }
