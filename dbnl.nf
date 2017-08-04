@@ -141,45 +141,49 @@ foliadocuments_tokenized
     .collect()
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
-process frog_original {
-    //Linguistic enrichment on the original text of the document (pre-modernization)
-    //Receives multiple input files in batches
+if ((params.mode == "both") || (params.mode == "simple")) {
 
-    if ((params.entitylinking == "") && (params.mode == "simple")) {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
+    process frog_original {
+        //Linguistic enrichment on the original text of the document (pre-modernization)
+        //Receives multiple input files in batches
+
+        if ((params.entitylinking == "") && (params.mode == "simple")) {
+            publishDir params.outputdir, mode: 'copy', overwrite: true
+        }
+
+        input:
+        file foliadocuments from foliadocuments_batches_tokenized1 //foliadocuments is a collection/batch for multiple files
+        val skip from params.skip
+        val virtualenv from params.virtualenv
+
+        output:
+        file "*.frogoriginal.folia.xml" into foliadocuments_frogged_original mode flatten
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        opts=""
+        if [ ! -z "$skip" ]; then
+            opts="--skip=${skip}"
+        fi
+
+        #move input files to separate staging directory
+        mkdir input
+        mv *.folia.xml input/
+
+        #output will be in cwd
+        frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
+
+        #set proper output extension
+        mmv "*.tok.folia.xml" "#1.frogoriginal.folia.xml"
+        """
     }
 
-    input:
-    file foliadocuments from foliadocuments_batches_tokenized1 //foliadocuments is a collection/batch for multiple files
-    val skip from params.skip
-    val virtualenv from params.virtualenv
-
-    output:
-    file "*.frogoriginal.folia.xml" into foliadocuments_frogged_original mode flatten
-
-    script:
-    """
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
-
-    opts=""
-    if [ ! -z "$skip" ]; then
-        opts="--skip=${skip}"
-    fi
-
-    #move input files to separate staging directory
-    mkdir input
-    mv *.folia.xml input/
-
-    #output will be in cwd
-    frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
-
-    #set proper output extension
-    mmv "*.tok.folia.xml" "#1.frogoriginal.folia.xml"
-    """
 }
 
 
