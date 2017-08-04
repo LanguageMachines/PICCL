@@ -288,10 +288,12 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
 
             foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
             """
-        } else {
-            foliadocuments_frogged_modernized
-                .set { foliadocuments_merged }
         }
+
+    } else {
+        //modernize mode
+        foliadocuments_frogged_modernized
+            .set { foliadocuments_merged }
     }
 } else {
     //simple mode
