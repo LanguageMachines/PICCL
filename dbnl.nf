@@ -21,6 +21,7 @@ params.preservation = "/dev/null"
 params.rules = "/dev/null"
 params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
+params.metadatadir = "";
 params.mode = "both";
 params.foliainput = false
 
@@ -41,6 +42,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
+    log.info "  --metadatadir DIRECTORY  Directory including JSON metadata (one file matching each input document)"
     log.info "  --language LANGUAGE      Language"
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
@@ -106,11 +108,36 @@ if (!params.foliainput) {
         """
     }
 
+    if (params.metadatadir != "") {
+        process addmetadata {
+            input:
+            file inputdocument from foliadocuments
+            val virtualenv from params.virtualenv
+            val metadatadir from params.metadatadir
+
+            output:
+            file "${inputdocument.simpleName}.withmetadata.folia.xml" into foliadocuments2
+
+            script:
+            """
+            set +u
+            if [ ! -z "${virtualenv}" ]; then
+                source ${virtualenv}/bin/activate
+            fi
+            set -u
+
+            python ${baseDir}/scripts/dbnl/addmetadata.py ${inputdocument} ${inputdocument.simpleName}.withmetadata.folia.xml ${metadatadir}
+            """
+        }
+    } else {
+        foliadocuments.set { foliadocuments2 }
+    }
+
     process tokenize_ucto {
         //tokenize the text
 
         input:
-        file inputdocument from foliadocuments
+        file inputdocument from foliadocuments2
         val language from params.language
         val virtualenv from params.virtualenv
 
