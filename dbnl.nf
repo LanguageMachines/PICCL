@@ -207,7 +207,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
 
         #set proper output extension
-        mmv "*.tok.folia.xml" "#1.frogoriginal.folia.xml"
+        mmv "*.folia.xml" "#1.frogoriginal.folia.xml"
         """
     }
 
@@ -268,7 +268,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
 
         #set proper output extension
-        mmv "*.tok.translated.folia.xml" "#1.frogmodernized.folia.xml"
+        mmv "*.translated.folia.xml" "#1.frogmodernized.folia.xml"
         """
     }
 
