@@ -222,16 +222,41 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         .map { batchfiles -> tuple(batchfiles, file(params.dictionary), file(params.preservation), file(params.rules), file(params.inthistlexicon)) }
         .set { foliadocuments_batches_withdata }
 
-    process modernize_and_frog {
+    process modernize {
         //translate the document to contemporary dutch for PoS tagging AND run Frog on it
         //adds an extra <t class="contemporary"> layer
 
+        input:
+        set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
+        val virtualenv from params.virtualenv
+
+        output:
+        file "*.translated.folia.xml" into foliadocuments_modernized mode flatten
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        if [ ! -d modernization_work ]; then
+            mkdir modernization_work
+            mv *.folia.xml modernization_work
+        fi
+
+        FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
+        """
+    }
+
+    process frog_modernized {
         if ((params.entitylinking == "") && (params.mode == "modernize")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
 
         input:
-        set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
+        set file(inputdocuments) from foliadocuments_modernized
         val skip from params.skip
         val virtualenv from params.virtualenv
 
@@ -251,24 +276,19 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
             opts="--skip=${skip}"
         fi
 
-        mkdir modernization_work
-        mv *.folia.xml modernization_work
-
-        #if [ ! -z "${inthistlexicon}" ]; then
-        #    extraopts="-H ${inthistlexicon}"
-        #else
-        #    extraopts=""
-        #fi
-        FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
-
-        mkdir froginput
-        mv *.translated.folia.xml froginput/
+        if [ ! -d in ]; then
+            mkdir in out
+            mv *.translated.folia.xml in/
+        fi
 
         #output will be in cwd
-        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir froginput/
+        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir in/ --outputdir out/ --retry
 
         #set proper output extension
-        mmv "*.translated.folia.xml" "#1.frogmodernized.folia.xml"
+        if [ \$? -eq 0 ]; then
+            mv out/*.xml .
+            mmv "*.translated.folia.xml" "#1.frogmodernized.folia.xml"
+        fi
         """
     }
 
