@@ -256,7 +256,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         }
 
         input:
-        set file(inputdocuments) from foliadocuments_modernized
+        file inputdocuments from foliadocuments_modernized
         val skip from params.skip
         val virtualenv from params.virtualenv
 
@@ -282,7 +282,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir in/ --xmldir out/ --retry
+        frog \$opts -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --testdir in/ --retry
 
         #set proper output extension
         if [ \$? -eq 0 ]; then
