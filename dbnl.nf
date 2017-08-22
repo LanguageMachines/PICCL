@@ -231,7 +231,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         val virtualenv from params.virtualenv
 
         output:
-        file "*.translated.folia.xml" into foliadocuments_modernized mode flatten
+        file "*.translated.folia.xml" into foliadocuments_modernized
 
         script:
         """
