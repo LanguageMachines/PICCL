@@ -282,7 +282,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir in/ --outputdir out/ --retry
+        frog \$opts -x --xmldir "." --threads=${task.cpus} --textclass contemporary --testdir in/ --xmldir out/ --retry
 
         #set proper output extension
         if [ \$? -eq 0 ]; then
