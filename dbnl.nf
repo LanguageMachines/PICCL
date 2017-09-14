@@ -12,7 +12,7 @@ log.info "--------------------------"
 def env = System.getenv()
 
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
-params.language = "nld"
+params.language = "nld-historical"
 params.extension = "xml"
 params.outputdir = "dbnl_output"
 params.skip = "mcpa"
@@ -204,7 +204,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         mv *.folia.xml input/
 
         #output will be in cwd
-        frog \$opts --xmldir "." --threads ${task.cpus} --testdir input/ -x
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads ${task.cpus} --testdir input/ -x
 
         #set proper output extension
         mmv "*.folia.xml" "#1.frogoriginal.folia.xml"
@@ -282,7 +282,8 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --testdir in/ --retry
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --testdir in/ --retry
+
 
         #set proper output extension
         if [ \$? -eq 0 ]; then
