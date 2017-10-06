@@ -43,7 +43,7 @@ following to obtain PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
 
-Subsequently ensure to always run it with the ``-with-docker proycon/lamachine`` parameter:
+In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine`` parameter:
 
     $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine
 
