@@ -21,7 +21,7 @@ if os.path.exists(metadatafile):
 
     doc.save(outputfile)
 else:
-    print("No metadata found for " + id,file=sys.stderr)<`0`>
+    print("No metadata found for " + id,file=sys.stderr)
     os.symlink(inputfile, outputfile)
 
 
