@@ -91,6 +91,7 @@ if (!params.foliainput) {
 
         input:
         file teidocument from tei_id_documents
+        val virtualenv from params.virtualenv
 
         output:
         file "${teidocument.simpleName}.folia.xml" into foliadocuments
