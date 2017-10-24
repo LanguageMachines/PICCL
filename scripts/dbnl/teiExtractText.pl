@@ -72,7 +72,7 @@ my $twig = new XML::Twig(
                         'cit' => \&convertToDiv,
                         'chapter' => \&convertToDiv,
                         'div' => \&divDeleteAttr,
-                        'external' => \&copy,
+                        'external' => \&processExternal,
                         'figDesc' => \&processItem,
                         'figure' => \&processFigure,
                         'head' => \&processHead,
@@ -185,6 +185,14 @@ sub convertToP {
       my $newT = new XML::Twig::Elt("t",normspaces($tag->text));
       $tag->set_text("");
       $newT->paste("last_child",$tag);
+   }
+}
+
+sub processExternal {
+   my ($twig,$tag) = @_;
+   my $atts = $tag->atts;
+   foreach my $att (keys %{$atts}) {
+      if ($att eq "xml:id" ) { $tag->del_att($att); }
    }
 }
 
