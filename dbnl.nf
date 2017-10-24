@@ -97,6 +97,12 @@ if (!params.foliainput) {
 
         script:
         """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
         ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > tmp.xml
 
         #Delete any empty paragraphs (invalid FoLiA)
@@ -105,6 +111,8 @@ if (!params.foliainput) {
         #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
         ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > ${teidocument.simpleName}.folia.xml
 
+        #validate the FoLiA
+        foliavalidator ${teidocument.simpleName}.folia.xml
         """
     }
 
