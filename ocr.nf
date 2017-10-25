@@ -204,7 +204,7 @@ process foliacat {
     fi
     set -u
 
-    foliainput=\$(ls *.tif.folia.xml | sort)
+    foliainput=\$(ls -1v *.tif.folia.xml)
     foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
     """
 }
