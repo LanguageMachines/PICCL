@@ -82,6 +82,7 @@ if (!params.foliainput) {
 
         script:
         """
+        rm *.folia.ids.xml >dev/null 2>/dev/null #remove existing output
         ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument} ${oztfile}
         """
     }
