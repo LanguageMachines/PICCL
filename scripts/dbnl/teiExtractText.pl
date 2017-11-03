@@ -148,21 +148,8 @@ sub normspaces {
     return $text;
 }
 
-sub fixattr {
-    #some attributes have a " inside which messes up XML serialisation
-    #Twig not smart enough to prevent it; so just do it manually
-    my $tag = $_[0];
-    my $atts = $tag->atts;
-    foreach my $att (keys %{$atts}) {
-      my $value = $tag->att($att);
-      $value =~ s/"/'/g;
-      $tag->set_att($att,$value);
-    }
-}
-
 sub convertToDiv {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -188,7 +175,6 @@ sub convertToDiv {
 
 sub convertToP {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    $tag->set_name('p');
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
@@ -206,7 +192,6 @@ sub convertToP {
 
 sub processExternal {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att eq "xml:id" ) { $tag->del_att($att); }
@@ -215,7 +200,6 @@ sub processExternal {
 
 sub copy {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    return();
 }
 
@@ -226,7 +210,6 @@ sub cut {
 
 sub divDeleteAttr {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class" and $att ne "type") { $tag->del_att($att); }
@@ -302,7 +285,6 @@ sub moveToGrandParent {
 
 sub processNote {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -320,7 +302,6 @@ sub processNote {
 
 sub processIdno {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    if (not defined $tag->{'att'}->{'type'} or $tag->{'att'}->{'type'} eq 'titelcode') {
       if ($tag->text =~ /^\s*$/) { warn("$command: empty id number: should not happen!\n"); }
       $idno = $tag->text;
@@ -329,7 +310,6 @@ sub processIdno {
 
 sub processHi {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    if ($tag->parent->name eq "div") {
       $tag->set_name("p");
       my $text = $tag->text;
@@ -341,7 +321,6 @@ sub processHi {
 
 sub processHead {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -363,7 +342,6 @@ sub processHead {
 
 sub processL {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $text = $tag->text;
    $text =~ s/\&nbsp;/ /g;
    if ($text =~ /^\s*$/) { $tag->cut; }
@@ -381,7 +359,6 @@ sub processL {
 
 sub processStage {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    $tag->set_name('event');
    $tag->set_att("class","stage");
    # $tag->set_text($tag->text);
@@ -411,7 +388,6 @@ sub processStage {
 
 sub processItem {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -446,7 +422,6 @@ sub processItem {
 sub processFigure {
    my ($twig,$tag) = @_;
    # $tag->del_att('rend');
-   fixattr($tag);
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
       $tag->set_name('p');
@@ -458,7 +433,6 @@ sub processFigure {
 
 sub processQ {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -471,7 +445,6 @@ sub processQ {
 
 sub processLg {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    $tag->set_name('event');
    $tag->set_att("class",$tag->{'att'}->{'type'});
    my $atts = $tag->atts;
@@ -494,7 +467,6 @@ sub processLg {
 
 sub processSp {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    $tag->set_name('event');
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
@@ -540,7 +512,6 @@ sub processSp {
 
 sub processP {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -549,7 +520,6 @@ sub processP {
 
 sub processT {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -591,7 +561,6 @@ sub addT {
 
 sub processTune {
    my ($twig,$tag) = @_;
-   fixattr($tag);
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
