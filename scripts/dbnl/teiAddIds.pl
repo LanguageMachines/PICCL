@@ -54,6 +54,13 @@ exit(0);
 # tag processing function: add id attribute & split off dependent titles
 sub process {
    my ($twig,$tag)= @_;
+   #strip quotes in attributes, may lead to malformed XML!
+   my $atts = $tag->atts;
+   foreach my $att (keys %{$atts}) {
+       my $value = $tag->att($att);
+       $value =~ s/"//g;
+       $tag->set_att($att => $value);
+   }
    # store the path of this tag in a list
    my @id = $twig->context;
    # add name of tag to list of id elements
@@ -165,7 +172,9 @@ THEEND
    # list label tags should be changed to attributes of items
    if ($tag->name eq "item" and $tag->parent->name eq "list") {
       if (defined $tag->sibling(-1) and $tag->sibling(-1)->name eq "label") {
-         $tag->set_att('n' => $tag->sibling(-1)->text);
+         my $n = $tag->sibling(-1)->text;
+         $n =~ s/"/'/g;
+         $tag->set_att('n' => $n);
          $tag->sibling(-1)->cut;
       }
    }

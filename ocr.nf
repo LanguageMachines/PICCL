@@ -204,8 +204,13 @@ process foliacat {
     fi
     set -u
 
-    foliainput=\$(ls -1v *.tif.folia.xml)
-    foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
+    if [ -f .tif.folia.xml ]; then
+        #only one file, nothing to cat
+        cp \$foliainput ${documentname}.folia.xml
+    else
+        foliainput=\$(ls -1v *.tif.folia.xml)
+        foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
+    fi
     """
 }
 

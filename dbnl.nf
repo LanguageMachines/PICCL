@@ -65,7 +65,7 @@ try {
 }
 
 if (!params.foliainput) {
-    teidocuments = Channel.fromPath(params.inputdir+"/**." + params.extension)
+    teidocuments = Channel.fromPath(params.inputdir+"/*." + params.extension)
 
     oztfile = Channel.fromPath(params.oztfile)
 
