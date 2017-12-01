@@ -2,6 +2,7 @@
 # teiExtractText: extract text with relevant tags from tei file
 # usage: teiExtractText file
 # 20130702 erikt(at)xs4all.nl
+# 2017 various fixes by proycon(at)anaproy.nl
 
 use XML::Twig;
 use strict;
@@ -91,21 +92,21 @@ my $twig = new XML::Twig(
                         'label' => \&cut,
                         'lb' => \&cut,
                         'lg' => \&processLg,
-                        'list' => \&deleteWhenEmpty,
+                        'list' => \&processStructure,
                         'name' => \&processHi,
                         'note' => \&processNote,
-                        'p' => \&processP,
+                        'p' => \&processStructure,
                         'poem' => \&convertToDiv,
                         'q' => \&processQ,
                         'pb' => \&cut,
                         'ref' => \&copy,
-                        'row' => \&deleteWhenEmpty,
+                        'row' => \&processStructure,
                         'signed' => \&convertToP,
                         'sp' => \&processSp,
                         'speaker' => \&copy,
                         'stage' => \&processStage,
                         't' => \&processT,
-                        'table' => \&deleteWhenEmpty,
+                        'table' => \&processStructure,
                         'teiHeader' => \&cut,
                         'lg/tune' => \&processL,
                         'tune' => \&processTune,
@@ -184,7 +185,7 @@ sub convertToP {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
-   &processP($twig,$tag);
+   &processStructure($twig,$tag);
    my @children = $tag->children;
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    elsif (not &relevant(@children)) {
@@ -412,14 +413,6 @@ sub processItem {
             $c->paste("last_child",$tag);
          }
       }
-      # cell tags do not take t tags as children
-      if ($tag->name eq "cell") {
-         my $newP = new XML::Twig::Elt("p","");
-         $newP->set_att("xml:id",$tag->{"att"}->{"xml:id"}.".p");
-         $newT->cut;
-         $newT->paste("last_child",$newP);
-         $newP->paste("last_child",$tag);
-      }
    }
 }
 
@@ -430,7 +423,7 @@ sub processFigure {
    else {
       $tag->set_name('p');
       $tag->set_text(normspaces($tag->text));
-      &processP($twig,$tag);
+      &processStructure($twig,$tag);
       &addT($twig,$tag);
    }
 }
@@ -443,7 +436,7 @@ sub processQ {
    }
    $tag->set_name('p');
    $tag->set_att("class","quote");
-   &processP($twig,$tag);
+   &processStructure($twig,$tag);
    &addT($twig,$tag);
 }
 
@@ -514,13 +507,14 @@ sub processSp {
    #}
 }
 
-sub processP {
+sub processStructure {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
 }
+
 
 sub processT {
    my ($twig,$tag) = @_;
