@@ -78,7 +78,7 @@ if (!params.foliainput) {
         val baseDir
 
         output:
-        file "${teidocument.simpleName}.ids.xml" into tei_id_documents
+        file "*.xml" into tei_id_documents mode flatten //input file should be excluded by nextflow already, output may be one simplename.ids.xml doc or multiple in case of a split
 
         script:
         """
