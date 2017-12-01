@@ -178,24 +178,35 @@ THEEND
          $tag->sibling(-1)->cut;
       }
    }
-   # paragraph content should be embedded in t contexts
+   # paragraph content should be embedded in t contexts (note: this aggressively grabs
+   # the text and ignores embedded elements!)
    if ($tag->name eq "p") {
-      &saveNotes($tag);
-      my $text = $tag->text;
-      $text =~ s/&nbsp;/ /g;
-      # ^\s*$ does not work here: empty strings remain
-      if ($text !~ /[A-Za-z0-9]/) { $tag->cut; }
-      else {
-         $tag->set_tag('t');
-         my $id = $tag->{'att'}->{'xml:id'};
-         $tag->del_att("xml:id");
-         # $tag->{'att'}->{'xml:id'} = $id.".t";
-         $tag->set_text($text);
-         my $newp = XML::Twig::Elt->new('p');
-         $newp->paste(after=>$tag);
-         $newp->{'att'}->{'xml:id'} = $id;
-         $tag->cut;
-         $tag->paste(first_child=>$newp);
+      my @children = $tag->children;
+      #but there may be a relevant structure element wrapped in a needless paragraph
+      if (@children and $#children == 0 and (($children[0]->name eq "table") or ($children[0]->name eq "list"))) {
+          #move it outside
+          my $child = $children[0];
+          $child->cut;
+          $child->paste(after=>$tag);
+          $tag->cut;
+      } else {
+          &saveNotes($tag);
+          my $text = $tag->text;
+          $text =~ s/&nbsp;/ /g;
+          # ^\s*$ does not work here: empty strings remain
+          if ($text !~ /[A-Za-z0-9]/) { $tag->cut; }
+          else {
+             $tag->set_tag('t');
+             my $id = $tag->{'att'}->{'xml:id'};
+             $tag->del_att("xml:id");
+             # $tag->{'att'}->{'xml:id'} = $id.".t";
+             $tag->set_text($text);
+             my $newp = XML::Twig::Elt->new('p');
+             $newp->paste(after=>$tag);
+             $newp->{'att'}->{'xml:id'} = $id;
+             $tag->cut;
+             $tag->paste(first_child=>$newp);
+          }
       }
    }
 }
