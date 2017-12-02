@@ -30,13 +30,13 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  dbnl.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
-    log.info "  --mode [modernize|simple|both]"
+    log.info "  --mode [modernize|simple|both|convert]"
     log.info "  --inputdir DIRECTORY     Input directory (TEI documents)"
     log.info "  --dictionary FILE        Modernisation dictionary"
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
     log.info""
     log.info "Optional parameters:"
-    log.info "  --mode [modernize|simple|both]  Do modernisation, process original content immediately (simple), or both? Default: both"
+    log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only? Default: both"
     log.info "  --foliainput             Input is tokenised FoLiA instead of TEI (bypasses part of the pipeline)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
@@ -89,6 +89,10 @@ if (!params.foliainput) {
 
     process tei2folia {
         //Extract text from TEI documents and convert to FoLiA
+
+        if (params.mode == "convert") {
+            publishDir params.outputdir, mode: 'copy', overwrite: true
+        }
 
         input:
         file teidocument from tei_id_documents
@@ -143,27 +147,29 @@ if (!params.foliainput) {
         foliadocuments.set { foliadocuments2 }
     }
 
-    process tokenize_ucto {
-        //tokenize the text
+    if (params.mode != "convert") {
+        process tokenize_ucto {
+            //tokenize the text
 
-        input:
-        file inputdocument from foliadocuments2
-        val language from params.language
-        val virtualenv from params.virtualenv
+            input:
+            file inputdocument from foliadocuments2
+            val language from params.language
+            val virtualenv from params.virtualenv
 
-        output:
-        file "${inputdocument.simpleName}.tok.folia.xml" into foliadocuments_tokenized
+            output:
+            file "${inputdocument.simpleName}.tok.folia.xml" into foliadocuments_tokenized
 
-        script:
-        """
-        set +u
-        if [ ! -z "${virtualenv}" ]; then
-            source ${virtualenv}/bin/activate
-        fi
-        set -u
+            script:
+            """
+            set +u
+            if [ ! -z "${virtualenv}" ]; then
+                source ${virtualenv}/bin/activate
+            fi
+            set -u
 
-        ucto -L ${language} -X -F ${inputdocument} ${inputdocument.simpleName}.tok.folia.xml
-        """
+            ucto -L ${language} -X -F ${inputdocument} ${inputdocument.simpleName}.tok.folia.xml
+            """
+        }
     }
 
     //foliadocuments_tokenized.subscribe { println it }
