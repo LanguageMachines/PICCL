@@ -307,7 +307,7 @@ sub processNote {
 
 sub processIdno {
    my ($twig,$tag) = @_;
-   if (not defined $tag->{'att'}->{'type'} or $tag->{'att'}->{'type'} eq 'titelcode') {
+   if ($tag->{'att'}->{'type'} eq 'titelcode') {
       if ($tag->text =~ /^\s*$/) { warn("$command: empty id number: should not happen!\n"); }
       $idno = $tag->text;
    }
