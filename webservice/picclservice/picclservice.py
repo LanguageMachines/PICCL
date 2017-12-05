@@ -30,7 +30,7 @@ import sys
 import os
 from base64 import b64decode as D
 
-REQUIRE_VERSION = 0.99
+REQUIRE_VERSION = 2.1
 
 CLAMDIR = clam.__path__[0] #directory where CLAM is installed, detected automatically
 WEBSERVICEDIR = os.path.dirname(os.path.abspath(__file__)) #directory where this webservice is installed, detected automatically
@@ -56,7 +56,7 @@ host = os.uname()[1]
 if 'VIRTUAL_ENV' in os.environ:
 
     HOST = host
-    if host == 'applejack': #production configuration in Nijmegen
+    if host in ('applejack','mlp01'): #production configuration in Nijmegen
         HOST = "webservices-lst.science.ru.nl"
         PORT= 443
         URLPREFIX = "piccl"
