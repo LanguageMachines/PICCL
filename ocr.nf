@@ -206,7 +206,7 @@ process foliacat {
 
     if [ -f .tif.folia.xml ]; then
         #only one file, nothing to cat
-        cp \$foliainput ${documentname}.folia.xml
+        cp .tif.folia.xml ${documentname}.folia.xml
     else
         foliainput=\$(ls -1v *.tif.folia.xml)
         foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
