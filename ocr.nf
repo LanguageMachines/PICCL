@@ -44,7 +44,10 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
-    pdfparts = Channel.fromPath(params.inputdir+"/**.pdf").groupBy { String partfile -> partfile.baseName.find(params.seqdelimiter) != null ? partfile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter) : partfile.baseName }
+    Channel.fromPath(params.inputdir+"/**.pdf")
+                .map { partfile -> partfile.baseName.find(params.seqdelimiter) != null ? tuple(partfile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter), partfile) : tuple(partfile.baseName, partfile) }
+                .groupTuple()
+                .set { pdfparts }
 
     process reassemble_pdf {
         input:
@@ -86,7 +89,7 @@ if (params.inputtype == "djvu") {
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
         .collate(2)
-        .into { pageimages }
+        .set { pageimages }
 
 } else if ((params.inputtype == "pdf") || (params.input == "pdfimages")) {
 
@@ -114,7 +117,7 @@ if (params.inputtype == "djvu") {
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
         .collate(2)
-        .into { pageimages_bitmap }
+        .set { pageimages_bitmap }
 
 
     process bitmap2tif {
@@ -143,7 +146,7 @@ if (params.inputtype == "djvu") {
             def documentname = pagefile.baseName.find(params.seqdelimiter) != null ? pagefile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter) : pagefile.baseName
             [ documentname, pagefile ]
         }
-        .into { pageimages }
+        .set { pageimages }
 
 
 } else {
@@ -204,7 +207,7 @@ foliapages
         //sort by file name (not full path)
         file(it).getName()
     })
-    .into { groupfoliapages }
+    .set { groupfoliapages }
 
 process foliacat {
     //Concatenate separate FoLiA pages pertaining to the same document into a single document again
