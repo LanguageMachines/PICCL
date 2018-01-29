@@ -28,13 +28,14 @@ if [ ! -d corpora ]; then
     $PICCL/download-examples.nf $WITHDOCKER || exit 2
 fi
 
-echo "======== Testing OCR (eng) with inputtype pdfimages ======">&2
-$PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdfimages $WITHDOCKER || exit 2
+echo "======== Testing OCR (eng) with inputtype pdf ======">&2
+$PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdf $WITHDOCKER || exit 2
 echo "======== Testing TICCL (eng) =========">&2
 $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
+
 
 echo "======== Testing OCR (nld) with inputtype tif ==========">&2
 $PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
@@ -43,6 +44,14 @@ $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --
 
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
+
+mkdir tmpinput
+cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_*.pdf tmpinput/
+echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
+$PICCL/ocr.nf --inputdir tmpinput  --language deu-frak --inputtype pdf --pdfhandling reassemble $WITHDOCKER || exit 2
+
+ls ocr_output/*xml || exit 2
+rm -Rf ocr_output
 
 #echo "======== Testing OCR (eng) with inputtype djvu ======">&2
 #$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2

@@ -38,7 +38,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     log.info "  --pdfhandling reassemble Reassemble/merge all PDFs with the same base name and a number suffix; this can"
     log.info "                           for instance reassemble a book that has its chapters in different PDFs."
-    log.info "                           Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention.
+    log.info "                           Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention."
     log.info "                           (The hyphen delimiter may optionally be changed using --seqdelimiter)"
     exit 2
 }
