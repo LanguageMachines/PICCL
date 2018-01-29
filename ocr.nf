@@ -27,7 +27,6 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "Optional parameters:"
     log.info "  --inputtype STR          Specify input type, the following are supported:"
     log.info "          pdfimages (extension *.pdf)  - Scanned PDF documents (image content) [default]"
-    log.info "          pdftext (extension *.pdf)    - PDF documents with a proper text layer [not implemented yet]"
     log.info "          tif (\$document-\$sequencenumber.tif)  - Images per page (adhere to the naming convention!)"
     log.info "          jpg (\$document-\$sequencenumber.jpg)  - Images per page"
     log.info "          png (\$document-\$sequencenumber.png)  - Images per page"
@@ -143,11 +142,6 @@ if (params.inputtype == "djvu") {
         }
         .into { pageimages }
 
-
-} else if (params.inputtype == "pdftext") {
-
-    log.error "pdftext inputtype is not implemented yet"
-    exit 2
 
 } else {
 

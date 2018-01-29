@@ -38,7 +38,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --language LANGUAGE      Language"
     log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)"
     log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well"
-    log.info "  --inputtype STR          Input type can be either 'folia' (default) or text"
+    log.info "  --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
     log.info "  --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)"
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
@@ -53,12 +53,35 @@ alphabet = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 
 charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusion file not found")
 
+
 if (params.inputtype == "folia") {
     folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
 } else if (params.inputtype == "text") {
     textdocuments = Channel.fromPath(params.inputdir+"/**.txt")
+} else if (params.inputtype == "pdf") {
+    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
 
+    process pdf2text {
+        //convert PDF to Text
+        input:
+        file pdfdocument from pdfdocuments
+
+        output:
+        file "${pdfdocument.baseName}.txt" into textdocuments
+
+        script:
+        """
+        pdftotext "$pdfdocument" "${pdfdocument.baseName}.txt"
+        """
+    }
+} else {
+    log.error "No such inputtype: " + params.inputtype
+    exit 2
+}
+
+if ((params.inputtype == "text") || (params.inputtype == "pdf")) {
     process txt2folia {
+        //Convert txt to FoLiA
         input:
         file textdocument from textdocuments
         val virtualenv from params.virtualenv
@@ -78,9 +101,6 @@ if (params.inputtype == "folia") {
         """
 
     }
-} else {
-    log.error "No such inputtype: " + params.inputtype
-    exit 2
 }
 
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
