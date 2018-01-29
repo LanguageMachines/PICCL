@@ -64,7 +64,7 @@ PICCL comes with the following workflows, most of them complement one or more ot
 
  * ``ocr.nf``   - A pipeline for Optical Character Recognition using [Tesseract](https://github.com/tesseract-ocr/tesseract); takes PDF documents or images of scanned pages and produces [FoLiA](https://proycon.github.io/folia) documents.
  * ``ticcl.nf`` - The Text-induced Corpus Clean-up system: performs OCR-postcorrection, takes as input the result from
-   ``ocr.nf`` and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
+   ``ocr.nf``, or standalone text or PDF (text; no OCR), and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
  * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
  * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
@@ -86,16 +86,20 @@ information.
       --language LANGUAGE      Language (iso-639-3)
 
     Optional parameters:
-      --inputtype STR          Specify input type, the following are supported:
-              pdfimages (extension *.pdf)  - Scanned PDF documents (image content) [default]
-              pdftext (extension *.pdf)    - PDF documents with a proper text layer [not implemented yet]
-              tif ($document-$sequencenumber.tif)  - Images per page (adhere to the naming convention!)
-              jpg ($document-$sequencenumber.jpg)  - Images per page
-              png ($document-$sequencenumber.png)  - Images per page
-              gif ($document-$sequencenumber.gif)  - Images per page
-              djvu (extension *.djvu)
-      --outputdir DIRECTORY    Output directory (FoLiA documents) [default: ocr_output]
-      --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)
+    --inputtype STR          Specify input type, the following are supported:
+            pdf (extension *.pdf)  - Scanned PDF documents (image content) [default]
+            tif ($document-$sequencenumber.tif)  - Images per page (adhere to the naming convention!)
+            jpg ($document-$sequencenumber.jpg)  - Images per page
+            png ($document-$sequencenumber.png)  - Images per page
+            gif ($document-$sequencenumber.gif)  - Images per page
+            djvu (extension *.djvu)"
+            (The hyphen delimiter may optionally be changed using --seqdelimiter)
+    --outputdir DIRECTORY    Output directory (FoLiA documents)
+    --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)
+    --pdfhandling reassemble Reassemble/merge all PDFs with the same base name and a number suffix; this can
+                             for instance reassemble a book that has its chapters in different PDFs.
+                             Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention.
+                             (The hyphen delimiter may optionally be changed using --seqdelimiter)
 
 
     $ nextflow run LanguageMachines/PICCL/ticcl.nf --help
@@ -116,7 +120,12 @@ information.
       --language LANGUAGE      Language
       --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)
       --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well
-
+      --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)
+      --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)
+      --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)
+      --distance INT           Levenshtein/edit distance (default: 2)
+      --clip INT               Limit the number of variants per word (default: 10)
+      --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)
 
 An example of invoking an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
 directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image data, therefore we choose the

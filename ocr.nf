@@ -91,10 +91,10 @@ if (params.inputtype == "djvu") {
         .collate(2)
         .set { pageimages }
 
-} else if ((params.inputtype == "pdf") || (params.input == "pdfimages")) {
+} else if ((params.inputtype == "pdf") || (params.inputtype == "pdfimages")) {
 
     if (params.pdfhandling == "single") {
-        pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
+        pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdf): " + it }
     }
 
     process pdfimages {
