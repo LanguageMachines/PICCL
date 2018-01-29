@@ -13,7 +13,7 @@ def env = System.getenv()
 
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outputdir = "ocr_output"
-params.inputtype = "pdfimages"
+params.inputtype = "pdf"
 params.pdfhandling = "single"
 params.seqdelimiter = "-"
 
@@ -27,7 +27,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info ""
     log.info "Optional parameters:"
     log.info "  --inputtype STR          Specify input type, the following are supported:"
-    log.info "          pdfimages (extension *.pdf)  - Scanned PDF documents (image content) [default]"
+    log.info "          pdf (extension *.pdf)  - Scanned PDF documents (image content) [default]"
     log.info "          tif (\$document-\$sequencenumber.tif)  - Images per page (adhere to the naming convention!)"
     log.info "          jpg (\$document-\$sequencenumber.jpg)  - Images per page"
     log.info "          png (\$document-\$sequencenumber.png)  - Images per page"
@@ -88,7 +88,7 @@ if (params.inputtype == "djvu") {
         .collate(2)
         .into { pageimages }
 
-} else if (params.inputtype == "pdfimages") {
+} else if ((params.inputtype == "pdf") || (params.input == "pdfimages")) {
 
     if (params.pdfhandling == "single") {
         pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
