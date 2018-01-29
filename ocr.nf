@@ -43,7 +43,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     exit 2
 }
 
-if ((params.inputtype.substring(0,3) == 'str') && (params.pdfhandling == "reassemble")) {
+if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
     pdfparts = Channel.fromPath(params.inputdir+"/**.pdf").groupBy { String partfile -> partfile.baseName.find(params.seqdelimiter) != null ? partfile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter) : partfile.baseName }
 
     process reassemble_pdf {
