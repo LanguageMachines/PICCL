@@ -12,6 +12,7 @@ if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ]; 
     PICCLDIR=$(dirname "${BASH_SOURCE[0]}")
     if [ -f $PICCLDIR/ticcl.nf ]; then
         PICCL=$PICCLDIR #run piccl scripts directly
+        echo "PICCL directory is $PICCLDIR"
     fi
 else
     #we are not in LaMachine so use the docker LaMachine:
