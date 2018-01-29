@@ -41,6 +41,25 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     exit 2
 }
 
+if ((params.inputtype.substring(0,3) == 'str') && (params.pdfhandling == "reassemble")) {
+    pdfparts = Channel.fromPath(params.inputdir+"/**.pdf").groupBy { String partfile -> partfile.baseName.find('-') != null ? partfile.baseName.tokenize('-')[0..-2].join('-') : partfile.baseName }
+
+    process reassemble_pdf {
+        input:
+        set val(documentname), file("*.pdf") from pdfparts
+
+        output:
+        file "${documentname}.pdf" into pdfdocuments
+
+        script:
+        """
+        pdfinput=\$(ls -1v *.pdf)
+        pdfunite \$pdfinput ${documentname}.pdf
+        """
+
+    }
+}
+
 
 if (params.inputtype == "djvu") {
     djvudocuments = Channel.fromPath(params.inputdir+"/**.djvu").view { "Input document (djvu): " + it }
@@ -69,24 +88,7 @@ if (params.inputtype == "djvu") {
 
 } else if (params.inputtype == "pdfimages") {
 
-    if (params.pdfhandling == "reassemble") {
-        pdfparts = Channel.fromPath(params.inputdir+"/**.pdf").groupBy { String partfile -> partfile.baseName.find('-') != null ? partfile.baseName.tokenize('-')[0..-2].join('-') : partfile.baseName }
-
-        process reassemble_pdf {
-            input:
-            set val(documentname), file("*.pdf") from pdfparts
-
-            output:
-            file "${documentname}.pdf" into pdfdocuments
-
-            script:
-            """
-            pdfinput=\$(ls -1v *.pdf)
-            pdfunite \$pdfinput ${documentname}.pdf
-            """
-
-        }
-    } else {
+    if (params.pdfhandling == "single") {
         pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
     }
 
