@@ -14,7 +14,7 @@ def env = System.getenv()
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.extension = "folia.xml"
 params.outputdir = "dbnl_output"
-params.entitylinking = "slh"; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
+params.entitylinking = "slh"; //Methods correspond to FoliaEntity.exe -m option
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
@@ -26,7 +26,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info""
     log.info "Optional parameters:"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
-    log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity) (DISABLED BY DEFAULT!)"
+    log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity)"
     log.info "  --entitylinkeroptions X  Extra options to pass to entity linker"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     exit 2

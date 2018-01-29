@@ -14,6 +14,7 @@ def env = System.getenv()
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outputdir = "ocr_output"
 params.inputtype = "pdfimages"
+params.pdfhandling = "single"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
     log.info "Usage:"
@@ -34,6 +35,9 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "          djvu (extension *.djvu)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents) [default: " + params.outputdir + "]"
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
+    log.info "  --pdfhandling reassemble Reassemble/merge all PDFs with the same base name and a number suffix; this can"
+    log.info "                           for instance reassemble a book that has its chapters in different PDFs."
+    log.info "                           Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention."
     exit 2
 }
 
@@ -65,7 +69,26 @@ if (params.inputtype == "djvu") {
 
 } else if (params.inputtype == "pdfimages") {
 
-    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
+    if (params.pdfhandling == "reassemble") {
+        pdfparts = Channel.fromPath(params.inputdir+"/**.pdf").groupBy { String partfile -> partfile.baseName.find('-') != null ? partfile.baseName.tokenize('-')[0..-2].join('-') : partfile.baseName }
+
+        process reassemble_pdf {
+            input:
+            set val(documentname), file("*.pdf") from pdfparts
+
+            output:
+            file "${documentname}.pdf" into pdfdocuments
+
+            script:
+            """
+            pdfinput=\$(ls -1v *.pdf)
+            pdfunite \$pdfinput ${documentname}.pdf
+            """
+
+        }
+    } else {
+        pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdfimages): " + it }
+    }
 
     process pdfimages {
         //Extract images from PDF
