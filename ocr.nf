@@ -91,7 +91,7 @@ if (params.inputtype == "djvu") {
         .collate(2)
         .set { pageimages }
 
-} else if ((params.inputtype == "pdf") || (params.inputtype == "pdfimages")) {
+} else if ((params.inputtype == "pdf") || (params.inputtype == "pdfimages")) { //2nd condition is needed for backwards compatibility
 
     if (params.pdfhandling == "single") {
         pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdf): " + it }
