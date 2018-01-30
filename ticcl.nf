@@ -71,7 +71,7 @@ if (params.inputtype == "folia") {
 
         script:
         """
-        pdftotext "$pdfdocument" "${pdfdocument.baseName}.txt"
+        pdftotext -nopgbrk -eol unix "$pdfdocument" "${pdfdocument.baseName}.txt"
         """
     }
 } else {
