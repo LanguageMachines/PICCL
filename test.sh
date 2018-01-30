@@ -46,13 +46,16 @@ $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
-mkdir tmpinput || exit 2
-cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf tmpinput/ || exit 3
-echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
-$PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimter "_" $WITHDOCKER || exit 2
+if [ "$USER" != "travis" ]; then #pdfunite fails on travis
+    mkdir tmpinput || exit 2
+    cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf tmpinput/ || exit 3
+    echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
+    $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimter "_" $WITHDOCKER || exit 2
 
-ls ocr_output/*xml || exit 2
-rm -Rf ocr_output
+    ls ocr_output/*xml || exit 2
+    rm -Rf ocr_output
+fi
+
 
 #echo "======== Testing OCR (eng) with inputtype djvu ======">&2
 #$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
@@ -60,6 +63,37 @@ rm -Rf ocr_output
 #$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 #ls ticcl_output/*xml || exit 2
+
+if [ ! -d text_input_ticcl ]; then
+    mkdir text_input_ticcl
+    cd text_input_ticcl
+    echo "The barbarian invasion put an end, for six centuries, to the
+civilization of western Europe. It lingered in Ireland until the
+Danes destroyed it in the ninth century; before its extinction
+there it produced one notable figure, Scotus Erigena. In the
+Eastern Empire, Greek civilization, in a desiccated form, survived,
+as in a museum, till the fall of Constantinople in 1453, but nothing
+of importance to the world came out of Constantinople except an
+artistic tradition and Justinian's Codes of Roman law.
+
+During the period of darkness, from the end of the fifth century
+to the middle of the eleventh, the western Roman world under-
+went some very interesting changes. The conflict between duty to
+
+1 This opinion was not unknown in earlier times: it is stated, for
+example, in the Antigone of Sophocles. But before the Stoics those who
+held it were fei%.
+
+* That is why the modem Russian does not think that we ought to
+obey dialectical materialism rather than Stalin." > ticcltest.txt
+    cd ..
+fi
+
+echo "======== Testing TICCL (eng) =========">&2
+$PICCL/ticcl.nf --inputdir text_input_ticcl/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+
+ls ticcl_output/*xml || exit 2
+rm -Rf ocr_output ticcl_output
 
 if [ ! -d text_input ]; then
     mkdir text_input
@@ -74,6 +108,7 @@ Er zijn natuurlijke en kunstmatige magneten (bijvoorbeeld Alnico, Fernico, ferri
 Een verwant verschijnsel is elektromagnetisme, magnetisme dat ontstaat door een elektrische stroom. In wezen wordt alle magnetisme veroorzaakt door zowel roterende als revolverende elektrische ladingen in kringstromen." > magnetisme.txt    #source: https://nl.wikipedia.org/wiki/Magnetisme
     cd ..
 fi
+
 
 echo "======== Testing tokenisation pipeline from plain text ========= ">&2
 $PICCL/tokenize.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
