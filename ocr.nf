@@ -51,7 +51,7 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
 
     process reassemble_pdf {
         input:
-        set val(documentname), file("*.pdf") from pdfparts
+        set val(documentname), file(pdffiles) from pdfparts
 
         output:
         file "${documentname}.pdf" into pdfdocuments
