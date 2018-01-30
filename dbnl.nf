@@ -220,7 +220,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         mv *.folia.xml input/
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads ${task.cpus} --testdir input/ -x
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads ${task.cpus} --nostdout --testdir input/ -x
 
         #set proper output extension
         mmv "*.folia.xml" "#1.frogoriginal.folia.xml"
@@ -298,7 +298,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --testdir in/ --retry
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --nostdout --testdir in/ --retry
 
 
         #set proper output extension
