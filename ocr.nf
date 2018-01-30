@@ -44,12 +44,15 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
+
+    //Group $documentname-$sequencenumber.pdf in a channel emitting a documentname and a list of (unordered) sequence pdf files
     Channel.fromPath(params.inputdir+"/**.pdf")
                 .map { partfile -> partfile.baseName.find(params.seqdelimiter) != null ? tuple(partfile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter), partfile) : tuple(partfile.baseName, partfile) }
                 .groupTuple()
                 .set { pdfparts }
 
     process reassemble_pdf {
+        //Reassemble a PDF 'book' (or whatever) from its parts (e.g, chapters, pages)
         input:
         set val(documentname), file(pdffiles) from pdfparts
 
@@ -58,8 +61,16 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
 
         script:
         """
-        pdfinput=\$(ls -1v *.pdf)
-        pdfunite \$pdfinput ${documentname}.pdf
+        count=\$(ls *.pdf | wc -l)
+        if [ \$count -eq 1 ]; then
+            cp \$(ls *.pdf) ${documentname}.pdf
+        elif [ \$count -eq 0 ]; then
+            echo "No input PDFs to merge!">&2
+            exit 5
+        else
+            pdfinput=\$(ls -1v *.pdf) #performs a natural sort
+            pdfunite \$pdfinput ${documentname}.pdf
+        fi
         """
 
     }

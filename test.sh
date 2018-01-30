@@ -46,15 +46,13 @@ $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
-if [ "$USER" != "travis" ]; then #pdfunite fails on travis
-    mkdir tmpinput || exit 2
-    cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf tmpinput/ || exit 3
-    echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
-    $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimter "_" $WITHDOCKER || exit 2
+mkdir -p tmpinput || exit 2
+cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf tmpinput/ || exit 3
+echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
+$PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
 
-    ls ocr_output/*xml || exit 2
-    rm -Rf ocr_output
-fi
+ls ocr_output/*xml || exit 2
+rm -Rf ocr_output
 
 
 #echo "======== Testing OCR (eng) with inputtype djvu ======">&2
@@ -65,7 +63,7 @@ fi
 #ls ticcl_output/*xml || exit 2
 
 if [ ! -d text_input_ticcl ]; then
-    mkdir text_input_ticcl
+    mkdir -p text_input_ticcl
     cd text_input_ticcl
     echo "The barbarian invasion put an end, for six centuries, to the
 civilization of western Europe. It lingered in Ireland until the
@@ -102,7 +100,7 @@ ls ticcl_output/*xml || exit 2
 rm -Rf ticcl_output
 
 if [ ! -d text_input ]; then
-    mkdir text_input
+    mkdir -p text_input || exit 2
     cd text_input
     #prepare a small test text:
     echo "Magnetisme is een natuurkundig verschijnsel dat zich uit in krachtwerking tussen magneten of andere gemagnetiseerde of magnetiseerbare voorwerpen, en een krachtwerking heeft op bewegende elektrische ladingen, zoals in stroomvoerende leidingen. De krachtwerking vindt plaats door middel van een magnetisch veld, dat door de voorwerpen zelf of anderszins wordt opgewekt.
