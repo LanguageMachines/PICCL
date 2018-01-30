@@ -89,11 +89,11 @@ obey dialectical materialism rather than Stalin." > ticcltest.txt
     cd ..
 fi
 
-echo "======== Testing TICCL (eng) =========">&2
-$PICCL/ticcl.nf --inputdir text_input_ticcl/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+echo "======== Testing TICCL with text input (eng) =========">&2
+$PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
-rm -Rf ocr_output ticcl_output
+rm -Rf ticcl_output
 
 if [ ! -d text_input ]; then
     mkdir text_input
