@@ -47,7 +47,7 @@ ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
 mkdir -p tmpinput || exit 2
-cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf tmpinput/ || exit 3
+cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
 echo "======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
 $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
 
