@@ -62,10 +62,9 @@ rm -Rf ocr_output
 
 #ls ticcl_output/*xml || exit 2
 
-if [ ! -d text_input_ticcl ]; then
-    mkdir -p text_input_ticcl
-    cd text_input_ticcl
-    echo "The barbarian invasion put an end, for six centuries, to the
+mkdir -p text_input_ticcl
+cd text_input_ticcl
+echo "The barbarian invasion put an end, for six centuries, to the
 civilization of western Europe. It lingered in Ireland until the
 Danes destroyed it in the ninth century; before its extinction
 there it produced one notable figure, Scotus Erigena. In the
@@ -84,8 +83,7 @@ held it were fei%.
 
 * That is why the modem Russian does not think that we ought to
 obey dialectical materialism rather than Stalin." > ticcltest.txt
-    cd ..
-fi
+cd ..
 
 echo "======== Testing TICCL with text input (eng) =========">&2
 $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
