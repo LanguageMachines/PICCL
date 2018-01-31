@@ -80,7 +80,11 @@ if 'VIRTUAL_ENV' in os.environ:
     if not os.path.exists(PICCLDATAROOT):
         raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
 
-    ROOT = PICCLDATAROOT + "/clamdata/"
+    if host == 'mlp01': #production configuration in Nijmegen
+        ROOT = "/var/www/webservices-lst/live/writable/piccl"
+    else:
+        ROOT = PICCLDATAROOT + "/clamdata/"
+
 elif os.path.exists('/var/piccldata'):
     #assume we are running in LaMachine docker or VM:
 
