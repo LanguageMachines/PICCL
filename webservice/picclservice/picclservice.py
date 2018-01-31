@@ -345,8 +345,9 @@ COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUT
 #are a list of instances from common/parameters.py
 
 PARAMETERS = [
-    ('Language Selection', [
-        ChoiceParameter('lang','Language?','Which language do you want to work with?', choices=LANGUAGECHOICES) #old ticcl -t
+    ("Input Options", [
+        ChoiceParameter('lang','Language?',"Specify the language of your input documents", choices=LANGUAGECHOICES), #old ticcl -t
+        BooleanParameter('reassemble','Reassemble PDF',"Use this option if you have PDF input files, such as chapters or pages, that first need to be merged together prior to processing. Filenames must be named {documentname}-{sequencenumber}.pdf for this to work.")
     ]),
     ('N-best Ranking', [
             ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('3','Up to three N-best ranked'),('1','First-best Only'),('2','Up to two N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]) #old ticcl -r

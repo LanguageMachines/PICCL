@@ -121,8 +121,10 @@ else:
     ticclinputdir = "ocr_output"
     ticcl_inputtype = "folia"
 
+pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'] else 'single'
+
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " -with-trace >&2"  );
+os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  );
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
 print("TICCL pipeline trace summary",file=sys.stderr)
