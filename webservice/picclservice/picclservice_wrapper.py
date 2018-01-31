@@ -131,6 +131,11 @@ else:
 
 pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'] else 'single'
 
+if 'frog' in clamdata and clamdata['frog']:
+    print("Frog enabled (" + str(clamdata['frog']) + ")",file=sys.stderr)
+if 'tok' in clamdata and clamdata['tok']:
+    print("Tokeniser enabled (" + str(clamdata['tok']) + ")",file=sys.stderr)
+
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
 if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
     ticcl_outputdir = 'ticcl_out'
@@ -150,11 +155,11 @@ if 'frog' in clamdata and clamdata['frog']:
         print("Input document is not dutch, defiantly ignoring linguistic enrichment choice!!!",file=sys.stderr)
     else:
         clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + ticcl_outputdir + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
             fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputdir " + ticcl_outputdir + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 
 #cleanup
