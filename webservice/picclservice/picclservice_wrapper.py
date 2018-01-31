@@ -50,6 +50,10 @@ clamdata = clam.common.data.getclamdata(datafile)
 
 clam.common.status.write(statusfile, "Starting...")
 
+def fail():
+    shutil.rmtree('work')
+    sys.exit(1)
+
 
 #=========================================================================================================================
 
@@ -112,7 +116,9 @@ elif inputtype == 'textocr':
     ticcl_inputtype = "text"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-    os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ); #use original clamdata['lang'] (may be deu_frak)
+    if os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ) != 0: #use original clamdata['lang'] (may be deu_frak)
+        fail()
+
 
     #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
     print("OCR pipeline trace summary",file=sys.stderr)
@@ -124,13 +130,30 @@ else:
 pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'] else 'single'
 
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  );
+if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
+    ticcl_outputdir = outputdir
+else:
+    ticcl_outputdir = 'ticcl_out'
+if os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
+    fail()
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
 print("TICCL pipeline trace summary",file=sys.stderr)
 print("-------------------------------",file=sys.stderr)
 print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 
+
+if 'frog' in clamdata and clamdata['frog']:
+    if lang != 'nld':
+        print("Input document is not dutch, defiantly ignoring linguistic enrichment choice!!!",file=sys.stderr)
+    else:
+        clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
+        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + ticcl_outputdir + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+            fail()
+elif 'tok' in clamdata and clamdata['tok']:
+    clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
+    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputdir " + ticcl_outputdir + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+        fail()
 
 #cleanup
 shutil.rmtree('work')

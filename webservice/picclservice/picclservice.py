@@ -355,6 +355,10 @@ PARAMETERS = [
     ('Edit/Levenshtein Distance', [
         ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
     ]),
+    ('Automatic Linguistic Enrichment', [
+        BooleanParameter('tok','Perform Tokenisation',"Perform tokenisation."),
+        BooleanParameter('frog','Perform Linguistic Enrichment',"Performs tokenisation, Part-of-Speech tagging, lemmatisation, named entity recognition and more. This is implemented only for Dutch (uses Frog)!!!")
+    ]),
     #('Focus Word Selection', [
     #    IntegerParameter('minlength','Minimum Word Length','Integer between zero and one hundred',default=5,minvalue=0, maxvalue=100), #old ticcl -x
     #    IntegerParameter('maxlength','Maximum Word Length','Integer between zero and one hundred',default=100,minvalue=0, maxvalue=100), #old ticcl -y
