@@ -85,6 +85,9 @@ if 'VIRTUAL_ENV' in os.environ:
     else:
         ROOT = PICCLDATAROOT + "/clamdata/"
 
+    PICCLDIR = os.path.join(os.environ['VIRTUAL_ENV'], "piccl")
+
+
 elif os.path.exists('/var/piccldata'):
     #assume we are running in LaMachine docker or VM:
 
@@ -97,6 +100,7 @@ elif os.path.exists('/var/piccldata'):
         raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
 
     ROOT = PICCLDATAROOT + "/clamdata/"
+    PICCLDIR = None #let Nextflow handle it
 else:
     raise Exception("I don't know where I'm running from! Add a section in the configuration corresponding to this host (" + os.uname()[1]+")")
 
@@ -340,7 +344,10 @@ PROFILES = [
 #                        (set to "anonymous" if there is none)
 #     $PARAMETERS      - List of chosen parameters, using the specified flags
 #
-COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT
+if PICCLDIR:
+    COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT + " " + PICCLDIR
+else:
+    COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT
 
 # ======== PARAMETER DEFINITIONS ===========
 

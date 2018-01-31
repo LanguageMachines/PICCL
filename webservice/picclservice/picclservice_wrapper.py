@@ -36,6 +36,14 @@ statusfile = sys.argv[2]
 inputdir = sys.argv[3]
 outputdir = sys.argv[4]
 piccldataroot = sys.argv[5]
+if len(sys.argv) >= 7:
+    #use scripts from src/ directly
+    run_piccl = sys.argv[6]
+    if run_piccl[-1] != '/': run_piccl += "/"
+else:
+    #use the piccl nextflow downloads
+    run_piccl = "nextflow LanguageMachines/PICCL/"
+
 
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
 #Moreover, you can import any other settings from your service configuration file as well:
@@ -123,7 +131,7 @@ elif inputtype == 'textocr':
     ticcl_inputtype = "text"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-    if os.system("nextflow run LanguageMachines/PICCL/ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ) != 0: #use original clamdata['lang'] (may be deu_frak)
+    if os.system(run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ) != 0: #use original clamdata['lang'] (may be deu_frak)
         fail()
 
 
@@ -146,7 +154,7 @@ if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata[
     ticcl_outputdir = 'ticcl_out'
 else:
     ticcl_outputdir = outputdir
-if os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
+if os.system(run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
     fail()
 
 #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
@@ -158,11 +166,11 @@ print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 if 'frog' in clamdata and clamdata['frog']:
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system(run_piccl + "frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system(run_piccl + "tokenize.nf -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 
 #cleanup
