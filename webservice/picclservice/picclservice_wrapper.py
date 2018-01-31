@@ -155,6 +155,7 @@ if 'frog' in clamdata and clamdata['frog']:
         print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice!!!",file=sys.stderr)
         fail()
     else:
+        print("Running Frog...",file=sys.stderr)
         clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
         if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
             fail()
