@@ -85,7 +85,7 @@ if 'VIRTUAL_ENV' in os.environ:
     else:
         ROOT = PICCLDATAROOT + "/clamdata/"
 
-    PICCLDIR = os.path.join(os.environ['VIRTUAL_ENV'], "piccl")
+    PICCLDIR = os.path.join(os.environ['VIRTUAL_ENV'], "src/piccl")
 
 
 elif os.path.exists('/var/piccldata'):
