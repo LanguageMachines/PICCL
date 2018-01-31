@@ -67,7 +67,7 @@ if 'VIRTUAL_ENV' in os.environ:
             'database': 'clamopener',
             'table': 'clamusers_clamusers'
         }
-        DEBUG = False
+        DEBUG = True
         REALM = "WEBSERVICES-LST"
         DIGESTOPAQUE = open(os.environ['CLAM_DIGESTOPAQUEFILE']).read().strip()
         SECRET_KEY = open(os.environ['CLAM_SECRETKEYFILE']).read().strip()
