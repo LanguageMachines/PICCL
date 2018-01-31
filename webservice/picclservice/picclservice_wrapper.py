@@ -157,7 +157,7 @@ if 'frog' in clamdata and clamdata['frog']:
     else:
         print("Running Frog...",file=sys.stderr)
         clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
             fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
