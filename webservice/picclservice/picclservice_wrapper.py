@@ -51,8 +51,9 @@ clamdata = clam.common.data.getclamdata(datafile)
 clam.common.status.write(statusfile, "Starting...")
 
 def fail():
-    shutil.rmtree('work')
-    sys.exit(1)
+    if os.path.exists('work'):
+        shutil.rmtree('work')
+        sys.exit(1)
 
 
 #=========================================================================================================================
@@ -132,9 +133,9 @@ pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'
 
 clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
 if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
-    ticcl_outputdir = outputdir
-else:
     ticcl_outputdir = 'ticcl_out'
+else:
+    ticcl_outputdir = outputdir
 if os.system("nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
     fail()
 
