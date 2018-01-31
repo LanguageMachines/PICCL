@@ -283,7 +283,7 @@ process rank {
 }
 
 process foliacorrect {
-    //Correct the input documents using the ranked list, produces final output documents with <t class="Ticcl"> and <str>
+    //Correct the input documents using the ranked list, produces final output documents with <str>
 
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
@@ -310,7 +310,7 @@ process foliacorrect {
     #some bookkeeping
     mkdir outputdir
 
-    FoLiA-correct --nums 10 -e ${extension} -O outputdir/ --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${task.cpus} .
+    FoLiA-correct --class current --nums 10 -e ${extension} -O outputdir/ --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${task.cpus} .
     mv outputdir/*.xml .
     """
 }
