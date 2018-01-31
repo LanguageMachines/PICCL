@@ -111,6 +111,7 @@ if not inputtype:
 
 if inputtype == 'foliaocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    ticcl_inputtype = "folia"
 elif inputtype == 'textocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "text"
