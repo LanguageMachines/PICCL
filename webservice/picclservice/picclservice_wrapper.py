@@ -161,7 +161,7 @@ if 'frog' in clamdata and clamdata['frog']:
             fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 
 #cleanup
