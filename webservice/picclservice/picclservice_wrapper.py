@@ -61,6 +61,11 @@ def fail():
 lang = clamdata['lang']
 if lang == 'deu_frak': lang = 'deu' #Fraktur German is german for all other intents and purposes
 
+if 'frog' in clamdata and clamdata['frog']:
+    if lang != 'nld':
+        print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice and aborting!!!",file=sys.stderr)
+        fail()
+
 datadir = os.path.join(piccldataroot,'data','int',lang)
 if not os.path.exists(datadir):
     errmsg = "ERROR: Unable to find data files for language '" + lang + "' in path " + piccldataroot
@@ -151,14 +156,10 @@ print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 
 
 if 'frog' in clamdata and clamdata['frog']:
-    if lang != 'nld':
-        print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice!!!",file=sys.stderr)
+    print("Running Frog...",file=sys.stderr)
+    clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
+    if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
-    else:
-        print("Running Frog...",file=sys.stderr)
-        clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-        if os.system("nextflow run LanguageMachines/PICCL/frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
-            fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
     if os.system("nextflow run LanguageMachines/PICCL/tokenize.nf -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
