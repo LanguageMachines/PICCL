@@ -24,6 +24,7 @@ params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, 
 params.metadatadir = "";
 params.mode = "both";
 params.foliainput = false
+params.frogs = 1
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
@@ -37,6 +38,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info""
     log.info "Optional parameters:"
     log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only? Default: both"
+    log.info "  --frogs NUMBER           The number of frogs to run in parallel, input will be divided into this many batches"
     log.info "  --foliainput             Input is tokenised FoLiA instead of TEI (bypasses part of the pipeline)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
@@ -178,10 +180,9 @@ if (!params.foliainput) {
 }
 
 
-//split the tokenized documents into batches of 1000 each, fork into two channels
+//split the tokenized documents into batches, fork into two channels
 foliadocuments_tokenized
-    .buffer( size: 1000, remainder: true)
-    .collect()
+    .buffer( size: params.frogs, remainder: true)
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
 if ((params.mode == "both") || (params.mode == "simple")) {
@@ -220,7 +221,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         mv *.folia.xml input/
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads ${task.cpus} --nostdout --testdir input/ -x
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads 1 --nostdout --testdir input/ -x
 
         #set proper output extension
         mmv "*.folia.xml" "#1.frogoriginal.folia.xml"
@@ -298,7 +299,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=${task.cpus} --textclass contemporary --nostdout --testdir in/ --retry
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=1 --textclass contemporary --nostdout --testdir in/ --retry
 
 
         #set proper output extension
