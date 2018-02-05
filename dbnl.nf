@@ -102,6 +102,7 @@ if (!params.foliainput) {
 
         output:
         file "${teidocument.simpleName}.folia.xml" into foliadocuments
+        file "${teidocument.simpleName}.folia.xml" into foliadocuments_counter
 
         script:
         """
@@ -177,12 +178,13 @@ if (!params.foliainput) {
     //foliadocuments_tokenized.subscribe { println it }
 } else {
     foliadocuments_tokenized = Channel.fromPath(params.inputdir+"/**.folia.xml")
+    foliadocuments_counter = Channel.fromPath(params.inputdir+"/**.folia.xml")
 }
 
 
 //split the tokenized documents into batches, fork into two channels
 foliadocuments_tokenized
-    .buffer( size: params.frogs, remainder: true)
+    .buffer( size: Math.ceil(foliadocuments_counter.count().val / params.frogs).toInteger(), remainder: true)
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
 if ((params.mode == "both") || (params.mode == "simple")) {
@@ -190,6 +192,8 @@ if ((params.mode == "both") || (params.mode == "simple")) {
     process frog_original {
         //Linguistic enrichment on the original text of the document (pre-modernization)
         //Receives multiple input files in batches
+
+        cpus params.frogs
 
         if ((params.entitylinking == "") && (params.mode == "simple")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
@@ -243,6 +247,8 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         //translate the document to contemporary dutch for PoS tagging AND run Frog on it
         //adds an extra <t class="contemporary"> layer
 
+        cpus Runtime.runtime.availableProcessors()
+
         input:
         set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
         val virtualenv from params.virtualenv
@@ -271,6 +277,8 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         if ((params.entitylinking == "") && (params.mode == "modernize")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
+
+        cpus params.frogs
 
         input:
         file inputdocuments from foliadocuments_modernized
