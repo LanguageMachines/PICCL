@@ -15,7 +15,7 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outputdir = "ocr_output"
 params.inputtype = "pdf"
 params.pdfhandling = "single"
-params.seqdelimiter = "-"
+params.seqdelimiter = "_"
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
     log.info "Usage:"
@@ -28,18 +28,18 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "Optional parameters:"
     log.info "  --inputtype STR          Specify input type, the following are supported:"
     log.info "          pdf (extension *.pdf)  - Scanned PDF documents (image content) [default]"
-    log.info "          tif (\$document-\$sequencenumber.tif)  - Images per page (adhere to the naming convention!)"
-    log.info "          jpg (\$document-\$sequencenumber.jpg)  - Images per page"
-    log.info "          png (\$document-\$sequencenumber.png)  - Images per page"
-    log.info "          gif (\$document-\$sequencenumber.gif)  - Images per page"
+    log.info "          tif (\$document_\$sequencenumber.tif)  - Images per page (adhere to the naming convention!)"
+    log.info "          jpg (\$document_\$sequencenumber.jpg)  - Images per page"
+    log.info "          png (\$document_\$sequencenumber.png)  - Images per page"
+    log.info "          gif (\$document_\$sequencenumber.gif)  - Images per page"
     log.info "          djvu (extension *.djvu)"
-    log.info "          (The hyphen delimiter may optionally be changed using --seqdelimiter)"
+    log.info "          (The underscore delimiter may optionally be changed using --seqdelimiter)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents) [default: " + params.outputdir + "]"
     log.info "  --virtualenv PATH        Path to Python Virtual Environment to load (usually path to LaMachine)"
     log.info "  --pdfhandling reassemble Reassemble/merge all PDFs with the same base name and a number suffix; this can"
     log.info "                           for instance reassemble a book that has its chapters in different PDFs."
-    log.info "                           Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention."
-    log.info "                           (The hyphen delimiter may optionally be changed using --seqdelimiter)"
+    log.info "                           Input PDFs must adhere to a \$document_\$sequencenumber.pdf convention."
+    log.info "                           (The underscore delimiter may optionally be changed using --seqdelimiter)"
     exit 2
 }
 
@@ -91,7 +91,7 @@ if (params.inputtype == "djvu") {
 
        script:
        """
-       ddjvu -format=tiff -eachpage ${djvudocument} ${djvudocument.baseName}-%d.tif
+       ddjvu -format=tiff -eachpage ${djvudocument} ${djvudocument.baseName}_%d.tif
        """
     }
 
