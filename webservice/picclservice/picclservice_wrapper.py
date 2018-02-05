@@ -166,7 +166,7 @@ print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
 if 'frog' in clamdata and clamdata['frog']:
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    if os.system(run_piccl + "frog.nf --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system(run_piccl + "frog.nf --skip=p --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
