@@ -81,9 +81,13 @@ if not os.path.exists(datadir):
     print(errmsg,file=sys.stderr)
     sys.exit(4)
 
+#has an explicit lexicon been provided already?
+have_lexicon = os.path.exists(inputdir + "/lexicon.lst")
+os.symlink(inputdir+"/lexicon.lst", 'lexicon.lst')
+
 #loop over all data files and copy (symlink actually to save diskspace and time) to the current working directory (project dir)
 for f in glob.glob(datadir + '/*'):
-    if f.split('.')[-1] == 'dict':
+    if f.split('.')[-1] == 'dict' and not have_lexicon:
         if os.path.exists('lexicon.lst'): os.unlink('lexicon.lst') #remove any existing
         os.symlink(f, 'lexicon.lst')
     if f.split('.')[-1] == 'chars':
