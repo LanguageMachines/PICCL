@@ -227,10 +227,16 @@ if os.path.exists(PICCLDATAROOT + "/corpora/OCR"):
         metadata=FoLiAXMLFormat(None, encoding='utf-8'),
         inputtemplate='foliaocr'
     ),
-    InputSource(id='dutchold', label="[Dutch (old)] TEST data: DPO35 Kalliopi Selection",
+    InputSource(id='dutchold', label="[Dutch (historical)] TEST data: DPO35 Kalliopi Selection",
         path=PICCLDATAROOT + "/corpora/OCR/DPO35test/",
         metadata=FoLiAXMLFormat(None, encoding='utf-8'),
         inputtemplate='foliaocr'
+    )]
+if os.path.exists(PICCLDATAROOT + "/corpora/OCR/DPO35tif"):
+    INPUTSOURCES += [InputSource(id='dpo35tif', label="[Dutch (historical)] Demonstrator/test data: DPO35 - Martinet book (full)",
+        path=PICCLDATAROOT + "/corpora/OCR/DPO35tif/",
+        metadata=TiffImageFormat(None),
+        inputtemplate='tif'
     )]
 
 
