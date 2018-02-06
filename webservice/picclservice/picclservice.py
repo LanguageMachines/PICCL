@@ -238,6 +238,22 @@ if os.path.exists(PICCLDATAROOT + "/corpora/OCR/DPO35tif"):
         metadata=TiffImageFormat(None),
         inputtemplate='tif'
     )]
+if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
+    INPUTSOURCES += [InputSource(id='contempNLDlex', label="[Lexicon] Contemporary Dutch Lexicon (Aspell)",
+        path=PICCLDATAROOT + "[Lexicon] /data/int/nld/nld.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8',language='nld'),
+        inputtemplate='lexicon'
+    ),
+    InputSource(id='contempNLD2lex', label="[Lexicon] Contemporary Dutch Lexicon (Compilation)",
+        path=PICCLDATAROOT + "/data/int/nld/ARG4.SGDLEX.UTF8.TICCL.v.4.lst",
+        metadata=PlainTextFormat(None, encoding='utf-8',language='nld'),
+        inputtemplate='lexicon'
+    ),
+    InputSource(id='histNLDlex', label="[Lexicon] Historical and Contemporary Dutch Lexicon, with names",
+        path=PICCLDATAROOT + "/data/int/nld/nuTICCL.OldandINLlexandINLNamesAspell.v2.COL1.tsv",
+        metadata=PlainTextFormat(None, encoding='utf-8',language='nld'),
+        inputtemplate='lexicon'
+    )]
 
 
 
