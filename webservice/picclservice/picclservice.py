@@ -240,7 +240,7 @@ if os.path.exists(PICCLDATAROOT + "/corpora/OCR/DPO35tif"):
     )]
 if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
     INPUTSOURCES += [InputSource(id='contempNLDlex', label="[Lexicon] Contemporary Dutch Lexicon (Aspell)",
-        path=PICCLDATAROOT + "[Lexicon] /data/int/nld/nld.aspell.dict",
+        path=PICCLDATAROOT + "/data/int/nld/nld.aspell.dict",
         metadata=PlainTextFormat(None, encoding='utf-8',language='nld'),
         inputtemplate='lexicon'
     ),
