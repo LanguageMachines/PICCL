@@ -174,7 +174,7 @@ INTERFACEOPTIONS = "disableliveinput"
 #Define your profiles here. This is required for the project paradigm, but can be set to an empty list if you only use the action paradigm.
 
 
-LANGUAGECHOICES = [('eng','English'),('nld','Dutch'),('fin','Finnish'),('fra','French'),('deu','German'),('deu_frak','German Fraktur'),('ell','Greek (Modern)'),('grc','Greek (Classical)'),('isl','Icelandic'),('ita','Italian'),('lat','Latin'),('pol','Polish'),('por','Portuguese'),('rus','Russian'),('spa','Spanish'),('swe','Swedish')]
+LANGUAGECHOICES = [('eng','English'),('nld','Dutch'),('fin','Finnish'),('fra','French'),('deu','German'),('deu_frak','German Fraktur'),('ell','Greek (Modern)'),('grc','Greek (Classical)'),('isl','Icelandic'),('ita','Italian'),('lat','Latin'),('pol','Polish'),('por','Portuguese'),('ron','Romanian'),('rus','Russian'),('spa','Spanish'),('swe','Swedish')]
 
 INPUTSOURCES = []
 if os.path.exists(PICCLDATAROOT + "/corpora/TIFF/NLD"):
@@ -232,6 +232,298 @@ if os.path.exists(PICCLDATAROOT + "/corpora/OCR"):
         metadata=FoLiAXMLFormat(None, encoding='utf-8'),
         inputtemplate='foliaocr'
     )]
+if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
+    INPUTSOURCES += [InputSource(id='lexicon-nld', label="[Dutch] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/nld/nld.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu-frak"):
+    INPUTSOURCES += [InputSource(id='lexicon-deu-frak', label="[German] Historical Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/deu-frak/deu-frak.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu"):
+    INPUTSOURCES += [InputSource(id='lexicon-deu', label="[German] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/deu/deu.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fra"):
+    INPUTSOURCES += [InputSource(id='lexicon-fra', label="[French] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/fra/fra.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ell"):
+    INPUTSOURCES += [InputSource(id='lexicon-ell', label="[Greek] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/ell/ell.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fin"):
+    INPUTSOURCES += [InputSource(id='lexicon-fin', label="[Finnish] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/fin/fin.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fry"):
+    INPUTSOURCES += [InputSource(id='lexicon-fry', label="[Frisian] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/fry/fry.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/isl"):
+    INPUTSOURCES += [InputSource(id='lexicon-isl', label="[Icelandic] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/isl/isl.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ita"):
+    INPUTSOURCES += [InputSource(id='lexicon-ita', label="[Italian] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/ita/ita.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/lat"):
+    INPUTSOURCES += [InputSource(id='lexicon-lat', label="[Latin] Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/lat/lat.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/pol"):
+    INPUTSOURCES += [InputSource(id='lexicon-pol', label="[Polish] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/pol/pol.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/por"):
+    INPUTSOURCES += [InputSource(id='lexicon-por', label="[Portuguese] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/por/por.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ron"):
+    INPUTSOURCES += [InputSource(id='lexicon-ron', label="[Romanian] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/ron/ron.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/rus"):
+    INPUTSOURCES += [InputSource(id='lexicon-rus', label="[Russian] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/rus/rus.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/spa"):
+    INPUTSOURCES += [InputSource(id='lexicon-spa', label="[Spanish] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/spa/spa.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/swe"):
+    INPUTSOURCES += [InputSource(id='lexicon-swe', label="[Swedish] Contemporary Lexicon (Aspell)",
+        path=PICCLDATAROOT + "/data/int/swe/swe.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='lexicon'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
+    INPUTSOURCES += [InputSource(id='alphabet-nld', label="[Dutch] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/nld/nld.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu-frak"):
+    INPUTSOURCES += [InputSource(id='alphabet-deu-frak', label="[German] Historical Alphabet file",
+        path=PICCLDATAROOT + "/data/int/deu-frak/deu-frak.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu"):
+    INPUTSOURCES += [InputSource(id='alphabet-deu', label="[German] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/deu/deu.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fra"):
+    INPUTSOURCES += [InputSource(id='alphabet-fra', label="[French] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/fra/fra.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ell"):
+    INPUTSOURCES += [InputSource(id='alphabet-ell', label="[Greek] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/ell/ell.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fin"):
+    INPUTSOURCES += [InputSource(id='alphabet-fin', label="[Finnish] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/fin/fin.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fry"):
+    INPUTSOURCES += [InputSource(id='alphabet-fry', label="[Frisian] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/fry/fry.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/isl"):
+    INPUTSOURCES += [InputSource(id='alphabet-isl', label="[Icelandic] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/isl/isl.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ita"):
+    INPUTSOURCES += [InputSource(id='alphabet-ita', label="[Italian] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/ita/ita.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/lat"):
+    INPUTSOURCES += [InputSource(id='alphabet-lat', label="[Latin] Alphabet file",
+        path=PICCLDATAROOT + "/data/int/lat/lat.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/pol"):
+    INPUTSOURCES += [InputSource(id='alphabet-pol', label="[Polish] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/pol/pol.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/por"):
+    INPUTSOURCES += [InputSource(id='alphabet-por', label="[Portuguese] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/por/por.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ron"):
+    INPUTSOURCES += [InputSource(id='alphabet-ron', label="[Romanian] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/ron/ron.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/rus"):
+    INPUTSOURCES += [InputSource(id='alphabet-rus', label="[Russian] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/rus/rus.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/spa"):
+    INPUTSOURCES += [InputSource(id='alphabet-spa', label="[Spanish] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/spa/spa.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/swe"):
+    INPUTSOURCES += [InputSource(id='alphabet-swe', label="[Swedish] Contemporary Alphabet file",
+        path=PICCLDATAROOT + "/data/int/swe/swe.aspell.dict.lc.chars",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='alphabet'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
+    INPUTSOURCES += [InputSource(id='charconfus-nld', label="[Dutch] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/nld/nld.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu-frak"):
+    INPUTSOURCES += [InputSource(id='charconfus-deu-frak', label="[German] Historical Character confusion file",
+        path=PICCLDATAROOT + "/data/int/deu-frak/deu-frak.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/deu"):
+    INPUTSOURCES += [InputSource(id='charconfus-deu', label="[German] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/deu/deu.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fra"):
+    INPUTSOURCES += [InputSource(id='charconfus-fra', label="[French] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/fra/fra.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ell"):
+    INPUTSOURCES += [InputSource(id='charconfus-ell', label="[Greek] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/ell/ell.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fin"):
+    INPUTSOURCES += [InputSource(id='charconfus-fin', label="[Finnish] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/fin/fin.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/fry"):
+    INPUTSOURCES += [InputSource(id='charconfus-fry', label="[Frisian] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/fry/fry.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/isl"):
+    INPUTSOURCES += [InputSource(id='charconfus-isl', label="[Icelandic] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/isl/isl.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ita"):
+    INPUTSOURCES += [InputSource(id='charconfus-ita', label="[Italian] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/ita/ita.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/lat"):
+    INPUTSOURCES += [InputSource(id='charconfus-lat', label="[Latin] Character confusion file",
+        path=PICCLDATAROOT + "/data/int/lat/lat.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/pol"):
+    INPUTSOURCES += [InputSource(id='charconfus-pol', label="[Polish] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/pol/pol.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/por"):
+    INPUTSOURCES += [InputSource(id='charconfus-por', label="[Portuguese] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/por/por.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/ron"):
+    INPUTSOURCES += [InputSource(id='charconfus-ron', label="[Romanian] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/ron/ron.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/rus"):
+    INPUTSOURCES += [InputSource(id='charconfus-rus', label="[Russian] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/rus/rus.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/spa"):
+    INPUTSOURCES += [InputSource(id='charconfus-spa', label="[Spanish] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/spa/spa.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+if os.path.exists(PICCLDATAROOT + "/data/int/swe"):
+    INPUTSOURCES += [InputSource(id='charconfus-swe', label="[Swedish] Contemporary Character confusion file",
+        path=PICCLDATAROOT + "/data/int/swe/swe.aspell.dict",
+        metadata=PlainTextFormat(None, encoding='utf-8'),
+        inputtemplate='charconfus'
+    )]
+
+
+
+
 
 PROFILES = [
 
@@ -239,6 +531,10 @@ PROFILES = [
         InputTemplate('tif', TiffImageFormat, 'TIF image of a scanned page',
            extension='tif',
            multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           filename="lexicon.lst",
+           unique=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
@@ -255,6 +551,21 @@ PROFILES = [
         InputTemplate('pdfimages', PDFFormat, 'PDF document containing scanned pages',
            extension='pdf',
            multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="lexicon.lst",
+           unique=True,
+        ),
+        InputTemplate('alphabet', PlainTextFormat, "Alphabet file",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="alphabet.lst",
+           unique=True,
+        ),
+        InputTemplate('charconfus', PlainTextFormat, "Character confusion list",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="charconfus.lst",
+           unique=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
@@ -273,6 +584,21 @@ PROFILES = [
            extension='djvu',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="lexicon.lst",
+           unique=True,
+        ),
+        InputTemplate('alphabet', PlainTextFormat, "Alphabet file",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="alphabet.lst",
+           unique=True,
+        ),
+        InputTemplate('charconfus', PlainTextFormat, "Character confusion list",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="charconfus.lst",
+           unique=True,
+        ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
            filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
@@ -290,6 +616,21 @@ PROFILES = [
            extension='txt',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="lexicon.lst",
+           unique=True,
+        ),
+        InputTemplate('alphabet', PlainTextFormat, "Alphabet file",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="alphabet.lst",
+           unique=True,
+        ),
+        InputTemplate('charconfus', PlainTextFormat, "Character confusion list",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="charconfus.lst",
+           unique=True,
+        ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
            filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
@@ -306,6 +647,21 @@ PROFILES = [
         InputTemplate('foliaocr', FoLiAXMLFormat, 'FoLiA with OCR text layer',
            extension='folia.xml',
            multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="lexicon.lst",
+           unique=True,
+        ),
+        InputTemplate('alphabet', PlainTextFormat, "Alphabet file",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="alphabet.lst",
+           unique=True,
+        ),
+        InputTemplate('charconfus', PlainTextFormat, "Character confusion list",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="charconfus.lst",
+           unique=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
