@@ -40,6 +40,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "                           for instance reassemble a book that has its chapters in different PDFs."
     log.info "                           Input PDFs must adhere to a \$document_\$sequencenumber.pdf convention."
     log.info "                           (The underscore delimiter may optionally be changed using --seqdelimiter)"
+    log.info "  --seqdelimiter           Sequence delimiter in input files (defaults to: _)"
+    log.info "  --seqstart               What input field is the sequence number (may be a negative number to count from the end), default: -2"
     exit 2
 }
 
@@ -147,7 +149,7 @@ if (params.inputtype == "djvu") {
 
 } else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
 
-    //input is a set of images: $documentname-$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variery of formats
+    //input is a set of images: $documentname_$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variery of formats
     //we group and transform the data into a pageimages channel, structure will be: [(documentname, pagefile)
 
 

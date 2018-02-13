@@ -282,7 +282,7 @@ PROFILES = [
     ),
 
     Profile(
-        InputTemplate('pdfimages', PDFFormat, 'PDF document containing scanned pages',
+        InputTemplate('pdfimages', PDFFormat, 'PDF document with scanned pages (images) (perform OCR)',
            extension='pdf',
            multi=True,
         ),
@@ -303,6 +303,30 @@ PROFILES = [
             multi=True,
         ),
     ),
+
+    Profile(
+        InputTemplate('pdftext', PDFFormat, 'PDF document with embedded text (no OCR)',
+           extension='pdf',
+           multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename="lexicon.lst",
+           unique=True,
+           optional=True,
+        ),
+        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+           SetMetaField('encoding','utf-8'),
+           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
+           unique=True,
+        ),
+        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
+            removeextension='.pdf',
+            extension='ticcl.folia.xml',
+            multi=True,
+        ),
+    ),
+
 
     Profile(
         InputTemplate('djvu', PDFFormat, 'DJVU document containing scanned pages',

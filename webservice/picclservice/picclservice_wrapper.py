@@ -118,7 +118,7 @@ if not os.path.exists('confusion.lst'):
 inputtype = ''
 for inputfile in clamdata.input:
    inputtemplate = inputfile.metadata.inputtemplate
-   if inputtemplate in ('pdfimages', 'tif','jpg','png','gif','foliaocr','textocr'):
+   if inputtemplate in ('pdfimages', 'pdftext', 'tif','jpg','png','gif','foliaocr','textocr'):
         inputtype = inputtemplate
 
 if not inputtype:
@@ -133,6 +133,9 @@ if inputtype == 'foliaocr':
 elif inputtype == 'textocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "text"
+elif inputtype == 'pdftext':
+    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    ticcl_inputtype = "pdf"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
     if os.system(run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ) != 0: #use original clamdata['lang'] (may be deu_frak)
