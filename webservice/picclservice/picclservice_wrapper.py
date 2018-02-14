@@ -90,13 +90,22 @@ if not os.path.exists("lexicon.lst") and have_lexicon:
 for f in glob.glob(datadir + '/*'):
     if f.split('.')[-1] == 'dict' and not have_lexicon:
         if os.path.exists('lexicon.lst'): os.unlink('lexicon.lst') #remove any existing
-        os.symlink(f, 'lexicon.lst')
+        try:
+            os.symlink(f, 'lexicon.lst')
+        except Exception as e:
+            print(str(e),file=sys.stderr)
     if f.split('.')[-1] == 'chars':
         if os.path.exists('alphabet.lst'): os.unlink('alphabet.lst') #remove any existing
-        os.symlink(f, 'alphabet.lst')
+        try:
+            os.symlink(f, 'alphabet.lst')
+        except Exception as e:
+            print(str(e),file=sys.stderr)
     if f.split('.')[-1] == 'confusion':
         if os.path.exists('confusion.lst'): os.unlink('confusion.lst') #remove any existing
-        os.symlink(f, 'confusion.lst')
+        try:
+            os.symlink(f, 'confusion.lst')
+        except Exception as e:
+            print(str(e),file=sys.stderr)
 
 if not os.path.exists('lexicon.lst'):
     errmsg = "ERROR: Unable to find lexicon file for language '" + lang + "' in path " + piccldataroot
