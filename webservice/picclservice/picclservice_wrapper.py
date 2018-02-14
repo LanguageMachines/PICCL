@@ -83,7 +83,8 @@ if not os.path.exists(datadir):
 
 #has an explicit lexicon been provided already?
 have_lexicon = os.path.exists(inputdir + "/lexicon.lst")
-os.symlink(inputdir+"/lexicon.lst", 'lexicon.lst')
+if not os.path.exists("lexicon.lst"):
+    os.symlink(inputdir+"/lexicon.lst", 'lexicon.lst')
 
 #loop over all data files and copy (symlink actually to save diskspace and time) to the current working directory (project dir)
 for f in glob.glob(datadir + '/*'):
