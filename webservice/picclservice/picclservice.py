@@ -160,8 +160,7 @@ STYLE = 'classic'
 # ======= INTERFACE OPTIONS ===========
 
 #Here you can specify additional interface options (space separated list), see the documentation for all allowed options
-#INTERFACEOPTIONS = "inputfromweb" #allow CLAM to download its input from a user-specified url
-INTERFACEOPTIONS = "disableliveinput"
+INTERFACEOPTIONS = "disableliveinput inputfromweb"
 
 # ======== PREINSTALLED DATA ===========
 
