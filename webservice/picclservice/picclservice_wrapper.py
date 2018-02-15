@@ -42,7 +42,7 @@ if len(sys.argv) >= 7:
     if run_piccl[-1] != '/': run_piccl += "/"
 else:
     #use the piccl nextflow downloads
-    run_piccl = "nextflow LanguageMachines/PICCL/"
+    run_piccl = "nextflow run LanguageMachines/PICCL/"
 
 
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
