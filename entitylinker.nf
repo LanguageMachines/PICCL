@@ -15,7 +15,7 @@ params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.extension = "folia.xml"
 params.outputdir = "dbnl_output"
 params.entitylinking = "slh"; //Methods correspond to FoliaEntity.exe -m option
-params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
+params.entitylinkerurioptions = ""; //Extra options for entity linker, will be passed as -u to FoLiAEntity"
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "Usage:"
@@ -27,7 +27,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "Optional parameters:"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
     log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity)"
-    log.info "  --entitylinkeroptions X  Extra options to pass to entity linker"
+    log.info "  --entitylinkerurioptions X  Extra options to pass to entity linker -u"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     exit 2
 }
@@ -41,7 +41,7 @@ process entitylinker {
     file document from foliadocuments
     val virtualenv from params.virtualenv
     val methods from params.entitylinking
-    val extraoptions from params.entitylinkeroptions
+    val extraoptions from params.entitylinkerurioptions
 
     output:
     file "${document.simpleName}.linked.folia.xml" into entitylinker_output
@@ -59,7 +59,12 @@ process entitylinker {
     set -u
 
     mkdir out
-    \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} ${extraoptions} -i ${document} -o out/
+    if [ ! -z "${extraoptions}" ]; then
+        extraoptions="-u ${extraoptions}"
+    else
+        extraoptions=""
+    fi
+    \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} \$extraoptions -i ${document} -o out/
     zcat out/\$(basename ${document}).gz > ${document.simpleName}.linked.folia.xml
     """
 }
