@@ -120,7 +120,31 @@ if (params.inputtype == "djvu") {
 
         script: //#older versions of pdfimages can not do tiff directly, we have to accommodate this so do conversion in two steps
         """
-        pdfimages -p ${pdfdocument} ${pdfdocument.baseName}
+        #!/usr/bin/env python3
+        import os
+        import glob
+        import sys
+
+        os.system("pdfimages -p ${pdfdocument} ${pdfdocument.baseName}")
+
+        #This post processing script deletes all images extracted from pages EXCEPT the largest one (bitmap filesize-wise)
+        def prune(sizes):
+            for i, (filename, size) in enumerate(sorted(sizes.items(), key= lambda x: x[1]*-1)):
+                if i > 0:
+                    print("pruning image that is not the largest for a this page:  ", filename, size, file=sys.stderr)
+                    os.unlink(filename)
+
+        sizes = {}
+        prev_docname_page = None
+        for imagefile in sorted(glob.glob("${pdfdocument.baseName}*.p?m")):
+            fields = imagefile[:-4].split('-')
+            docname_page = tuple(fields[:-1])
+            if docname_page != prev_docname_page and sizes:
+                prune(sizes)
+                sizes = {}
+            sizes[imagefile] = os.path.getsize(imagefile)
+            prev_docname_page = docname_page
+        prune(sizes)
         """
     }
 
