@@ -125,7 +125,10 @@ if (params.inputtype == "djvu") {
         import glob
         import sys
 
-        os.system("pdfimages -p ${pdfdocument} ${pdfdocument.baseName}")
+        r = os.system("pdfimages -p ${pdfdocument} ${pdfdocument.baseName}")
+        if r != 0:
+            print("pdfimages failed...", file=sys.stderr)
+            sys.exit(r)
 
         #This post processing script deletes all images extracted from pages EXCEPT the largest one (bitmap filesize-wise)
         def prune(sizes):
