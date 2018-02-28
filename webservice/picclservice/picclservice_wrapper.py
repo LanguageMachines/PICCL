@@ -166,28 +166,35 @@ if 'frog' in clamdata and clamdata['frog']:
 if 'tok' in clamdata and clamdata['tok']:
     print("Tokeniser enabled (" + str(clamdata['tok']) + ")",file=sys.stderr)
 
-clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
-if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
-    ticcl_outputdir = 'ticcl_out'
-else:
-    ticcl_outputdir = outputdir
-if os.system(run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
-    fail()
+if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
+    clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
+    if ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
+        ticcl_outputdir = 'ticcl_out'
+    else:
+        ticcl_outputdir = outputdir
+    if os.system(run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
+        fail()
 
-#Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
-print("TICCL pipeline trace summary",file=sys.stderr)
-print("-------------------------------",file=sys.stderr)
-print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
+    print("TICCL pipeline trace summary",file=sys.stderr)
+    print("-------------------------------",file=sys.stderr)
+    print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    frog_inputdir = ticcl_outputdir
+    textclass_opts = ""
+else:
+    print("TICCL skipped as requested...",file=sys.stderr)
+    frog_inputdir = 'ocr_output'
+    textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
 
 if 'frog' in clamdata and clamdata['frog']:
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    if os.system(run_piccl + "frog.nf --skip=p --inputdir " + shellsafe(ticcl_outputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system(run_piccl + "frog.nf " + textclass_opts + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    if os.system(run_piccl + "tokenize.nf -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(ticcl_outputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
+    if os.system(run_piccl + "tokenize.nf " + textclass_opts + " -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(frog_inputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
         fail()
 
 #cleanup

@@ -437,6 +437,9 @@ PARAMETERS = [
         ChoiceParameter('lang','Language?',"Specify the language of your input documents", choices=LANGUAGECHOICES), #old ticcl -t
         BooleanParameter('reassemble','Reassemble PDF',"Use this option if you have PDF input files, such as chapters or pages, that first need to be merged together prior to processing. Filenames must be named {documentname}-{sequencenumber}.pdf for this to work.")
     ]),
+    ("OCR post-correction", [
+        ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL?", choices=[('yes','Yes'),('no','No')], default='yes'),
+    ]),
     ('N-best Ranking', [
             ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('3','Up to three N-best ranked'),('1','First-best Only'),('2','Up to two N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]) #old ticcl -r
     ]),

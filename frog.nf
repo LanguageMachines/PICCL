@@ -18,6 +18,7 @@ params.inputformat = "text"
 params.outputdir = "frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
+params.outputclass = "current"
 params.skip = ""
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
@@ -34,6 +35,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "  --sentenceperline        Indicates that the input (plain text only) is already in a one sentence per line format, skips sentence detection (default: false)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --inputclass CLASS       Set the FoLiA text class to use as input (default: current)"
+    log.info "  --ouputclass CLASS       Set the FoLiA text class to use as input (default: current)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
     exit 2
 }
@@ -52,6 +54,7 @@ if (params.inputformat == "folia") {
         file inputdocument from inputdocuments
 		val skip from params.skip
 		val inputclass from params.inputclass
+		val outputclass from params.outputclass
         val virtualenv from params.virtualenv
 
         output:
@@ -70,7 +73,7 @@ if (params.inputformat == "folia") {
 			skip="--skip=${skip}"
 		fi
 
-        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --textclass ${inputclass} --id ${inputdocument.baseName} -x ${inputdocument}
+        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --inputclass ${inputclass} --outputclass ${outputclass} --id ${inputdocument.baseName} -x ${inputdocument}
         """
     }
 } else {
@@ -83,6 +86,7 @@ if (params.inputformat == "folia") {
         val sentenceperline from params.sentenceperline
 		val skip from params.skip
         val virtualenv from params.virtualenv
+		val outputclass from params.outputclass
 
         output:
         file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
@@ -103,7 +107,7 @@ if (params.inputformat == "folia") {
 			skip="--skip=${skip}"
 		fi
 
-        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --id ${inputdocument.baseName} -t ${inputdocument}
+        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --outputclass ${outputclass} --id ${inputdocument.baseName} -t ${inputdocument}
         """
     }
 }
