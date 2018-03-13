@@ -97,7 +97,7 @@ if ((params.inputtype == "text") || (params.inputtype == "pdf")) {
         fi
         set -u
 
-        FoLiA-txt --class OCR -t 1 -O . ${textdocument}
+        FoLiA-txt --class OCR -t 1 -O . "${textdocument}"
         """
 
     }
@@ -157,7 +157,7 @@ process ticclunk {
     fi
     set -u
 
-    TICCL-unk --corpus ${lexicon} --artifrq ${artifrq} ${corpusfreqlist}
+    TICCL-unk --corpus "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}"
     """
 }
 
@@ -189,7 +189,7 @@ process anahash {
     fi
     set -u
 
-    TICCL-anahash --alph ${alphabet} --artifrq ${artifrq} ${corpusfreqlist}
+    TICCL-anahash --alph "${alphabet}" --artifrq ${artifrq} "${corpusfreqlist}"
     """
 }
 
@@ -220,7 +220,7 @@ process indexer {
     fi
     set -u
 
-    TICCL-indexerNT --hash ${anahashlist} --charconf ${charconfuslist} --foci ${corpusfocilist} -o ${corpusfreqlist} -t ${task.cpus}
+    TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus}
     """
     // -o option is a prefix only, extension indexNT will be appended
 }
@@ -248,7 +248,7 @@ process resolver {
     fi
     set -u
 
-	TICCL-LDcalc --index ${index} --hash ${anahashlist} --clean ${corpusfreqlist} --LD ${distance} --artifrq ${artifrq} -o ${corpusfreqlist}.ldcalc -t ${task.cpus}
+	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus}
     """
 }
 
@@ -278,7 +278,7 @@ process rank {
     fi
     set -u
 
-    TICCL-rank --alph ${alphabet} --charconf ${charconfuslist} -o ${wordconfusionlist}.ranked --debugfile ${wordconfusionlist}.debug.ranked --artifrq ${artifrq} --clip ${clip} --skipcols=10,11  -t ${task.cpus} ${wordconfusionlist}
+    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" --debugfile "${wordconfusionlist}.debug.ranked" --artifrq ${artifrq} --clip ${clip} --skipcols=10,11  -t ${task.cpus} "${wordconfusionlist}"
     """
 }
 
@@ -310,7 +310,7 @@ process foliacorrect {
     #some bookkeeping
     mkdir outputdir
 
-    FoLiA-correct --class current --nums 10 -e ${extension} -O outputdir/ --unk ${unknownfreqlist} --punct ${punctuationmap} --rank ${rankedlist}  -t ${task.cpus} .
+    FoLiA-correct --class current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
     mv outputdir/*.xml .
     """
 }

@@ -73,7 +73,7 @@ if (params.inputformat == "folia") {
 			skip="--skip=${skip}"
 		fi
 
-        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --inputclass ${inputclass} --outputclass ${outputclass} --id ${inputdocument.baseName} -x ${inputdocument}
+        frog \$opts -X "${inputdocument.baseName}.frog.folia.xml" --inputclass "${inputclass}" --outputclass "${outputclass}" --id "${inputdocument.baseName}" -x "${inputdocument}"
         """
     }
 } else {
@@ -107,7 +107,7 @@ if (params.inputformat == "folia") {
 			skip="--skip=${skip}"
 		fi
 
-        frog \$opts -X ${inputdocument.baseName}.frog.folia.xml --outputclass ${outputclass} --id ${inputdocument.baseName} -t ${inputdocument}
+        frog \$opts -X "${inputdocument.baseName}.frog.folia.xml" --outputclass "${outputclass}" --id "${inputdocument.baseName}" -t "${inputdocument}"
         """
     }
 }

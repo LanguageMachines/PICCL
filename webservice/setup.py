@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name = "PICCL",
-    version = "0.4.4",
+    version = "0.4.5",
     author = "Martin Reynaert",
     author_email = "reynaert@uvt.nl",
     description = ("Webservice for PICCL"),

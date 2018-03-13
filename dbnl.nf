@@ -85,7 +85,7 @@ if (!params.foliainput) {
         script:
         """
         rm *.folia.ids.xml >/dev/null 2>/dev/null || true  #remove existing output
-        ${baseDir}/scripts/dbnl/teiAddIds.pl ${teidocument} ${oztfile}
+        ${baseDir}/scripts/dbnl/teiAddIds.pl "${teidocument}" "${oztfile}"
         """
     }
 
@@ -112,16 +112,16 @@ if (!params.foliainput) {
         fi
         set -u
 
-        ${baseDir}/scripts/dbnl/teiExtractText.pl ${teidocument} > tmp.xml
+        ${baseDir}/scripts/dbnl/teiExtractText.pl "${teidocument}" > tmp.xml
 
         #Delete any empty paragraphs (invalid FoLiA)
         ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
 
         #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
-        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > ${teidocument.simpleName}.folia.xml
+        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > "${teidocument.simpleName}.folia.xml"
 
         #validate the FoLiA
-        foliavalidator ${teidocument.simpleName}.folia.xml
+        foliavalidator "${teidocument.simpleName}.folia.xml"
         """
     }
 
@@ -170,7 +170,7 @@ if (!params.foliainput) {
             fi
             set -u
 
-            ucto -L ${language} -X -F ${inputdocument} ${inputdocument.simpleName}.tok.folia.xml
+            ucto -L "${language}" -X -F "${inputdocument}" "${inputdocument.simpleName}.tok.folia.xml"
             """
         }
     }
@@ -269,7 +269,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
             mv *.folia.xml modernization_work
         fi
 
-        FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d ${dictionary} -p ${preservationlexicon} -r ${rulefile} -H ${inthistlexicon} modernization_work/
+        FoLiA-wordtranslate --outputclass contemporary -t ${task.cpus} -d "${dictionary}" -p "${preservationlexicon}" -r "${rulefile}" -H "${inthistlexicon}" modernization_work/
         """
     }
 
@@ -359,7 +359,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
             fi
             set -u
 
-            foliamerge -a ${modernfile} ${originalfile} > ${basename}.folia.xml
+            foliamerge -a "${modernfile}" "${originalfile}" > "${basename}.folia.xml"
             """
         }
 
@@ -402,8 +402,8 @@ if (params.entitylinking != "") {
         set -u
 
         mkdir out
-        \$rootpath/foliaentity/FoliaEntity.exe -w -m ${methods} ${extraoptions} -i ${document} -o out/
-        zcat out/\$(basename ${document}).gz > ${document.simpleName}.linked.folia.xml
+        \$rootpath/foliaentity/FoliaEntity.exe -w -m ${methods} ${extraoptions} -i "${document}" -o out/
+        zcat out/\$(basename "${document}").gz > "${document.simpleName}.linked.folia.xml"
         """
     }
 

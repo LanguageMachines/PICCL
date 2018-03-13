@@ -65,13 +65,13 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
         """
         count=\$(ls *.pdf | wc -l)
         if [ \$count -eq 1 ]; then
-            cp \$(ls *.pdf) ${documentname}.pdf
+            cp \$(ls *.pdf) "${documentname}.pdf"
         elif [ \$count -eq 0 ]; then
             echo "No input PDFs to merge!">&2
             exit 5
         else
             pdfinput=\$(ls -1v *.pdf) #performs a natural sort
-            pdfunite \$pdfinput ${documentname}.pdf
+            pdfunite \$pdfinput "${documentname}.pdf"
         fi
         """
 
@@ -93,7 +93,7 @@ if (params.inputtype == "djvu") {
 
        script:
        """
-       ddjvu -format=tiff -eachpage ${djvudocument} ${djvudocument.baseName}_%d.tif
+       ddjvu -format=tiff -eachpage "${djvudocument}" "${djvudocument.baseName}_%d.tif"
        """
     }
 
@@ -125,7 +125,7 @@ if (params.inputtype == "djvu") {
         import glob
         import sys
 
-        r = os.system("pdfimages -p ${pdfdocument} ${pdfdocument.baseName}")
+        r = os.system("pdfimages -p '${pdfdocument}' '${pdfdocument.baseName}'")
         if r != 0:
             print("pdfimages failed...", file=sys.stderr)
             sys.exit(r)
@@ -170,7 +170,7 @@ if (params.inputtype == "djvu") {
 
         script:
         """
-        convert ${bitmapimage} ${bitmapimage.baseName}.tif
+        convert "${bitmapimage} "${bitmapimage.baseName}.tif"
         """
     }
 
@@ -209,7 +209,7 @@ process tesseract {
 
     script:
     """
-    tesseract ${pageimage} ${pageimage.baseName} -c "tessedit_create_hocr=T" -l ${language}
+    tesseract "${pageimage}" "${pageimage.baseName}" -c "tessedit_create_hocr=T" -l "${language}"
     """
 }
 
@@ -236,7 +236,7 @@ process ocrpages_to_foliapages {
     fi
     set -u
 
-    FoLiA-hocr -O ./ -t 1 ${pagehocr}
+    FoLiA-hocr -O ./ -t 1 "${pagehocr}"
     """
 }
 
@@ -271,10 +271,10 @@ process foliacat {
 
     if [ -f .tif.folia.xml ]; then
         #only one file, nothing to cat
-        cp .tif.folia.xml ${documentname}.folia.xml
+        cp .tif.folia.xml "${documentname}.folia.xml"
     else
         foliainput=\$(ls -1v *.tif.folia.xml)
-        foliacat -i ${documentname} -o ${documentname}.folia.xml \$foliainput
+        foliacat -i "${documentname}" -o "${documentname}.folia.xml" \$foliainput
     fi
     """
 }

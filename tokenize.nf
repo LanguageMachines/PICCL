@@ -68,7 +68,7 @@ if (params.inputformat == "folia") {
         set -u
 
         ID="${inputdocument.baseName}"
-        ucto -L ${language} -X --id \$ID --inputclass ${inputclass} --outputclass ${outputclass} -F ${inputdocument} ${inputdocument.baseName}.tok.folia.xml
+        ucto -L "${language}" -X --id "\$ID" --inputclass "${inputclass}" --outputclass "${outputclass}" -F "${inputdocument}" "${inputdocument.baseName}.tok.folia.xml"
         """
     }
 } else {
@@ -100,7 +100,7 @@ if (params.inputformat == "folia") {
         fi
 
         ID="${inputdocument.baseName}"
-        ucto -L ${language} \$opts -X --id \$ID ${inputdocument} --outputclass ${outputclass} ${inputdocument.baseName}.tok.folia.xml
+        ucto -L "${language}" \$opts -X --id \$ID "${inputdocument}" --outputclass "${outputclass}" "${inputdocument.baseName}.tok.folia.xml"
         """
     }
 }

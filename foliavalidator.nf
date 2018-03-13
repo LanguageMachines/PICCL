@@ -51,13 +51,13 @@ process foliavalidator {
     fi
     set -u
     date=\$(date +"%Y-%m-%d %H:%M:%S")
-    echo "--------------- \$date ---------------" > ${doc}.foliavalidator
-    echo "md5 checksum: "\$(md5sum ${doc}) >> ${doc}.foliavalidator
-    foliavalidator ${doc} 2>> ${doc}.foliavalidator
+    echo "--------------- \$date ---------------" > "${doc}.foliavalidator"
+    echo "md5 checksum: "\$(md5sum ${doc}) >> "${doc}.foliavalidator"
+    foliavalidator "${doc}" 2>> "${doc}.foliavalidator"
     if [ \$? -eq 0 ]; then
-        echo \$(readlink ${doc})"\tOK" >> ${doc}.foliavalidator
+        echo \$(readlink "${doc}")"\tOK" >> "${doc}.foliavalidator"
     else
-        echo \$(readlink ${doc})"\tFAILED" >> ${doc}.foliavalidator
+        echo \$(readlink "${doc}")"\tFAILED" >> "${doc}.foliavalidator"
     fi
     """
 }

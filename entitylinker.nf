@@ -64,8 +64,8 @@ process entitylinker {
     else
         extraoptions=""
     fi
-    \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} \$extraoptions -i ${document} -o out/
-    zcat out/\$(basename ${document}).gz > ${document.simpleName}.linked.folia.xml
+    \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} \$extraoptions -i "${document}" -o out/
+    zcat out/\$(basename "${document}").gz > "${document.simpleName}.linked.folia.xml"
     """
 }
 
