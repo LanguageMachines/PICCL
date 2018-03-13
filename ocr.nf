@@ -71,7 +71,7 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
             exit 5
         else
             pdfinput=\$(ls -1v *.pdf) #performs a natural sort
-            pdfunite \$pdfinput "${documentname}.pdf"
+            pdfunite "\$pdfinput" "${documentname}.pdf"
         fi
         """
 
@@ -170,7 +170,7 @@ if (params.inputtype == "djvu") {
 
         script:
         """
-        convert "${bitmapimage} "${bitmapimage.baseName}.tif"
+        convert "${bitmapimage}" "${bitmapimage.baseName}.tif"
         """
     }
 
