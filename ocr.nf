@@ -70,8 +70,8 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
             echo "No input PDFs to merge!">&2
             exit 5
         else
-            pdfinput=\$(ls -1v *.pdf) #performs a natural sort
-            pdfunite "\$pdfinput" "${documentname}.pdf"
+            pdfinput=\$(ls -1Qv *.pdf | tr '\\n' ' ') #performs a natural sort and quotes
+            pdfunite \$pdfinput "${documentname}.pdf"
         fi
         """
 
@@ -273,7 +273,7 @@ process foliacat {
         #only one file, nothing to cat
         cp .tif.folia.xml "${documentname}.folia.xml"
     else
-        foliainput=\$(ls -1v *.tif.folia.xml)
+        foliainput=\$(ls -1Qv *.tif.folia.xml | tr '\\n' ' ')
         foliacat -i "${documentname}" -o "${documentname}.folia.xml" \$foliainput
     fi
     """
