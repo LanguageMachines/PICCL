@@ -1,0 +1,4 @@
+port: 8080
+root: "{{VIRTUAL_ENV}}/piccl.clam"
+piccldir: "{{VIRTUAL_ENV}}/src/PICCL"
+piccldataroot: "{{VIRTUAL_ENV}}/src/PICCL"

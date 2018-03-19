@@ -30,7 +30,7 @@ import sys
 import os
 from base64 import b64decode as D
 
-REQUIRE_VERSION = 2.1
+REQUIRE_VERSION = 2.3
 
 CLAMDIR = clam.__path__[0] #directory where CLAM is installed, detected automatically
 WEBSERVICEDIR = os.path.dirname(os.path.abspath(__file__)) #directory where this webservice is installed, detected automatically
@@ -48,63 +48,18 @@ SYSTEM_NAME = "PICCL"
 #An informative description for this system (this should be fairly short, about one paragraph, and may not contain HTML)
 SYSTEM_DESCRIPTION = "PICCL"
 
-# ======== LOCATION ===========
+#Amount of free memory required prior to starting a new process (in MB!), Free Memory + Cached (without swap!). Set to 0 to disable this check (not recommended)
+REQUIREMEMORY = 1024
 
-#Add a section for your host:
+#Maximum load average at which processes are still started (first number reported by 'uptime'). Set to 0 to disable this check (not recommended)
+#MAXLOADAVG = 4.0
 
-host = os.uname()[1]
-if 'VIRTUAL_ENV' in os.environ:
+#Minimum amount of free diskspace in MB. Set to 0 to disable this check (not recommended)
+DISK = '/dev/sda1' #set this to the disk where ROOT is on
+MINDISKSPACE = 0
 
-    HOST = host
-    if host in ('applejack','mlp01'): #production configuration in Nijmegen
-        HOST = "webservices-lst.science.ru.nl"
-        PORT= 443
-        URLPREFIX = "piccl"
-        USERS_MYSQL = {
-            'host': 'mysql-clamopener.science.ru.nl',
-            'user': 'clamopener',
-            'password': D(open(os.environ['CLAMOPENER_KEYFILE']).read().strip()),
-            'database': 'clamopener',
-            'table': 'clamusers_clamusers'
-        }
-        DEBUG = True
-        REALM = "WEBSERVICES-LST"
-        DIGESTOPAQUE = open(os.environ['CLAM_DIGESTOPAQUEFILE']).read().strip()
-        SECRET_KEY = open(os.environ['CLAM_SECRETKEYFILE']).read().strip()
-        ADMINS = ['proycon','antalb','wstoop']
-        MAXLOADAVG = 20.0
-    else:
-        PORT = 8080
-
-    PICCLDATAROOT = os.path.join(os.environ['VIRTUAL_ENV'], 'piccldata') #Path that holds the data/ and corpora/ dirs
-    if not os.path.exists(PICCLDATAROOT):
-        raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
-
-    if host == 'mlp01': #production configuration in Nijmegen
-        ROOT = "/var/www/webservices-lst/live/writable/piccl"
-    else:
-        ROOT = PICCLDATAROOT + "/clamdata/"
-
-    PICCLDIR = os.path.join(os.environ['VIRTUAL_ENV'], "src/PICCL")
-
-
-elif os.path.exists('/var/piccldata'):
-    #assume we are running in LaMachine docker or VM:
-
-    HOST = host
-    PORT = 80 #(for HTTPS set this to 443)
-    URLPREFIX = '/piccl/'
-
-    PICCLDATAROOT = '/var/piccldata' #Path that holds the data/ and corpora/ dirs
-    if not os.path.exists(PICCLDATAROOT):
-        raise Exception("Data root dir " + PICCLDATAROOT + " is not initialised yet. Create the directory, enter it and run: nextflow run LanguageMachines/PICCL/download-data.nf and nextflow run LanguageMachines/PICCL/download-examples.nf")
-
-    ROOT = PICCLDATAROOT + "/clamdata/"
-    PICCLDIR = None #let Nextflow handle it
-else:
-    raise Exception("I don't know where I'm running from! Add a section in the configuration corresponding to this host (" + os.uname()[1]+")")
-
-
+#The amount of diskspace a user may use (in MB), this is a soft quota which can be exceeded, but creation of new projects is blocked until usage drops below the quota again
+#USERQUOTA = 100
 
 # ======== AUTHENTICATION & SECURITY ===========
 
@@ -124,21 +79,14 @@ ADMINS = None #List of usernames that are administrator and can access the admin
 
 #USERS = { user1': '4f8dh8337e2a5a83734b','user2': pwhash('username', REALM, 'secret') }
 
-#Amount of free memory required prior to starting a new process (in MB!), Free Memory + Cached (without swap!). Set to 0 to disable this check (not recommended)
-REQUIREMEMORY = 1024
-
-#Maximum load average at which processes are still started (first number reported by 'uptime'). Set to 0 to disable this check (not recommended)
-#MAXLOADAVG = 4.0
-
-#Minimum amount of free diskspace in MB. Set to 0 to disable this check (not recommended)
-DISK = '/dev/sda1' #set this to the disk where ROOT is on
-MINDISKSPACE = 0
-
-#The amount of diskspace a user may use (in MB), this is a soft quota which can be exceeded, but creation of new projects is blocked until usage drops below the quota again
-#USERQUOTA = 100
 
 #The secret key is used internally for cryptographically signing session data, in production environments, you'll want to set this to a persistent value. If not set it will be randomly generated.
 #SECRET_KEY = 'mysecret'
+
+
+#load external configuration file (see piccl.config.yml)
+loadconfig(__name__)
+
 
 # ======== WEB-APPLICATION STYLING =============
 

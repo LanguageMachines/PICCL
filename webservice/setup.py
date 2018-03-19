@@ -10,8 +10,8 @@ from setuptools import setup
 
 setup(
     name = "PICCL",
-    version = "0.4.5",
-    author = "Martin Reynaert",
+    version = "0.4.6",
+    author = "Martin Reynaert, Maarten van Gompel",
     author_email = "reynaert@uvt.nl",
     description = ("Webservice for PICCL"),
     license = "GPL",
@@ -32,7 +32,7 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
-    package_data = {'picclservice':['picclservice/*.wsgi'] },
+    package_data = {'picclservice':['picclservice/*.wsgi','picclservice/*.yml'] },
     include_package_data=True,
-    install_requires=['CLAM >= 2.1.10']
+    install_requires=['CLAM >= 2.3']
 )
