@@ -34,27 +34,31 @@ annotation.
 
 ## Installation
 
-PICCL is already shipped as a part of [LaMachine](https://proycon.github.io/LaMachine). Inside LaMachine, the command line interface is invoked as follows:
+PICCL is already shipped as a part of [LaMachine](https://proycon.github.io/LaMachine), although you may need to explicitly install it using ``lamachine-update --edit``. Once inside LaMachine, the command line interface can be invoked by directly specifying one of the workflows:
 
-    $ nextflow run LanguageMachines/PICCL
+    $ ocr.nf
 
-Alternatively, and for the command line interface only; you can install [Nextflow](https://www.nextflow.io) and [Docker](https://docker.io) manually and then run the
-following to obtain PICCL:
+Or
+
+    $ ticcl.nf
+
+If you are not in LaMachine already; you can install [Nextflow](https://www.nextflow.io) and [Docker](https://docker.io) manually and then run the
+following to obtain the latest development release of PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
 
-In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine`` parameter:
+In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine:piccl-stable`` parameter:
 
-    $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine
+    $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine:piccl-stable
 
-We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input TICCL and have to be downloaded once as follows;
+We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input for TICCL and have to be downloaded once as follows;
 
-    $ nextflow run LanguageMachines/PICCL/download-data.nf
+    $ nextflow run LanguageMachines/PICCL/download-data.nf -with-docker proycon/lamachine:piccl-stable
 
 This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
 next section. In addition, you can also download example corpora (>300MB), which will be placed in a ``corpora/`` directory:
 
-    $ nextflow run LanguageMachines/PICCL/download-examples.nf
+    $ nextflow run LanguageMachines/PICCL/download-examples.nf -with-docker proycon/lamachine:piccl-stable
 
 ## Usage
 
@@ -70,11 +74,13 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
  * ``dbnl.nf`` - A pipeline for linguistic enrichment DBNL corpus data (designed for the Nederlab project, does not use TICCL)
 
-The workflows can be explicitly invoked through NextFlow as follows (add the ``-with-docker proycon/lamachine`` parameter if you
-are not already in LaMachine, this applies to all examples in this section), running with the ``--help`` parameter or absence of any parameters will output usage
+If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMAchine through docker, then
+you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl-stable``. This applies to all examples in this section.
+
+Running with the ``--help`` parameter or absence of any parameters will output usage
 information.
 
-    $ nextflow run LanguageMachines/PICCL/ocr.nf --help
+    $ ocr.nf --help
     --------------------------
     OCR Pipeline
     --------------------------
@@ -102,7 +108,7 @@ information.
                              (The hyphen delimiter may optionally be changed using --seqdelimiter)
 
 
-    $ nextflow run LanguageMachines/PICCL/ticcl.nf --help
+    $ ticcl.nf --help
     --------------------------
     TICCL Pipeline
     --------------------------
@@ -131,24 +137,24 @@ An example of invoking an OCR workflow for English is provided below, it assumes
 directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image data, therefore we choose the
 ``pdfimages`` input type.
 
-    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --inputtype pdfimages --language eng
+    $ ocr.nf --inputdir corpora/PDF/ENG/ --inputtype pdfimages --language eng
 
 Alternative input types are https://pythonhosted.org/bob/index.htmlimages per page, in which case ``inputtype`` is set to either ``tif``, ``jpg``, ``gif`` or ``png``. These input files should be placed in the designated input directory and follow the naming convention
 ``$documentname-$sequencenumber.$extension``, for example ``harrypotter-032.png``. An example invocation on dutch
 scanned pages in the example collection would be:
 
-    $ nextflow run LanguageMachines/PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld
+    $ ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld
 
 In case of the first example the result will be a file ``OllevierGeets.folia.xml`` in the ``ocr_output/`` directory. This in turn can serve as
 input for the TICCL workflow, which will attempt to correct OCR errors:
 
-    $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
 
 Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
 ``download-data.nf``. Result will be a file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
 containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
 
-    $ nextflow run LanguageMachines/PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion
 
 
 ## Webapplication / RESTful webservice
@@ -156,44 +162,14 @@ containing enriched corrections. The second example, on the dutch corpus data, c
 ### Installation
 
 PICCL is also available as a webapplication and RESTful webservice, powered by [CLAM](https://proycon.github.io/clam).
-If you are in LaMachine, the webservice is already installed, if not you will have to clone this git repository, edit
-``picclservice.py`` (the service configuration file) for your system and then run:
+If you are in LaMachine with PICCL, the webservice is already installed, but you may need to run
+``lamachine-start-webserver`` if it is not already running.
 
-    $ cd webservice
-    $ python3 setup.py install
+For production environments, you will want to adapt the CLAM configuration. To this end,
+copy ``$LM_PREFIX/etc/piccl.config.yml`` to ``$LM_PREFIX/etc/piccl.$HOST.yml``, where ``$HOST`` corresponds with your
+hostname and edit the file with your host specific settings. Always enable authentication if your server is world-accessible (consult the CLAM
+documentation to read how).
 
-Before the webservice can be used, in any shape or form, it is necessary to download the necessary data into the appropriate directory
-(configured as ``PICCLDATAROOT`` in ``picclservice.py``)  so the webservice can find it. Follow the instructions
-according to your flavour of LaMachine:
-
-In the LaMachine Virtual Machine or within the Docker container:
-
-    $ sudo mkdir /var/piccldata
-    $ cd /var/piccldata
-    $ sudo nextflow run LanguageMachines/PICCL/download-data.nf
-    $ sudo nextflow run LanguageMachines/PICCL/download-examples.nf
-    $ sudo mkdir clamdata && sudo chown vagrant clamdata
-
-In the LaMachine Local Virtual Environment:
-
-    (lamachine)$ mkdir $VIRTUAL_ENV/piccldata
-    (lamachine)$ cd $VIRTUAL_ENV/piccldata
-    (lamachine)$ nextflow run LanguageMachines/PICCL/download-data.nf
-    (lamachine)$ nextflow run LanguageMachines/PICCL/download-examples.nf
-
-### Usage
-
-In the LaMachine Local Virtual Environment:
-
-    (lamachine)$ clamservice picclservice.picclservice
-
-This will launch a development server on port 8080 and is not suitable for production use!
-
-In LaMachine VM, just reboot the VM after having downloaded the data and the webservice will be available when
-connecting to http://127.0.0.1:8080 .
-In LaMachine Docker container, explicitly start the webservices after having downloaded the data for PICCL: ``sudo /usr/src/LaMachine/startwebservices.sh``, and access the aforementioned URL.
-
-For any kind of production use, you will want to enable some form of authentication in ``webservice/picclservice/picclservice.py`` (rerun ``setup.py install`` after editing) and hook it up to an existing webserver.
 
 
 
