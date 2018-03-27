@@ -216,6 +216,7 @@ PROFILES = [
         InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
            filename="lexicon.lst",
            unique=True,
+           optional=True,
         ),
         OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
            SetMetaField('encoding','utf-8'),
