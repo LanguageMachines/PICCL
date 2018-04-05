@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name = "PICCL",
-    version = "0.4.5",
+    version = "0.5",
     author = "Martin Reynaert",
     author_email = "reynaert@uvt.nl",
     description = ("Webservice for PICCL"),
@@ -20,7 +20,7 @@ setup(
     packages=['picclservice'],
     long_description="A set of workflows for OCR and post-correction",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Topic :: Text Processing :: Linguistic",
         "Programming Language :: Python :: 2.7",
@@ -34,5 +34,5 @@ setup(
     ],
     package_data = {'picclservice':['picclservice/*.wsgi'] },
     include_package_data=True,
-    install_requires=['CLAM >= 2.1.10']
+    install_requires=['CLAM >= 2.3']
 )
