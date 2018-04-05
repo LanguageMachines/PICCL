@@ -40,9 +40,11 @@ if len(sys.argv) >= 7:
     #use scripts from src/ directly
     run_piccl = sys.argv[6]
     if run_piccl[-1] != '/': run_piccl += "/"
+    print("Running PICCL from " + run_piccl,file=sys.stderr)
 else:
-    #use the piccl nextflow downloads
+    #use the piccl nextflow downloads (this is not very well supported/tested currently!)
     run_piccl = "nextflow run LanguageMachines/PICCL/"
+    print("Running PICCL mediated by Nextflow",file=sys.stderr)
 
 
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
@@ -58,11 +60,29 @@ clamdata = clam.common.data.getclamdata(datafile)
 
 clam.common.status.write(statusfile, "Starting...")
 
-def fail():
+def fail(prefix=None):
+    if prefix:
+        nextflowout(prefix)
     if os.path.exists('work'):
         shutil.rmtree('work')
         sys.exit(1)
 
+def nextflowout(prefix):
+    print("[" + prefix + "] Nextflow standard error output",file=sys.stderr)
+    print("-------------------------------------------------",file=sys.stderr)
+    print(open(prefix+'.nextflow.err.log','r',encoding='utf-8').read(), file=sys.stderr)
+    os.unlink(prefix+'.nextflow.err.log')
+
+    print("[" + prefix + "] Nextflow standard output",file=sys.stderr)
+    print("-------------------------------------------------",file=sys.stderr)
+    print(open(prefix+'.nextflow.out.log','r',encoding='utf-8').read(), file=sys.stderr)
+    os.unlink(prefix+'.nextflow.out.log')
+
+    if os.path.exists('trace.txt'):
+        print("[" + prefix + "] Nextflow trace summary",file=sys.stderr)
+        print("-------------------------------------------------",file=sys.stderr)
+        print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+        os.unlink('trace.txt')
 
 #=========================================================================================================================
 
@@ -127,8 +147,8 @@ if not os.path.exists('confusion.lst'):
 #Derive input type from used inputtemplate
 inputtype = ''
 for inputfile in clamdata.input:
-   inputtemplate = inputfile.metadata.inputtemplate
-   if inputtemplate in ('pdfimages', 'pdftext', 'tif','jpg','png','gif','foliaocr','textocr'):
+    inputtemplate = inputfile.metadata.inputtemplate
+    if inputtemplate in ('pdfimages', 'pdftext', 'tif','jpg','png','gif','foliaocr','textocr'):
         inputtype = inputtemplate
 
 if not inputtype:
@@ -148,14 +168,13 @@ elif inputtype == 'pdftext':
     ticcl_inputtype = "pdf"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-    if os.system(run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >&2" ) != 0: #use original clamdata['lang'] (may be deu_frak)
-        fail()
+    if os.system(run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >ocr.nextflow.out.log 2>ocr.nextflow.err.log" ) != 0: #use original clamdata['lang'] (may be deu_frak)
+        fail('ocr')
 
 
-    #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
-    print("OCR pipeline trace summary",file=sys.stderr)
-    print("-------------------------------",file=sys.stderr)
-    print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    #Print Nextflow information to stderr so it ends up in the CLAM error.log and is available for inspection
+    nextflowout('ocr')
+
     ticclinputdir = "ocr_output"
     ticcl_inputtype = "folia"
 
@@ -172,13 +191,13 @@ if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
         ticcl_outputdir = 'ticcl_out'
     else:
         ticcl_outputdir = outputdir
-    if os.system(run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >&2"  ) != 0:
-        fail()
+    if os.system(run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"  ) != 0:
+        fail('ticcl')
 
-    #Print Nextflow trace information to stderr so it ends up in the CLAM error.log and is available for inspection
-    print("TICCL pipeline trace summary",file=sys.stderr)
-    print("-------------------------------",file=sys.stderr)
-    print(open('trace.txt','r',encoding='utf-8').read(), file=sys.stderr)
+    #Print Nextflow information to stderr so it ends up in the CLAM error.log and is available for inspection
+    nextflowout('ticcl')
+
+
     frog_inputdir = ticcl_outputdir
     textclass_opts = ""
 else:
@@ -190,12 +209,14 @@ else:
 if 'frog' in clamdata and clamdata['frog']:
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    if os.system(run_piccl + "frog.nf " + textclass_opts + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
-        fail()
+    if os.system(run_piccl + "frog.nf " + textclass_opts + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"  ) != 0:
+        fail('frog')
+    nextflowout('frog')
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    if os.system(run_piccl + "tokenize.nf " + textclass_opts + " -L " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(frog_inputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >&2"  ) != 0:
-        fail()
+    if os.system(run_piccl + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(frog_inputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"  ) != 0:
+        fail('ucto')
+    nextflowout('ucto')
 
 #cleanup
 shutil.rmtree('work')
