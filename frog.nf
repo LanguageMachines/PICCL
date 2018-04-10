@@ -19,6 +19,7 @@ params.outputdir = "frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
 params.outputclass = "current"
+params.workers = 1
 params.skip = ""
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
@@ -37,6 +38,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "  --inputclass CLASS       Set the FoLiA text class to use as input (default: current)"
     log.info "  --ouputclass CLASS       Set the FoLiA text class to use as input (default: current)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
+    log.info "  --workers NUMBER         The number of workers (Frogs in parallel)"
     exit 2
 }
 
@@ -45,13 +47,21 @@ if ((params.extension.find('xml') != null)  || (params.extension.find('folia') !
 }
 
 inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension)
+inputdocuments_counter = Channel.fromPath(params.inputdir + "/**." + params.extension)
 
 if (params.inputformat == "folia") {
+    //group documents into n (=$worker) batches
+    inputdocuments
+        .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
+        .set(foliainput_batched)
+
     process frog_folia2folia {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
+
+        cpus params.workers
 
         input:
-        file inputdocument from inputdocuments
+        file foliadocuments from foliainput_batched
 		val skip from params.skip
 		val inputclass from params.inputclass
 		val outputclass from params.outputclass
@@ -73,23 +83,36 @@ if (params.inputformat == "folia") {
 			skip="--skip=${skip}"
 		fi
 
-        frog \$opts -X "${inputdocument.baseName}.frog.folia.xml" --inputclass "${inputclass}" --outputclass "${outputclass}" --id "${inputdocument.baseName}" -x "${inputdocument}"
+        #move input files to separate staging directory
+        mkdir input
+        mv *.xml input/
+
+        #output will be in cwd
+        frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "." --threads 1 --nostdout --testdir input/ -x
         """
     }
+
 } else {
-    //assume text
+    //group documents into n (=$worker) batches
+    inputdocuments
+        .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
+        .set(textinput_batched)
+
     process frog_text2folia {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
+
+        cpus params.workers
 
         input:
-        file inputdocument from inputdocuments
-        val sentenceperline from params.sentenceperline
+        file foliadocuments from textinput_batched
 		val skip from params.skip
-        val virtualenv from params.virtualenv
 		val outputclass from params.outputclass
+        val extension from params.extension
+        val sentenceperline from params.sentenceperline
+        val virtualenv from params.virtualenv
 
         output:
-        file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
+        file "*.xml" into foliadocuments_output mode flatten
 
         script:
         """
@@ -104,12 +127,18 @@ if (params.inputformat == "folia") {
             opts="\$opts -n"
         fi
         if [ ! -z "$skip" ]; then
-			skip="--skip=${skip}"
+			opts="\$opts --skip=${skip}"
 		fi
 
-        frog \$opts -X "${inputdocument.baseName}.frog.folia.xml" --outputclass "${outputclass}" --id "${inputdocument.baseName}" -t "${inputdocument}"
+        #move input files to separate staging directory
+        mkdir input
+        mv *.\$extension input/
+
+        #output will be in cwd
+        frog \$opts --outputclass "${outputclass}" --xmldir "." --threads 1 --nostdout --testdir input/
         """
     }
+
 }
 
-tokoutput.subscribe { println "Frog output document written to " +  params.outputdir + "/" + it.name }
+foliadocuments_output.subscribe { println "Frog output document written to " +  params.outputdir + "/" + it.name }
