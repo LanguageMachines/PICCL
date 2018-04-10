@@ -205,15 +205,36 @@ else:
     frog_inputdir = 'ocr_output'
     textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
+frog = False
+if lang == "nld":
+    for key in ('pos','lemma','morph','ner','parser','chunker'):
+        if key in clamdata and clamdata[key]:
+            frog = True
+    if frog:
+        skip = ""
+        #PoS can't be skipped
+        if 'lemma' not in clamdata or not clamdata['lemma']:
+            skip += 'l'
+        if 'parser' not in clamdata or not clamdata['parser']:
+            skip += 'mp'
+        if 'morph' not in clamdata or not clamdata['morph']:
+            skip += 'a'
+        if 'ner' not in clamdata or not clamdata['ner']:
+            skip += 'n'
+        if 'chunker' not in clamdata or not clamdata['chunker']:
+            skip += 'c'
+        if skip:
+            skip = "--skip=" + skip
 
-if 'frog' in clamdata and clamdata['frog']:
+if frog:
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    if os.system(run_piccl + "frog.nf " + textclass_opts + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"  ) != 0:
+    if os.system(run_piccl + "frog.nf " + textclass_opts + " " + skip + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat folia --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"  ) != 0:
         fail('frog')
     nextflowout('frog')
 elif 'tok' in clamdata and clamdata['tok']:
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
+
     if os.system(run_piccl + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat folia --inputdir " + shellsafe(frog_inputdir,'"') + " --extension folia.xml --outputdir " + shellsafe(outputdir,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"  ) != 0:
         fail('ucto')
     nextflowout('ucto')

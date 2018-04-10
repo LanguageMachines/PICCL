@@ -396,8 +396,13 @@ PARAMETERS = [
         ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
     ]),
     ('Automatic Linguistic Enrichment', [
-        BooleanParameter('tok','Perform Tokenisation',"Perform tokenisation."),
-        BooleanParameter('frog','Perform Linguistic Enrichment',"Performs tokenisation, Part-of-Speech tagging, lemmatisation, named entity recognition and more. This is implemented only for Dutch (uses Frog)!!!")
+        BooleanParameter('tok','Tokenisation',"Perform tokenisation", default=True),
+        BooleanParameter('pos','Part-of-Speech Tagging',"Part-of-speech Tagging (for Dutch only!)",default=True),
+        BooleanParameter('lemma','Lemmatisation',"Lemmatisation (for Dutch only!)", default=True),
+        BooleanParameter('morph','Morphological Analysis',"Morphological Analysis (for Dutch only!)", default=False),
+        BooleanParameter('ner','Named Entity Recognition',"Named Entity Recognition", default=False),
+        BooleanParameter('parser','Dependency Parser',"Dependency parser (for Dutch only!)", default=False),
+        BooleanParameter('chunker','Chunker / Shallow-parser Parser',"Chunker / Shallow parser (for Dutch only!)", default=False),
     ]),
     #('Focus Word Selection', [
     #    IntegerParameter('minlength','Minimum Word Length','Integer between zero and one hundred',default=5,minvalue=0, maxvalue=100), #old ticcl -x
@@ -421,7 +426,7 @@ ACTIONS = [
 ]
 
 
-# ======== DISPATCHING (ADVANCED! YOU CAN SAFELY SKIP THIS!) ========
+# ======== DISPATCHING (ADVANCED! YOU CAN SAFELY SmedKIP THIS!) ========
 
 #The dispatcher to use (defaults to clamdispatcher.py), you almost never want to change this
 #DISPATCHER = 'clamdispatcher.py'
