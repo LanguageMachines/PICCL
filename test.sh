@@ -37,7 +37,7 @@ else
     docker run -ti -d proycon/lamachine:piccl /bin/bash
     CONTAINER_ID=$(docker ps -alq)
     docker cp $CONTAINER_ID:/usr/local/opt/PICCL/data data
-    docker cp $CONTAINER_ID:/usr/local/opt/PICCL/examples examples
+    docker cp $CONTAINER_ID:/usr/local/opt/PICCL/corpora corpora
     docker stop $CONTAINER_ID
 fi
 
