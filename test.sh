@@ -21,12 +21,12 @@ else
 fi
 
 if [ ! -d data ]; then
-    echo -n "\n\n======= Downloading data =======">&2
+    echo -e "\n\n======= Downloading data =======">&2
     $PICCL/download-data.nf $WITHDOCKER || exit 2
 fi
 
 if [ ! -d corpora ]; then
-    echo -n "\n\n======= Downloading examples ========">&2
+    echo -e "\n\n======= Downloading examples ========">&2
     $PICCL/download-examples.nf $WITHDOCKER || exit 2
 fi
 
@@ -45,24 +45,24 @@ Een verwant verschijnsel is elektromagnetisme, magnetisme dat ontstaat door een 
 fi
 
 
-echo -n "\n\n======== Testing tokenisation pipeline from plain text ========= ">&2
+echo -e "\n\n======== Testing tokenisation pipeline from plain text ========= ">&2
 $PICCL/tokenize.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
 
-echo -n "\n\n========= Testing frog pipeline from plain text ========= ">&2
+echo -e "\n\n========= Testing frog pipeline from plain text ========= ">&2
 $PICCL/frog.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
 
-echo -n "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
+echo -e "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
 $PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdf $WITHDOCKER || exit 2
-echo -n "\n\n======== Testing TICCL (eng) =========">&2
+echo -e "\n\n======== Testing TICCL (eng) =========">&2
 $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
 rm -Rf ocr_output ticcl_output
 
 
-echo -n "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
+echo -e "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
 $PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
-echo -n "\n\n======== Testing TICCL (nld) ============ ">&2
+echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
 $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
@@ -70,16 +70,16 @@ rm -Rf ocr_output ticcl_output
 
 #mkdir -p tmpinput || exit 2
 #cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
-#echo -n "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
+#echo -e "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
 #$PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
 
 #ls ocr_output/*xml || exit 2
 #rm -Rf ocr_output
 
 
-#echo -n "\n\n======== Testing OCR (eng) with inputtype djvu ======">&2
+#echo -e "\n\n======== Testing OCR (eng) with inputtype djvu ======">&2
 #$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
-#echo -n "\n\n======== Testing TICCL (eng) =========">&2
+#echo -e "\n\n======== Testing TICCL (eng) =========">&2
 #$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 #ls ticcl_output/*xml || exit 2
@@ -107,13 +107,13 @@ held it were fei%.
 obey dialectical materialism rather than Stalin." > ticcltest.txt
 cd ..
 
-echo -n "\n\n======== Testing TICCL with text input (eng) =========">&2
+echo -e "\n\n======== Testing TICCL with text input (eng) =========">&2
 $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
 rm -Rf ticcl_output
 
-echo -n "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
+echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
 $PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
 ls ticcl_output/*xml || exit 2
