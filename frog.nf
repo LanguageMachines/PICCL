@@ -134,7 +134,7 @@ if (params.inputformat == "folia") {
 
         #move input files to separate staging directory
         mkdir input
-        mv *.\$extension input/
+        mv *.$extension input/
 
         #output will be in cwd
         frog \$opts --outputclass "${outputclass}" --xmldir "." --threads 1 --nostdout --testdir input/
