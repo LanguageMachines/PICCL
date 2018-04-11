@@ -22,7 +22,7 @@ else
     WITHDOCKER="-with-docker proycon/lamachine:piccl"
 fi
 
-if [ ! -z "$WITHDOCKER" ]; then
+if [ -z "$WITHDOCKER" ]; then
     if [ ! -d data ]; then
         echo -e "\n\n======= Downloading data =======">&2
         $PICCL/download-data.nf $WITHDOCKER || exit 2
