@@ -16,4 +16,4 @@ install:
     - curl -fsSL get.nextflow.io | bash
     - docker pull proycon/lamachine:piccl
 script:
-    - bash test.sh
+    - USER="travis" bash test.sh

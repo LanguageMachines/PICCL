@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #for travis-ci
-if [ "$USER" == "travis" ]; then
+if [[ "$USER" == "travis" ]]; then
    cd /home/travis/build/LanguageMachines/PICCL
    export PATH="/home/travis/build/LanguageMachines/PICCL:$PATH"
    touch .test #test write permission
