@@ -14,6 +14,6 @@ install:
     - sudo apt-get -qq update
     - sudo apt-get -qq -y install curl
     - curl -fsSL get.nextflow.io | bash
-    - docker pull proycon/lamachine
+    - docker pull proycon/lamachine:piccl
 script:
     - bash test.sh
