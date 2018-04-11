@@ -98,7 +98,7 @@ if (params.inputformat == "folia") {
     textinput_batched = Channel.create()
     inputdocuments
         .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
-        .set(textinput_batched)
+        .into(textinput_batched)
 
     process frog_text2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
