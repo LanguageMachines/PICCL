@@ -53,7 +53,7 @@ if (params.inputformat == "folia") {
     //group documents into n (=$worker) batches
     inputdocuments
         .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
-        .set(foliainput_batched)
+        .into(foliainput_batched)
 
     process frog_folia2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
@@ -96,7 +96,7 @@ if (params.inputformat == "folia") {
     //group documents into n (=$worker) batches
     inputdocuments
         .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
-        .set(textinput_batched)
+        .into(textinput_batched)
 
     process frog_text2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
