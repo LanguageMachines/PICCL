@@ -51,6 +51,7 @@ inputdocuments_counter = Channel.fromPath(params.inputdir + "/**." + params.exte
 
 if (params.inputformat == "folia") {
     //group documents into n (=$worker) batches
+    foliainput_batched = Channel.create()
     inputdocuments
         .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
         .into(foliainput_batched)
@@ -94,9 +95,10 @@ if (params.inputformat == "folia") {
 
 } else {
     //group documents into n (=$worker) batches
+    textinput_batched = Channel.create()
     inputdocuments
         .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
-        .into(textinput_batched)
+        .set(textinput_batched)
 
     process frog_text2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
