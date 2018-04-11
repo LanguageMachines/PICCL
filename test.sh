@@ -113,9 +113,9 @@ $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int
 ls ticcl_output/*xml || exit 2
 rm -Rf ticcl_output
 
-echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
-$PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+#echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
+#$PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 
-ls ticcl_output/*xml || exit 2
-rm -Rf ticcl_output
+#ls ticcl_output/*xml || exit 2
+#rm -Rf ticcl_output
 
