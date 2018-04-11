@@ -4,6 +4,8 @@
 if [ "$USER" == "travis" ]; then
    cd /home/travis/build/LanguageMachines/PICCL
    export PATH="/home/travis/build/LanguageMachines/PICCL:$PATH"
+   touch .test #test write permission
+   ls -l
 fi
 
 PICCL="nextflow run LanguageMachines/PICCL"
@@ -20,14 +22,23 @@ else
     WITHDOCKER="-with-docker proycon/lamachine:piccl"
 fi
 
-if [ ! -d data ]; then
-    echo -e "\n\n======= Downloading data =======">&2
-    $PICCL/download-data.nf $WITHDOCKER || exit 2
-fi
+if [ ! -z "$WITHDOCKER" ]; then
+    if [ ! -d data ]; then
+        echo -e "\n\n======= Downloading data =======">&2
+        $PICCL/download-data.nf $WITHDOCKER || exit 2
+    fi
 
-if [ ! -d corpora ]; then
-    echo -e "\n\n======= Downloading examples ========">&2
-    $PICCL/download-examples.nf $WITHDOCKER || exit 2
+    if [ ! -d corpora ]; then
+        echo -e "\n\n======= Downloading examples ========">&2
+        $PICCL/download-examples.nf $WITHDOCKER || exit 2
+    fi
+else
+    echo -e "\n\n======= Copying data and examples from container  =======">&2
+    docker run -ti -d proycon/lamachine:piccl /bin/bash
+    CONTAINER_ID=$(docker ps -alq)
+    docker cp $CONTAINER_ID:/usr/local/opt/PICCL/data data
+    docker cp $CONTAINER_ID:/usr/local/opt/PICCL/examples examples
+    docker stop $CONTAINER_ID
 fi
 
 if [ ! -d text_input ]; then
