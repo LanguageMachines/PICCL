@@ -100,7 +100,7 @@ if (params.inputformat == "folia") {
         fi
 
         ID="${inputdocument.baseName}"
-        ucto -L "${language}" \$opts -X --id \$ID "${inputdocument}" --outputclass "${outputclass}" "${inputdocument.baseName}.tok.folia.xml"
+        ucto -L "${language}" \$opts -X --id \$ID --outputclass "${outputclass}" "${inputdocument}" "${inputdocument.baseName}.tok.folia.xml"
         """
     }
 }
