@@ -5,9 +5,10 @@ vim: syntax=groovy
 -*- mode: groovy;-*-
 */
 
-log.info "--------------------------"
-log.info "DBNL Pipeline"
-log.info "--------------------------"
+log.info "-------------------------------------------"
+log.info "Nederlab Linguistic Enrichment Pipeline"
+log.info "-------------------------------------------"
+log.info " (no OCR/normalisation/TICCL!)"
 
 def env = System.getenv()
 
@@ -21,25 +22,26 @@ params.preservation = "/dev/null"
 params.rules = "/dev/null"
 params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
 params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
-params.metadatadir = "";
-params.mode = "both";
-params.foliainput = false
-params.frogs = 1
+params.metadatadir = ""
+params.mode = "simple"
+params.uselangid = false
+params.dbnl = false
+params.workers = 1
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
-    log.info "  dbnl.nf [OPTIONS]"
+    log.info "  nederlab.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --mode [modernize|simple|both|convert]"
-    log.info "  --inputdir DIRECTORY     Input directory (TEI documents)"
+    log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents or DBNL TEI documents if --dbnl is set)"
     log.info "  --dictionary FILE        Modernisation dictionary"
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
     log.info""
     log.info "Optional parameters:"
-    log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only? Default: both"
-    log.info "  --frogs NUMBER           The number of frogs to run in parallel, input will be divided into this many batches"
-    log.info "  --foliainput             Input is tokenised FoLiA instead of TEI (bypasses part of the pipeline)"
+    log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only (used with --dbnl)? Default: simple"
+    log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
+    log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
@@ -49,7 +51,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
-    log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
+    log.info "  --uselangid              Take language identification into account (does not perform identification but takes already present identification into account!)"
+    log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine, autodetected if enabled)"
     log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity) (DISABLED BY DEFAULT!)"
     log.info "  --entitylinkeroptions X  Extra options to pass to entity linker"
     exit 2
@@ -66,7 +69,7 @@ try {
     exit 2
 }
 
-if (!params.foliainput) {
+if (params.dbnl) {
     teidocuments = Channel.fromPath(params.inputdir+"/*." + params.extension)
 
     oztfile = Channel.fromPath(params.oztfile)
@@ -184,7 +187,7 @@ if (!params.foliainput) {
 
 //split the tokenized documents into batches, fork into two channels
 foliadocuments_tokenized
-    .buffer( size: Math.ceil(foliadocuments_counter.count().val / params.frogs).toInteger(), remainder: true)
+    .buffer( size: Math.ceil(foliadocuments_counter.count().val / params.workers).toInteger(), remainder: true)
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
 if ((params.mode == "both") || (params.mode == "simple")) {
@@ -193,7 +196,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         //Linguistic enrichment on the original text of the document (pre-modernization)
         //Receives multiple input files in batches
 
-        cpus params.frogs
+        cpus params.workers
 
         if ((params.entitylinking == "") && (params.mode == "simple")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
@@ -202,6 +205,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         input:
         file foliadocuments from foliadocuments_batches_tokenized1 //foliadocuments is a collection/batch for multiple files
         val skip from params.skip
+        val uselangid from params.skip
         val virtualenv from params.virtualenv
 
         output:
@@ -218,6 +222,9 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         opts=""
         if [ ! -z "$skip" ]; then
             opts="--skip=${skip}"
+        fi
+        if [[ "$uselangid" == "true" ]]; then
+            opts="\$opts --language=nld"
         fi
 
         #move input files to separate staging directory
@@ -278,12 +285,13 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
 
-        cpus params.frogs
+        cpus params.workers
 
         input:
         file inputdocuments from foliadocuments_modernized
         val skip from params.skip
         val virtualenv from params.virtualenv
+        val uselangid from params.uselangid
 
         output:
         file "*.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
@@ -299,6 +307,9 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         opts=""
         if [ ! -z "$skip" ]; then
             opts="--skip=${skip}"
+        fi
+        if [[ "$uselangid" == "true" ]]; then
+            opts="\$opts --language=nld"
         fi
 
         if [ ! -d in ]; then
@@ -401,14 +412,20 @@ if (params.entitylinking != "") {
         fi
         set -u
 
+        if [ ! -z "${extraoptions}" ]; then
+            extraoptions="-u ${extraoptions}"
+        else
+            extraoptions=""
+        fi
+
         mkdir out
-        \$rootpath/foliaentity/FoliaEntity.exe -w -m ${methods} ${extraoptions} -i "${document}" -o out/
+        \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} \$extraoptions -i "${document}" -o out/
         zcat out/\$(basename "${document}").gz > "${document.simpleName}.linked.folia.xml"
         """
     }
 
-    entitylinker_output.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+    entitylinker_output.subscribe { println "Nederlab pipeline output document written to " +  params.outputdir + "/" + it.name }
 } else {
     //for all modes
-    foliadocuments_merged.subscribe { println "DBNL pipeline output document written to " +  params.outputdir + "/" + it.name }
+    foliadocuments_merged.subscribe { println "Nederlab pipeline output document written to " +  params.outputdir + "/" + it.name }
 }
