@@ -42,7 +42,7 @@ Or
 
     $ ticcl.nf
 
-If you are not in LaMachine already; you can install [Nextflow](https://www.nextflow.io) and [Docker](https://docker.io) manually and then run the
+If you using a LaMachine installation, you can skip the rest of this section. If not, you can install [Nextflow](https://www.nextflow.io) and [Docker](https://docker.io) manually and then run the
 following to obtain the latest development release of PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
