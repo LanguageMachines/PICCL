@@ -47,18 +47,18 @@ following to obtain the latest development release of PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
 
-In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine:piccl-stable`` parameter:
+In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine:piccl`` parameter:
 
-    $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine:piccl-stable
+    $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine:piccl
 
 We have prepared PICCL for work in many languages, mainly on the basis of available open source lexicons due to [Aspell](http://aspell.net), these data files serve as the input for TICCL and have to be downloaded once as follows;
 
-    $ nextflow run LanguageMachines/PICCL/download-data.nf -with-docker proycon/lamachine:piccl-stable
+    $ nextflow run LanguageMachines/PICCL/download-data.nf -with-docker proycon/lamachine:piccl
 
 This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
 next section. In addition, you can also download example corpora (>300MB), which will be placed in a ``corpora/`` directory:
 
-    $ nextflow run LanguageMachines/PICCL/download-examples.nf -with-docker proycon/lamachine:piccl-stable
+    $ nextflow run LanguageMachines/PICCL/download-examples.nf -with-docker proycon/lamachine:piccl
 
 ## Usage
 
@@ -72,10 +72,10 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
  * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
- * ``dbnl.nf`` - A pipeline for linguistic enrichment DBNL corpus data (designed for the Nederlab project, does not use TICCL)
+ * ``nederlab.nf`` - A pipeline for linguistic enrichment for the Nederlab project, handles FoLiA input as well as very specific support DBNL TEI XML. Does not use TICCL!
 
 If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMAchine through docker, then
-you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl-stable``. This applies to all examples in this section.
+you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl``. This applies to all examples in this section.
 
 Running with the ``--help`` parameter or absence of any parameters will output usage
 information.
