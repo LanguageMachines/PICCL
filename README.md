@@ -30,7 +30,7 @@ other dependencies manually.
 PICCL makes extensive use of the [FoLiA](https://proycon.github.io/folia) format, a rich XML-based format for linguistic
 annotation.
 
-**Important Note**: This is a new experimental version in early stages of development; for the old version consult [this repository](https://github.com/martinreynaert/TICCL).
+**Important Note**: This is beta software still in development; for the old and deprecated version consult [this repository](https://github.com/martinreynaert/TICCL).
 
 ## Installation
 
