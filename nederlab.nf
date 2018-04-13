@@ -41,7 +41,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "Optional parameters:"
     log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only (used with --dbnl)? Default: simple"
     log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
-    log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)
+    log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
