@@ -37,7 +37,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents or DBNL TEI documents if --dbnl is set)"
     log.info "  --dictionary FILE        Modernisation dictionary"
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
-    log.info""
+    log.info ""
     log.info "Optional parameters:"
     log.info "  --mode [modernize|simple|both|convert]  Do modernisation, process original content immediately (simple), do both? Or convert to FoLiA only (used with --dbnl)? Default: simple"
     log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
