@@ -81,7 +81,7 @@ if (params.inputformat == "folia") {
 
         opts=""
         if [ ! -z "$skip" ]; then
-			skip="--skip=${skip}"
+			opts="--skip=${skip}"
 		fi
 
         #move input files to separate staging directory
