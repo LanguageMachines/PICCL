@@ -69,7 +69,7 @@ if (params.inputformat == "folia") {
         val virtualenv from params.virtualenv
 
         output:
-        file "${inputdocument.baseName}.frog.folia.xml" into tokoutput
+        file "*.xml" into foliadocuments_output mode flatten
 
         script:
         """
