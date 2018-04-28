@@ -1,0 +1,149 @@
+{
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org",
+        {
+            "entryPoints": { "@reverse": "schema:actionApplication" },
+            "interfaceType": { "@id": "codemeta:interfaceType" }
+        }
+    ],
+    "@type": "SoftwareSourceCode",
+    "identifier": "piccl",
+    "name": "PICCL",
+    "version": "0.5.2",
+    "description": "A set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing",
+    "license": "https://spdx.org/licenses/GPL-3.0",
+	"url": "https://github.com/LanguageMachines/PICCL",
+    "author": [
+		{
+			"@type": "Person",
+			"givenName": "Martin",
+			"familyName": "Reynaert",
+			"email": "reynaert@uvt.nl",
+			"affiliation": {
+				"@id": "https://www.ru.nl/clst",
+				"@type": "Organization",
+				"name": "Centre for Language and Speech Technology",
+				"url": "https://www.ru.nl/clst",
+				"parentOrganization": {
+					"@id": "https://www.ru.nl/cls",
+					"@type": "Organization",
+					"name": "Centre for Language Studies",
+					"url": "https://www.ru.nl/cls",
+					"parentOrganization": {
+						"@id": "https://www.ru.nl",
+						"name": "Radboud University",
+						"@type": "Organization",
+						"url": "https://www.ru.nl",
+						"location": {
+							"@type": "Place",
+							"name": "Nijmegen"
+						}
+					}
+
+				}
+			}
+		},
+		{
+			"@id": "https://orcid.org/0000-0002-1046-0006",
+			"@type": "Person",
+			"givenName": "Maarten",
+			"familyName": "van Gompel",
+			"email": "proycon@anaproy.nl",
+			"affiliation": { "@id": "https://www.ru.nl/clst" }
+		}
+	],
+	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
+	"programmingLanguage": {
+		"@type": "ComputerLanguage",
+		"identifier": "groovy",
+		"name": "Groovy"
+	},
+	"operatingSystem": "POSIX",
+	"codeRepository": "https://github.com/LanguageMachines/PICCL",
+    "softwareRequirements": [
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "nextflow",
+			"name": "Nextflow"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "ticcltools",
+			"name": "TICCLtools"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "foliautils",
+			"name": "FoLiA utilities"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "tesseract",
+			"name": "Tesseract OCR"
+		}
+	],
+	"funder": [
+		{
+			"@type": "Organization",
+			"name": "CLARIN-NL"
+		},
+		{
+			"@type": "Organization",
+			"name": "CLARIAH",
+			"url": "https://www.clariah.nl"
+		}
+	],
+	"readme": "https://github.com/LanguageMachines/PICCL/blob/master/README.md",
+	"issueTracker": "https://github.com/LanguageMachinesPICCL/issues",
+	"contIntegration": "https://travis-ci.org/LanguageMachines/PICCL",
+	"releaseNotes": "https://github.com/LanguageMachines/PICCL/releases",
+	"developmentStatus": "active",
+	"keywords":  [ "nlp", "natural language processing", "ocr" ],
+    "referencePublication": [
+		{
+			"@type": "ScholarlyArticle",
+			"name": "PICCL: Philosophical Integrator of Computational and Corpus Libraries",
+			"author": [ "Martin Reynaert", "Maarten van Gompel", "Ko van der Sloot", "Antal van den Bosch" ],
+			"pageStart": "75",
+			"pageEnd": 79,
+			"isPartOf": {
+				"@type": "PublicationIssue",
+				"datePublised": "2015",
+				"name": "Proceedings of CLARIN Annual Conference 2015",
+				"location": "Wrocław, Poland"
+			}
+		}
+	],
+	"dateCreated": "2015",
+    "entryPoints": [
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///ocr.nf",
+            "name": "OCR",
+            "description": "Optical-Character Recognition pipeline",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///ticcl.nf",
+            "name": "TICCL",
+            "description": "TICCL: Text-induced Corpus Cleanup (OCR post-correction and spelling normalisation pipeline)",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///frog.nf",
+            "name": "Frog",
+            "description": "Dutch linguistic enrichment pipeline (Frog)",
+            "interfaceType": "CLI"
+        },
+        {
+            "@type": "EntryPoint",
+            "urlTemplate": "file:///nederlab.nf",
+            "name": "Nederlab",
+            "description": "Nederlab linguistic enrichment of historical texts pipeline",
+            "interfaceType": "CLI"
+        }
+    ]
+}
