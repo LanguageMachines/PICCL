@@ -56,8 +56,8 @@
 	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
 	"programmingLanguage": {
 		"@type": "ComputerLanguage",
-		"identifier": "groovy",
-		"name": "Groovy"
+		"identifier": "nextflow",
+		"name": "Nextflow"
 	},
 	"operatingSystem": "POSIX",
 	"codeRepository": "https://github.com/LanguageMachines/PICCL",
@@ -95,7 +95,7 @@
 		}
 	],
 	"readme": "https://github.com/LanguageMachines/PICCL/blob/master/README.md",
-	"issueTracker": "https://github.com/LanguageMachinesPICCL/issues",
+	"issueTracker": "https://github.com/LanguageMachines/PICCL/issues",
 	"contIntegration": "https://travis-ci.org/LanguageMachines/PICCL",
 	"releaseNotes": "https://github.com/LanguageMachines/PICCL/releases",
 	"developmentStatus": "active",
@@ -112,7 +112,8 @@
 				"datePublised": "2015",
 				"name": "Proceedings of CLARIN Annual Conference 2015",
 				"location": "Wrocław, Poland"
-			}
+			},
+            "url": "http://www.nederlab.nl/cms/wp-content/uploads/2015/10/Reynaert_PICCL-Philosophical-Integrator-of-Computational-and-Corpus-Libraries.pdf"
 		}
 	],
 	"dateCreated": "2015",
