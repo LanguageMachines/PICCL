@@ -69,7 +69,7 @@ if (params.inputformat == "folia") {
         val virtualenv from params.virtualenv
 
         output:
-        file "*.xml" into foliadocuments_output mode flatten
+        file "output/*.xml" into foliadocuments_output mode flatten
 
         script:
         """
@@ -88,8 +88,9 @@ if (params.inputformat == "folia") {
         mkdir input
         mv *.xml input/
 
-        #output will be in cwd
-        frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "." --threads 1 --nostdout --testdir input/ -x
+        #output will be in output/
+        mkdir output
+        frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/ -x
         """
     }
 
@@ -114,7 +115,7 @@ if (params.inputformat == "folia") {
         val virtualenv from params.virtualenv
 
         output:
-        file "*.xml" into foliadocuments_output mode flatten
+        file "output/*.xml" into foliadocuments_output mode flatten
 
         script:
         """
@@ -137,7 +138,8 @@ if (params.inputformat == "folia") {
         mv *.$extension input/
 
         #output will be in cwd
-        frog \$opts --outputclass "${outputclass}" --xmldir "." --threads 1 --nostdout --testdir input/
+        mkdir output
+        frog \$opts --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/
         """
     }
 
