@@ -92,6 +92,11 @@
 			"@type": "Organization",
 			"name": "CLARIAH",
 			"url": "https://www.clariah.nl"
+		},
+		{
+			"@type": "Organization",
+			"name": "Nederlab",
+			"url": "http://www.nederlab.nl"
 		}
 	],
 	"readme": "https://github.com/LanguageMachines/PICCL/blob/master/README.md",
