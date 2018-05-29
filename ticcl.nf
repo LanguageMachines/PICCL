@@ -117,6 +117,7 @@ if (params.containsKey('corpusfreqlist')) {
         file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
         val virtualenv from params.virtualenv
         val inputclass from params.inputclass
+        val extension from params.extension
 
         output:
         file "corpus.wordfreqlist.tsv" into corpusfreqlist
@@ -129,7 +130,7 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e folia.xml --lang=none --ngram 1 -o corpus .
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --ngram 1 -o corpus .
         """
     }
 }
