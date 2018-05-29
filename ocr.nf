@@ -226,7 +226,7 @@ process ocrpages_to_foliapages {
     //pagehocr.text =~ /ocrx_word/
 
     output:
-    set val(documentname), file("${pagehocr.baseName}" + "*.folia.xml") into foliapages //TODO: verify this also works if input is not TIF or PDF?
+    set val(documentname), file("FH-${pagehocr.baseName}" + "*.folia.xml") into foliapages //TODO: verify this also works if input is not TIF or PDF?
 
     script:
     """
@@ -236,7 +236,7 @@ process ocrpages_to_foliapages {
     fi
     set -u
 
-    FoLiA-hocr -O ./ -t 1 "${pagehocr}"
+    FoLiA-hocr --prefix "FH-" -O ./ -t 1 "${pagehocr}"
     """
 }
 
