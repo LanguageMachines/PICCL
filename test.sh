@@ -9,7 +9,7 @@ if [[ "$USER" == "travis" ]]; then
 fi
 
 PICCL="nextflow run LanguageMachines/PICCL"
-if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ]; then
+if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ] || [ -f /usr/local/bin/TICCL-anahash ]; then
     #we are in LaMachine, no need for docker
     WITHDOCKER=""
     PICCLDIR=$(dirname "${BASH_SOURCE[0]}")
