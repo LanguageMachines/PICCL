@@ -57,7 +57,7 @@ if (params.inputformat == "folia") {
         .into(foliainput_batched)
 
     process frog_folia2folia {
-        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "output/*.xml", mode: 'copy', overwrite: true
 
         cpus params.workers
 
@@ -102,7 +102,7 @@ if (params.inputformat == "folia") {
         .into(textinput_batched)
 
     process frog_text2folia {
-        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "output/*.xml", mode: 'copy', overwrite: true
 
         cpus params.workers
 
@@ -145,4 +145,4 @@ if (params.inputformat == "folia") {
 
 }
 
-foliadocuments_output.subscribe { println "Frog output document written to " +  params.outputdir + "/" + it.name }
+foliadocuments_output.subscribe { println "Frog output document written to " +  params.outputdir + "/output/" + it.name }
