@@ -169,7 +169,9 @@ sub convertToDiv {
          if ($c->name eq "#PCDATA") {
             my $newT = new XML::Twig::Elt("t",normspaces($c->text));
             $c->set_text("");
-            $newT->paste("last_child",$c);
+            if (normspaces($c->text) != "") {
+                $newT->paste("last_child",$c);
+            }
             $c->set_name("p");
             $addedCounter++;
             $c->set_att("xml:id","addedByTET-".$addedCounter);
@@ -238,8 +240,10 @@ sub divDeleteAttr {
          $child->set_att("xml:id","addedByTET-".$addedCounter);
          my $text = $child->text;
          $child->set_text("");
-         my $newT = new XML::Twig::Elt("t",normspaces($text));
-         $newT->paste("last_child",$child);
+         if (normspaces($text) != "") {
+             my $newT = new XML::Twig::Elt("t",normspaces($text));
+             $newT->paste("last_child",$child);
+        }
       }
    }
 }
@@ -356,8 +360,8 @@ sub processL {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
       $tag->set_name('t-str');
-      my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
-      $tag->set_text(" ");
+      $tag->set_text(normspaces($tag->text));
+      my $newElement = new XML::Twig::Elt('br');
       $newElement->paste('last_child',$tag);
    }
 }
@@ -450,11 +454,13 @@ sub processLg {
    }
    my $newElement = new XML::Twig::Elt("t","");
    my @lines = $tag->children;
+   my $found = 0;
    foreach my $line (@lines) {
       if ($line->name eq "t-str") {
          $line->cut;
          if ($line->text !~ /^\s*$/) {
             $line->paste('last_child',$newElement);
+            $found++;
          }
       }
       if ($line->name eq "br") {
@@ -462,7 +468,9 @@ sub processLg {
          $line->paste('last_child',$newElement);
       }
    }
-   $newElement->paste('last_child',$tag);
+   if ($found) {
+       $newElement->paste('last_child',$tag);
+   }
 }
 
 sub processSp {
