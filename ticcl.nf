@@ -158,7 +158,7 @@ process ticclunk {
     fi
     set -u
 
-    TICCL-unk --corpus "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}"
+    TICCL-unk --background "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}"
     """
 }
 
