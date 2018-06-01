@@ -355,7 +355,7 @@ sub processL {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      $tag->set_name('utt');
+      $tag->set_name('t-str');
       my $newElement = new XML::Twig::Elt('t',normspaces($tag->text));
       $tag->set_text(" ");
       $newElement->paste('last_child',$tag);
@@ -448,18 +448,21 @@ sub processLg {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
-   #my $newElement = new XML::Twig::Elt("t","");
-   #$newElement->set_att('xml:id',$tag->{'att'}->{'xml:id'}.".t");
-   #my @lines = $tag->children;
-   #foreach my $line (@lines) {
-   #   if ($line->name eq "utt") {
-   #      $line->cut;
-   #      if ($line->text !~ /^\s*$/) {
-   #         $line->paste('last_child',$newElement);
-   #      }
-   #   }
-   #}
-   #$newElement->paste('last_child',$tag);
+   my $newElement = new XML::Twig::Elt("t","");
+   my @lines = $tag->children;
+   foreach my $line (@lines) {
+      if ($line->name eq "t-str") {
+         $line->cut;
+         if ($line->text !~ /^\s*$/) {
+            $line->paste('last_child',$newElement);
+         }
+      }
+      if ($line->name eq "br") {
+         $line->cut;
+         $line->paste('last_child',$newElement);
+      }
+   }
+   $newElement->paste('last_child',$tag);
 }
 
 sub processSp {
