@@ -4,6 +4,11 @@
 if [[ "$USER" == "travis" ]]; then
    cd /home/travis/build/LanguageMachines/PICCL
    export PATH="/home/travis/build/LanguageMachines/PICCL:$PATH"
+   source lamachine-${CONF_NAME}-activate
+   if [ -z "$VIRTUAL_ENV" ]; then
+       echo "LaMachine did not activate properly"
+       exit 2
+   fi
    touch .test #test write permission
    ls -l
 fi

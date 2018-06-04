@@ -1,6 +1,20 @@
-language: groovy
-dist: trusty
-sudo: true
+language: generic
+
+matrix:
+    include:
+        - os: linux
+          dist: trusty
+          sudo: required
+          language: generic
+          env:
+            - CONF_NAME=stablelm FLAVOUR=local VERSION=stable LOCALENV_TYPE=virtualenv
+        - os: linux
+          dist: trusty
+          sudo: required
+          language: generic
+          env:
+            - CONF_NAME=devlm FLAVOUR=local VERSION=development LOCALENV_TYPE=virtualenv
+
 notifications:
   irc:
     channels:
@@ -8,12 +22,11 @@ notifications:
     template:
       - "%{repository_slug}#%{build_number} %{message} --> %{build_url}"
     skip_join: true
-jdk:
-    - openjdk8
+
 install:
-    - sudo apt-get -qq update
-    - sudo apt-get -qq -y install curl
-    - curl -fsSL get.nextflow.io | bash
-    - docker pull proycon/lamachine:piccl
+    - echo -e "[hostsecurity]\ndisabletls10warning = true" > ~/.hgrc
+    - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo /etc/init.d/postgresql stop; sudo apt remove oracle-java8-installer oracle-java8-unlimited-jce-policy oracle-java9-installer oracle-java9-set-default oracle-java9-unlimited-jce-policy  postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 ; fi #this is in the way and breaks apt updates for some reason
+    - curl -s https://raw.githubusercontent.com/proycon/LaMachine/master/bootstrap.sh
+    - bash bootstrap.sh --name $CONF_NAME --branch master --flavour $FLAVOUR --version $VERSION --env $LOCALENV_TYPE --private --minimal --prefer-distro --noninteractive --verbose --install piccl
 script:
     - USER="travis" bash test.sh
