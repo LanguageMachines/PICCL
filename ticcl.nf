@@ -313,7 +313,16 @@ process foliacorrect {
     mkdir outputdir
 
     FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
-    mv outputdir/*.xml .
+    cd outputdir
+    for f in *.xml; do
+        if [[ \${f%.ticcl.xml} != \$f ]]; then
+            newf="\${f%.ticcl.xml}.ticcl.folia.xml"
+        else
+            newf="\$f"
+        fi
+        mv \$f ../\$newf
+    done
+    cd ..
     """
 }
 
