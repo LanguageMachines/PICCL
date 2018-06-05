@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#for travis-ci
 if [[ "$USER" == "travis" ]]; then
+   #special handling for travis-ci
    cd /home/travis/build/LanguageMachines/PICCL
    export PATH="/home/travis/build/LanguageMachines/PICCL:$PATH"
    source lamachine-${CONF_NAME}-activate
@@ -46,6 +46,23 @@ else
     docker stop $CONTAINER_ID
 fi
 
+checkfolia () {
+    if [ -f "$1" ] && [ -s "$1" ]; then
+       folialint $1 >/dev/null || exit 2
+    fi
+}
+
+if [ ! -z "$1" ]; then
+    TEST=$1
+else
+    TEST="all"
+fi
+
+
+#################################################### PREPARATION #######################################################
+
+# Setting up some input texts to be used by tests
+
 if [ ! -d text_input ]; then
     mkdir -p text_input || exit 2
     cd text_input
@@ -60,49 +77,10 @@ Een verwant verschijnsel is elektromagnetisme, magnetisme dat ontstaat door een 
     cd ..
 fi
 
-
-echo -e "\n\n======== Testing tokenisation pipeline from plain text ========= ">&2
-$PICCL/tokenize.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
-
-echo -e "\n\n========= Testing frog pipeline from plain text ========= ">&2
-$PICCL/frog.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
-
-echo -e "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
-$PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdf $WITHDOCKER || exit 2
-echo -e "\n\n======== Testing TICCL (eng) =========">&2
-$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
-
-ls ticcl_output/*xml || exit 2
-rm -Rf ocr_output ticcl_output
-
-
-echo -e "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
-$PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
-echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
-$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
-
-ls ticcl_output/*xml || exit 2
-rm -Rf ocr_output ticcl_output
-
-#mkdir -p tmpinput || exit 2
-#cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
-#echo -e "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
-#$PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
-
-#ls ocr_output/*xml || exit 2
-#rm -Rf ocr_output
-
-
-#echo -e "\n\n======== Testing OCR (eng) with inputtype djvu ======">&2
-#$PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
-#echo -e "\n\n======== Testing TICCL (eng) =========">&2
-#$PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
-
-#ls ticcl_output/*xml || exit 2
-
-mkdir -p text_input_ticcl
-cd text_input_ticcl
-echo "The barbarian invasion put an end, for six centuries, to the
+if [ ! -d text_input_ticcl ]; then
+    mkdir -p text_input_ticcl || exit 2
+    cd text_input_ticcl
+    echo "The barbarian invasion put an end, for six centuries, to the
 civilization of western Europe. It lingered in Ireland until the
 Danes destroyed it in the ninth century; before its extinction
 there it produced one notable figure, Scotus Erigena. In the
@@ -121,17 +99,79 @@ held it were fei%.
 
 * That is why the modem Russian does not think that we ought to
 obey dialectical materialism rather than Stalin." > ticcltest.txt
-cd ..
+    cd ..
+fi
 
-echo -e "\n\n======== Testing TICCL with text input (eng) =========">&2
-$PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+###################################################### TESTS ###########################################################
 
-ls ticcl_output/*xml || exit 2
-rm -Rf ticcl_output
+if [[ "$TEST" == "toktxt" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing tokenisation pipeline from plain text ========= ">&2
+    if [ -d tokenized_output ]; then rm -Rf tokenized_output; fi  #cleanup previous results if they're still lingering around
+    $PICCL/tokenize.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
+    checkfolia tokenized_output/magnetisme.tok.folia.xml
+fi
 
-#echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
-#$PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+if [[ "$TEST" == "frogtxt" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n========= Testing frog pipeline from plain text ========= ">&2
+    if [ -d frog_output ]; then rm -Rf frog_output; fi  #cleanup previous results if they're still lingering around
+    $PICCL/frog.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
+    checkfolia frog_output/magnetisme.frogged.folia.xml
+fi
 
-#ls ticcl_output/*xml || exit 2
-#rm -Rf ticcl_output
+if [[ "$TEST" == "ocrpdf-eng" ]] || [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
+    if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
+    $PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdf $WITHDOCKER || exit 2
+fi
+
+if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing TICCL (eng) =========">&2
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+    $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+    ls ticcl_output/*xml || exit 2
+fi
+
+
+if [[ "$TEST" == "ocrtif-nld" ]] || [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
+    if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
+    $PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
+fi
+
+if [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+    $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
+fi
+
+
+if [[ "$TEST" == "ocrpdf-deufrak" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
+    if [ -d tmpinput ]; then
+        mkdir -p tmpinput || exit 2
+        cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
+    fi
+    if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
+    $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
+fi
+
+#if [[ "$TEST" == "ocrdvju-eng" ]] || [[ "$TEST" == "all" ]]; then
+#    echo -e "\n\n======== Testing OCR (eng) with inputtype djvu ======">&2
+#    if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
+#    $PICCL/ocr.nf --inputdir corpora/DJVU/ENG/ --language eng --inputtype djvu $WITHDOCKER || exit 2
+#fi
+
+if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
+    echo -e "\n\n======== Testing TICCL with text input (eng) =========">&2
+    if [ -d ticcl_output ]; then
+        rm -Rf ticcl_output
+    fi
+    $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+fi
+
+#if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
+#    echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
+#    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+#    $PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+#fi
 
