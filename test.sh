@@ -124,13 +124,14 @@ if [[ "$TEST" == "ocrpdf-eng" ]] || [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" =
     echo -e "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
     if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
     $PICCL/ocr.nf --inputdir corpora/PDF/ENG/ --language eng --inputtype pdf $WITHDOCKER || exit 2
+    checkfolia ocr_output/OllevierGeets.folia.xml
 fi
 
 if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (eng) =========">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
-    ls ticcl_output/*xml || exit 2
+    checkfolia ticcl_output/OllevierGeets.ticcl.folia.xml
 fi
 
 
@@ -138,18 +139,20 @@ if [[ "$TEST" == "ocrtif-nld" ]] || [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" =
     echo -e "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
     if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
     $PICCL/ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld $WITHDOCKER || exit 2
+    checkfolia ocr_output/dpo.folia.xml
 fi
 
 if [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
+    checkfolia ticcl_output/dpo.ticcl.folia.xml
 fi
 
 
 if [[ "$TEST" == "ocrpdf-deufrak" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
-    if [ -d tmpinput ]; then
+    if [ ! -d tmpinput ]; then
         mkdir -p tmpinput || exit 2
         cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
     fi
@@ -167,6 +170,7 @@ if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL with text input (eng) =========">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+    checkfolia ticcl_output/ticcltest.ticcl.folia.xml
 fi
 
 #if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
