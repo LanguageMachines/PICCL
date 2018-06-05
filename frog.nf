@@ -98,7 +98,7 @@ if (params.inputformat == "folia") {
             else
                 newf="\${f%.folia.xml}.frogged.folia.xml"
             fi
-            mv $f ../$newf
+            mv \$f ../\$newf
         done
         cd ..
         """
