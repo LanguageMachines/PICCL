@@ -1,5 +1,7 @@
 #!/bin/bash
 
+####################################################### INITIALISATION ##################################################
+
 if [[ "$USER" == "travis" ]]; then
    #special handling for travis-ci
    cd /home/travis/build/LanguageMachines/PICCL
@@ -126,7 +128,7 @@ fi
 
 if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (eng) =========">&2
-    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
     ls ticcl_output/*xml || exit 2
 fi
@@ -140,7 +142,7 @@ fi
 
 if [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
-    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
 fi
 
@@ -163,9 +165,7 @@ fi
 
 if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL with text input (eng) =========">&2
-    if [ -d ticcl_output ]; then
-        rm -Rf ticcl_output
-    fi
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir text_input_ticcl/ --inputtype text --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 fi
 
