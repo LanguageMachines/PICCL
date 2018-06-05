@@ -390,7 +390,7 @@ PARAMETERS = [
         ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL?", choices=[('yes','Yes'),('no','No')], default='yes'),
     ]),
     ('N-best Ranking', [
-            ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('3','Up to three N-best ranked'),('1','First-best Only'),('2','Up to two N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]) #old ticcl -r
+            ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('1','First-best Only'),('2','Up to two N-best ranked'),('3','Up to three N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]) #old ticcl -r
     ]),
     ('Edit/Levenshtein Distance', [
         ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L

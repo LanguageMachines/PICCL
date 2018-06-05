@@ -21,7 +21,7 @@ params.lexicon = ""
 params.artifrq = 10000000
 params.alphabet = ""
 params.distance = 2
-params.clip = 10
+params.clip = 1
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet') || !params.containsKey('charconfus')) {
     log.info "Usage:"
@@ -283,6 +283,31 @@ process rank {
     """
 }
 
+process chain {
+    input:
+    file rankedlist from rankedlist
+    val clip from params.clip
+
+    output:
+    file "${rankedlist}.chained" into rankedlist_chained
+
+    script:
+    """
+    set +u
+    if [ ! -z "${virtualenv}" ]; then
+        source ${virtualenv}/bin/activate
+    fi
+    set -u
+
+    if [ $clip -eq 1 ]; then
+        TICCL-chain --caseless -o "${rankedlist}.chained" ${rankedlist}
+    else
+        #we can only chain with clip 1, just copy the file unmodified if clip>1
+        cp ${rankedlist} ${rankedlist}.chained
+    fi
+    """
+}
+
 process foliacorrect {
     //Correct the input documents using the ranked list, produces final output documents with <str>
 
@@ -291,7 +316,7 @@ process foliacorrect {
 
     input:
     file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect()
-    file rankedlist from rankedlist
+    file rankedlist from rankedlist_chained
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
