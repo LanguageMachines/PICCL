@@ -286,6 +286,7 @@ process rank {
 process chain {
     input:
     file rankedlist from rankedlist
+    val virtualenv from params.virtualenv
     val clip from params.clip
 
     output:
