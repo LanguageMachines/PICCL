@@ -26,6 +26,7 @@ notifications:
 install:
     - echo -e "[hostsecurity]\ndisabletls10warning = true" > ~/.hgrc
     - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo /etc/init.d/postgresql stop; sudo apt remove oracle-java8-installer oracle-java8-unlimited-jce-policy oracle-java9-installer oracle-java9-set-default oracle-java9-unlimited-jce-policy  postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 ; fi #this is in the way and breaks apt updates for some reason
+    - update-java-alternatives -s java-1.8.0-openjdk-amd64
     - mkdir /home/travis/build/LaMachine
     - cd /home/travis/build/LaMachine
     - wget https://raw.githubusercontent.com/proycon/LaMachine/master/bootstrap.sh
