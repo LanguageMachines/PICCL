@@ -165,4 +165,4 @@ if (params.inputformat == "folia") {
 
 }
 
-foliadocuments_output.subscribe { println "Frog output document written to " +  params.outputdir + "/output/" + it.name }
+foliadocuments_output.subscribe { println "Frog output document written to " +  params.outputdir + '/' + it.name }
