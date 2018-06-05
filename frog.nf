@@ -57,7 +57,7 @@ if (params.inputformat == "folia") {
         .into(foliainput_batched)
 
     process frog_folia2folia {
-        publishDir params.outputdir, pattern: "output/*.xml", mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
 
         cpus params.workers
 
@@ -69,7 +69,7 @@ if (params.inputformat == "folia") {
         val virtualenv from params.virtualenv
 
         output:
-        file "output/*.xml" into foliadocuments_output mode flatten
+        file "*.xml" into foliadocuments_output mode flatten
 
         script:
         """
@@ -91,6 +91,16 @@ if (params.inputformat == "folia") {
         #output will be in output/
         mkdir output
         frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/ -x
+        cd output
+        for f in *.xml; do
+            if [[ \${f%.folia.xml} == \$f ]];
+                newf="\${f%.xml}.frogged.folia.xml"
+            else
+                newf="\${f%.folia.xml}.frogged.folia.xml"
+            fi
+            mv $f ../$newf
+        done
+        cd ..
         """
     }
 
@@ -102,7 +112,7 @@ if (params.inputformat == "folia") {
         .into(textinput_batched)
 
     process frog_text2folia {
-        publishDir params.outputdir, pattern: "output/*.xml", mode: 'copy', overwrite: true
+        publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
 
         cpus params.workers
 
@@ -140,6 +150,16 @@ if (params.inputformat == "folia") {
         #output will be in cwd
         mkdir output
         frog \$opts --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/
+        cd output
+        for f in *.xml; do
+            if [[ \${f%.folia.xml} == \$f ]];
+                newf="\${f%.xml}.frogged.folia.xml"
+            else
+                newf="\${f%.folia.xml}.frogged.folia.xml"
+            fi
+            mv $f ../$newf
+        done
+        cd ..
         """
     }
 
