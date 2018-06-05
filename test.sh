@@ -152,12 +152,17 @@ fi
 
 if [[ "$TEST" == "ocrpdf-deufrak" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing OCR (deu-frak) with inputtype pdf and reassembly  ======">&2
-    if [ ! -d tmpinput ]; then
-        mkdir -p tmpinput || exit 2
-        cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
+    if [[ "$USER" == "travis" ]]; then
+        echo "WARNING: Skipping test ocrpdf-deufrak because it is too large for travis">&2 #TODO: devise a better more minimalistic test so this is not necessary!
+    else
+        if [ ! -d tmpinput ]; then
+            mkdir -p tmpinput || exit 2
+            cp corpora/PDF/DEU-FRAK/BolzanoWLfull/WL1_1.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_2.pdf corpora/PDF/DEU-FRAK/BolzanoWLfull/WL2_10.pdf tmpinput/ || exit 3
+        fi
+        if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
+        $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
+        checkfolia ocr_output/WL2.folia.xml
     fi
-    if [ -d ocr_output ]; then rm -Rf ocr_output; fi  #cleanup previous results if they're still lingering around
-    $PICCL/ocr.nf --inputdir tmpinput  --language deu_frak --inputtype pdf --pdfhandling reassemble --seqdelimiter "_" $WITHDOCKER || exit 2
 fi
 
 #if [[ "$TEST" == "ocrdvju-eng" ]] || [[ "$TEST" == "all" ]]; then
