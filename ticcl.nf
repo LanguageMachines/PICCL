@@ -290,7 +290,7 @@ process chain {
     val clip from params.clip
 
     output:
-    file "${rankedlist}.chained" into rankedlist_chained
+    file "${rankedlist}.chained.ranked" into rankedlist_chained
 
     script:
     """
@@ -301,7 +301,7 @@ process chain {
     set -u
 
     if [ $clip -eq 1 ]; then
-        TICCL-chain --caseless -o "${rankedlist}.chained" ${rankedlist}
+        TICCL-chain --caseless -o "${rankedlist}.chained.ranked" ${rankedlist}
     else
         #we can only chain with clip 1, just copy the file unmodified if clip>1
         cp ${rankedlist} ${rankedlist}.chained
