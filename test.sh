@@ -178,9 +178,10 @@ if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
     checkfolia ticcl_output/ticcltest.ticcl.folia.xml
 fi
 
-#if [[ "$TEST" == "ticcltxt-eng" ]] || [[ "$TEST" == "all" ]]; then
+#TODO: this test should be enabled with a proper PDF that contains text
+#if [[ "$TEST" == "ticclpdftxt-eng" ]] || [[ "$TEST" == "all" ]]; then
 #    echo -e "\n\n======== Testing TICCL with PDF input (text; no OCR) (eng) =========">&2
-#    if [ -d ticcl_output ]; then rm -Rf ticcl_output fi
+#    if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
 #    $PICCL/ticcl.nf --inputdir corpora/PDF/ENG/ --inputtype pdf --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
 #fi
 
