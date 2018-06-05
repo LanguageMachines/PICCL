@@ -13,7 +13,7 @@ setup(
     version = "0.5.4", #also change in codemeta.json
     author = "Martin Reynaert, Maarten van Gompel",
     author_email = "reynaert@uvt.nl",
-    description = ("Webservice for PICCL"),
+    description = ("Webservice for PICCL; a set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing"),
     license = "GPL",
     keywords = "rest nlp computational_linguistics rest",
     url = "https://github.com/LanguageMachines/PICCL",
