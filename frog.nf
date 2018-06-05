@@ -125,7 +125,7 @@ if (params.inputformat == "folia") {
         val virtualenv from params.virtualenv
 
         output:
-        file "output/*.xml" into foliadocuments_output mode flatten
+        file "*.xml" into foliadocuments_output mode flatten
 
         script:
         """
