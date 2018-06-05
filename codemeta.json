@@ -16,28 +16,28 @@
 	"url": "https://github.com/LanguageMachines/PICCL",
     "author": [
 		{
-			"@type": "Person",
-			"givenName": "Martin",
-			"familyName": "Reynaert",
-			"email": "reynaert@uvt.nl",
-			"affiliation": {
-				"@id": "https://www.ru.nl/clst",
+		    "@type": "Person",
+		    "givenName": "Martin",
+		    "familyName": "Reynaert",
+		    "email": "reynaert@uvt.nl",
+		    "affiliation": {
+			"@id": "https://www.ru.nl/clst",
+			"@type": "Organization",
+			"name": "Department of Cognitive Science and Artificial Intelligence",
+			"url": "https://www.tilburguniversity.edu/about/schools/humanities/departments/dca/",
+			"parentOrganization": {
+			    "@id": "https://www.tilburguniversity.edu/about/schools/humanities/",
+			    "@type": "Organization",
+			    "name": "Tilburg School of Humanities and Digital Sciences",
+			    "url": "https://www.tilburguniversity.edu/about/schools/humanities/",
+			    "parentOrganization": {
+				"@id": "https://www.tilburguniversity.edu/",
+				"name": "Tilburg University",
 				"@type": "Organization",
-				"name": "Centre for Language and Speech Technology",
-				"url": "https://www.ru.nl/clst",
-				"parentOrganization": {
-					"@id": "https://www.ru.nl/cls",
-					"@type": "Organization",
-					"name": "Centre for Language Studies",
-					"url": "https://www.ru.nl/cls",
-					"parentOrganization": {
-						"@id": "https://www.ru.nl",
-						"name": "Radboud University",
-						"@type": "Organization",
-						"url": "https://www.ru.nl",
-						"location": {
-							"@type": "Place",
-							"name": "Nijmegen"
+				"url": "https://www.tilburguniversity.edu/",
+				"location": {
+				    "@type": "Place",
+				    "name": "Tilburg"
 						}
 					}
 
