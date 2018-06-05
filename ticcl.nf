@@ -36,7 +36,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "Optional parameters:"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
-    log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)"
+    log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml, must always end in xml)!"
     log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well"
     log.info "  --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
