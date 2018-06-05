@@ -226,6 +226,8 @@ process indexer {
     // -o option is a prefix only, extension indexNT will be appended
 }
 
+alphabet_forresolver = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
+
 process resolver {
     //Resolves numerical confusions back to word form confusions using TICCL-LDcalc
     publishDir params.outputdir, mode: 'copy', overwrite: true
@@ -234,6 +236,7 @@ process resolver {
     file index from index
     file anahashlist from anahashlist_forresolver
     file corpusfreqlist from corpusfreqlist_clean_forresolver
+    file alphabet from alphabet_forresolver
     val distance from params.distance
     val artifrq from params.artifrq
     val virtualenv from params.virtualenv
@@ -249,7 +252,7 @@ process resolver {
     fi
     set -u
 
-	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus}
+	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus} --alph ${alphabet}
     """
 }
 
