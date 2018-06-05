@@ -11,9 +11,14 @@ if [[ "$USER" == "travis" ]]; then
        echo "LaMachine did not activate properly"
        exit 2
    fi
-   touch .test #test write permission
    ls -l
 fi
+
+if ! touch .test; then #test write permission
+   echo "No writing permission in current working directory"
+   exit 2
+fi
+rm .test
 
 PICCL="nextflow run LanguageMachines/PICCL"
 if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ] || [ -f /usr/local/bin/TICCL-anahash ]; then
