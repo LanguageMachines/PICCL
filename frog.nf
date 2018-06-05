@@ -93,7 +93,7 @@ if (params.inputformat == "folia") {
         frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/ -x
         cd output
         for f in *.xml; do
-            if [[ \${f%.folia.xml} == \$f ]];
+            if [[ \${f%.folia.xml} == \$f ]]; then
                 newf="\${f%.xml}.frogged.folia.xml"
             else
                 newf="\${f%.folia.xml}.frogged.folia.xml"
@@ -152,7 +152,7 @@ if (params.inputformat == "folia") {
         frog \$opts --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/
         cd output
         for f in *.xml; do
-            if [[ \${f%.folia.xml} == \$f ]];
+            if [[ \${f%.folia.xml} == \$f ]]; then
                 newf="\${f%.xml}.frogged.folia.xml"
             else
                 newf="\${f%.folia.xml}.frogged.folia.xml"
