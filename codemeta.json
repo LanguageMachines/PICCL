@@ -14,6 +14,29 @@
     "description": "A set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing",
     "license": "https://spdx.org/licenses/GPL-3.0",
 	"url": "https://github.com/LanguageMachines/PICCL",
+    "producer": {
+        "@id": "https://www.ru.nl/clst",
+        "@type": "Organization",
+        "name": "Centre for Language and Speech Technology",
+        "url": "https://www.ru.nl/clst",
+        "parentOrganization": {
+            "@id": "https://www.ru.nl/cls",
+            "@type": "Organization",
+            "name": "Centre for Language Studies",
+            "url": "https://www.ru.nl/cls",
+            "parentOrganization": {
+                "@id": "https://www.ru.nl",
+                "name": "Radboud University",
+                "@type": "Organization",
+                "url": "https://www.ru.nl",
+                "location": {
+                    "@type": "Place",
+                    "name": "Nijmegen"
+                }
+            }
+
+        }
+    },
     "author": [
 		{
 		    "@type": "Person",
@@ -21,28 +44,27 @@
 		    "familyName": "Reynaert",
 		    "email": "reynaert@uvt.nl",
 		    "affiliation": {
-			"@id": "https://www.ru.nl/clst",
-			"@type": "Organization",
-			"name": "Department of Cognitive Science and Artificial Intelligence",
-			"url": "https://www.tilburguniversity.edu/about/schools/humanities/departments/dca/",
-			"parentOrganization": {
-			    "@id": "https://www.tilburguniversity.edu/about/schools/humanities/",
-			    "@type": "Organization",
-			    "name": "Tilburg School of Humanities and Digital Sciences",
-			    "url": "https://www.tilburguniversity.edu/about/schools/humanities/",
-			    "parentOrganization": {
-				"@id": "https://www.tilburguniversity.edu/",
-				"name": "Tilburg University",
-				"@type": "Organization",
-				"url": "https://www.tilburguniversity.edu/",
-				"location": {
-				    "@type": "Place",
-				    "name": "Tilburg"
-						}
-					}
-
-				}
-			}
+                "@id": "https://www.tilburguniversity.edu/about/schools/humanities/departments/dca/",
+                "@type": "Organization",
+                "name": "Department of Cognitive Science and Artificial Intelligence",
+                "url": "https://www.tilburguniversity.edu/about/schools/humanities/departments/dca/",
+                "parentOrganization": {
+                    "@id": "https://www.tilburguniversity.edu/about/schools/humanities/",
+                    "@type": "Organization",
+                    "name": "Tilburg School of Humanities and Digital Sciences",
+                    "url": "https://www.tilburguniversity.edu/about/schools/humanities/",
+                    "parentOrganization": {
+                        "@id": "https://www.tilburguniversity.edu/",
+                        "name": "Tilburg University",
+                        "@type": "Organization",
+                        "url": "https://www.tilburguniversity.edu/",
+                        "location": {
+                            "@type": "Place",
+                            "name": "Tilburg"
+                        }
+                    }
+                }
+            }
 		},
 		{
 			"@id": "https://orcid.org/0000-0002-1046-0006",
