@@ -295,6 +295,7 @@ process foliacorrect {
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
+    val inputclass from params.inputclass
     val virtualenv from params.virtualenv
 
     output:
@@ -311,7 +312,7 @@ process foliacorrect {
     #some bookkeeping
     mkdir outputdir
 
-    FoLiA-correct --class current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
+    FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
     mv outputdir/*.xml .
     """
 }
