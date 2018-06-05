@@ -283,7 +283,7 @@ process rank {
     """
 }
 
-process chain {
+process chainer {
     input:
     file rankedlist from rankedlist
     val virtualenv from params.virtualenv
@@ -301,10 +301,12 @@ process chain {
     set -u
 
     if [ $clip -eq 1 ]; then
-        TICCL-chain --caseless -o "${rankedlist}.chained.ranked" ${rankedlist}
+        TICCL-chain --caseless ${rankedlist}
+        mv ${rankedlist}.chained ${rankedlist}.chained.ranked #FoLiA-correct requires extension to be *.ranked so we add it
     else
         #we can only chain with clip 1, just copy the file unmodified if clip>1
-        cp ${rankedlist} ${rankedlist}.chained
+        echo "(skipping TICCL-chain because clip==$clip)">&2
+        ln -s ${rankedlist} ${rankedlist}.chained.ranked
     fi
     """
 }
