@@ -283,7 +283,7 @@ process rank {
     """
 }
 
-process chain {
+process chainer {
     input:
     file rankedlist from rankedlist
     val virtualenv from params.virtualenv
