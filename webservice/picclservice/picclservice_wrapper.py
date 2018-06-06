@@ -46,6 +46,7 @@ else:
     run_piccl = "nextflow run LanguageMachines/PICCL/"
     print("Running PICCL mediated by Nextflow",file=sys.stderr)
 
+print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
 #Moreover, you can import any other settings from your service configuration file as well:
@@ -64,7 +65,8 @@ def fail(prefix=None):
     if prefix:
         nextflowout(prefix)
     if os.path.exists('work'):
-        shutil.rmtree('work')
+        if not os.environ.get('PICCLDEBUG',False):
+            shutil.rmtree('work')
         sys.exit(1)
 
 def nextflowout(prefix):
