@@ -48,6 +48,7 @@ else:
     print("Running PICCL mediated by Nextflow",file=sys.stderr)
 
 
+print("Virtual Environment: ", os.environ.get('VIRTUAL_ENV', "(none)"), file=sys.stderr)
 print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 print("Forcing en_US.UTF-8 locale...", file=sys.stderr)
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
