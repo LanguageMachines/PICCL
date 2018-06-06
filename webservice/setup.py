@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name = "PICCL",
-    version = "0.6.1", #also change in codemeta.json
+    version = "0.6.2", #also change in codemeta.json
     author = "Martin Reynaert, Maarten van Gompel",
     author_email = "reynaert@uvt.nl",
     description = ("Webservice for PICCL; a set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing"),

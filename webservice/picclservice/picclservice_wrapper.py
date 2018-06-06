@@ -62,7 +62,7 @@ clamdata = clam.common.data.getclamdata(datafile)
 
 if 'debug' in clamdata and clamdata['debug']:
     print("Locale information (will force en_US.UTF-8): ", file=sys.stderr)
-    os.system("locale >&2", file=sys.stderr)
+    os.system("locale >&2")
 
 #You now have access to all data. A few properties at your disposition now are:
 # clamdata.system_id , clamdata.project, clamdata.user, clamdata.status , clamdata.parameters, clamdata.inputformats, clamdata.outputformats , clamdata.input , clamdata.output
