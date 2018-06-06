@@ -18,6 +18,7 @@ import sys
 import os
 import glob
 import shutil
+import locale
 
 #import CLAM-specific modules. The CLAM API makes a lot of stuff easily accessible.
 import clam.common.data
@@ -46,8 +47,10 @@ else:
     run_piccl = "nextflow run LanguageMachines/PICCL/"
     print("Running PICCL mediated by Nextflow",file=sys.stderr)
 
-print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 
+print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
+print("Forcing en_US.UTF-8 locale...", file=sys.stderr)
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
 #Moreover, you can import any other settings from your service configuration file as well:
@@ -58,7 +61,7 @@ print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 clamdata = clam.common.data.getclamdata(datafile)
 
 if 'debug' in clamdata and clamdata['debug']:
-    print("Locale information: ", file=sys.stderr)
+    print("Locale information (will force en_US.UTF-8): ", file=sys.stderr)
     os.system("locale >&2", file=sys.stderr)
 
 #You now have access to all data. A few properties at your disposition now are:
