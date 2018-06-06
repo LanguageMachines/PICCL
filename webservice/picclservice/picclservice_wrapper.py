@@ -48,6 +48,7 @@ else:
 
 print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 
+
 #If you make use of CUSTOM_FORMATS, you need to import your service configuration file here and set clam.common.data.CUSTOM_FORMATS
 #Moreover, you can import any other settings from your service configuration file as well:
 
@@ -55,6 +56,10 @@ print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
 
 #Obtain all data from the CLAM system (passed in $DATAFILE (clam.xml)), always pass CUSTOM_FORMATS as second argument if you make use of it!
 clamdata = clam.common.data.getclamdata(datafile)
+
+if 'debug' in clamdata and clamdata['debug']:
+    print("Locale information: ", file=sys.stderr)
+    os.system("locale >&2", file=sys.stderr)
 
 #You now have access to all data. A few properties at your disposition now are:
 # clamdata.system_id , clamdata.project, clamdata.user, clamdata.status , clamdata.parameters, clamdata.inputformats, clamdata.outputformats , clamdata.input , clamdata.output
@@ -65,7 +70,7 @@ def fail(prefix=None):
     if prefix:
         nextflowout(prefix)
     if os.path.exists('work'):
-        if not os.environ.get('PICCLDEBUG',False):
+        if 'debug' not in clamdata or not clamdata['debug']:
             shutil.rmtree('work')
         sys.exit(1)
 

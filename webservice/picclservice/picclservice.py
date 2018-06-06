@@ -404,6 +404,9 @@ PARAMETERS = [
         BooleanParameter('parser','Dependency Parser',"Dependency parser (for Dutch only!)", default=False),
         BooleanParameter('chunker','Chunker / Shallow-parser Parser',"Chunker / Shallow parser (for Dutch only!)", default=False),
     ]),
+    ('Debug', [
+        BooleanParameter('debug',"Enable extra debug output (make sure to delete the project after you are done!)", default=False),
+    ]),
     #('Focus Word Selection', [
     #    IntegerParameter('minlength','Minimum Word Length','Integer between zero and one hundred',default=5,minvalue=0, maxvalue=100), #old ticcl -x
     #    IntegerParameter('maxlength','Maximum Word Length','Integer between zero and one hundred',default=100,minvalue=0, maxvalue=100), #old ticcl -y
