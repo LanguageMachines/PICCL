@@ -205,7 +205,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         input:
         file foliadocuments from foliadocuments_batches_tokenized1 //foliadocuments is a collection/batch for multiple files
         val skip from params.skip
-        val uselangid from params.skip
+        val uselangid from params.uselangid
         val virtualenv from params.virtualenv
 
         output:
