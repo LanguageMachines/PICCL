@@ -17,7 +17,20 @@ params.inputtype = "pdf"
 params.pdfhandling = "single"
 params.seqdelimiter = "_"
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('language')) {
+if (!params.containsKey('inputdir')) {
+    log.info "Error: Missing --inputdir parameter, see --help for usage details"
+} else {
+    def dircheck = new File(params.inputdir)
+    if (!dircheck.exists()) {
+        log.info "Error: Specified input directory does not exist"
+        exit 2
+    }
+}
+if (!params.containsKey('language')) {
+    log.info "Error: Missing --language parameter, see --help for usage details"
+    exit 2
+}
+if (params.containsKey('help')) {
     log.info "Usage:"
     log.info "  ocr.nf [PARAMETERS]"
     log.info ""
