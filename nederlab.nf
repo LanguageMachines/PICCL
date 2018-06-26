@@ -27,6 +27,7 @@ params.mode = "simple"
 params.uselangid = false
 params.dbnl = false
 params.workers = 1
+params.frogconfig = ""
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
@@ -48,6 +49,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --metadatadir DIRECTORY  Directory including JSON metadata (one file matching each input document)"
     log.info "  --language LANGUAGE      Language"
+    log.info "  --frogconfig FILE        Path to frog.cfg (or using the default if not set)"
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
@@ -207,6 +209,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         val skip from params.skip
         val uselangid from params.uselangid
         val virtualenv from params.virtualenv
+        val frogconfig from params.frogconfig
 
         output:
         file "*.frogoriginal.folia.xml" into foliadocuments_frogged_original mode flatten
@@ -220,8 +223,11 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         set -u
 
         opts=""
+        if [ ! -z "$frogconfig" ]; then
+            opts="-c $frogconfig"
+        fi
         if [ ! -z "$skip" ]; then
-            opts="--skip=${skip}"
+            opts="\$opts --skip=${skip}"
         fi
         if [[ "$uselangid" == "true" ]]; then
             opts="\$opts --language=nld"
@@ -292,6 +298,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         val skip from params.skip
         val virtualenv from params.virtualenv
         val uselangid from params.uselangid
+        val frogconfig from params.frogconfig
 
         output:
         file "*.frogmodernized.folia.xml" into foliadocuments_frogged_modernized mode flatten
@@ -305,8 +312,11 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         set -u
 
         opts=""
+        if [ ! -z "$frogconfig" ]; then
+            opts="-c $frogconfig"
+        fi
         if [ ! -z "$skip" ]; then
-            opts="--skip=${skip}"
+            opts="\$opts --skip=${skip}"
         fi
         if [[ "$uselangid" == "true" ]]; then
             opts="\$opts --language=nld"
