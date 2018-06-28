@@ -395,10 +395,12 @@ PARAMETERS = [
     ('Edit/Levenshtein Distance', [
         ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
     ]),
-    ('Automatic Linguistic Enrichment', [
+    ('Basic enrichments steps (recommended)', [
         BooleanParameter('tok','Tokenisation',"Perform tokenisation", default=True),
         BooleanParameter('pos','Part-of-Speech Tagging',"Part-of-speech Tagging (for Dutch only!)",default=True),
         BooleanParameter('lemma','Lemmatisation',"Lemmatisation (for Dutch only!)", default=True),
+    ]),
+    ('Other enrichments steps (advanced)', [
         BooleanParameter('morph','Morphological Analysis',"Morphological Analysis (for Dutch only!)", default=False),
         BooleanParameter('ner','Named Entity Recognition',"Named Entity Recognition", default=False),
         BooleanParameter('parser','Dependency Parser',"Dependency parser (for Dutch only!)", default=False),

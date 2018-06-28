@@ -32,7 +32,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --lexicon FILE           Path to lexicon file (*.dict)"
     log.info "  --alphabet FILE          Path to alphabet file (*.chars)"
     log.info "  --charconfus FILE        Path to character confusion list (*.confusion)"
-    log.info""
+    log.info ""
     log.info "Optional parameters:"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
