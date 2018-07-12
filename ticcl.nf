@@ -23,6 +23,28 @@ params.alphabet = ""
 params.distance = 2
 params.clip = 1
 
+if (!params.containsKey('inputdir')) {
+    log.info "Error: Missing --inputdir parameter, see --help for usage details"
+} else {
+    def dircheck = new File(params.inputdir)
+    if (!dircheck.exists()) {
+        log.info "Error: Specified input directory does not exist"
+        exit 2
+    }
+}
+if (!params.containsKey('lexicon')) {
+    log.info "Error: Missing --lexicon parameter, see --help for usage details"
+    exit 2
+}
+if (!params.containsKey('alphabet')) {
+    log.info "Error: Missing --alphabet parameter, see --help for usage details"
+    exit 2
+}
+if (!params.containsKey('charconfus')) {
+    log.info "Error: Missing --charconfus parameter, see --help for usage details"
+    exit 2
+}
+
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet') || !params.containsKey('charconfus')) {
     log.info "Usage:"
     log.info "  ticcl.nf [OPTIONS]"
