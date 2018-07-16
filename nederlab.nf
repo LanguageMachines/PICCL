@@ -29,6 +29,8 @@ params.dbnl = false
 params.tok = false
 params.workers = 1
 params.frogconfig = ""
+params.recursive = false
+
 
 if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
     log.info "Usage:"
@@ -45,6 +47,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
     log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)"
     log.info "  --tok                    FoLiA Input is not tokenised yet, do so (adds a tokenisation step)"
+    log.info "  --recursive              Process input directory recursively (make sure it's not also your current working directory or weird recursion may ensue)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
     log.info "  --preservation FILE      Preservation lexicon (list of words that will not be processed by the rules)"
     log.info "  --rules FILE             Substitution rules"
@@ -63,6 +66,13 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 
+if (params.recursive) {
+    inputpattern = "**"
+} else {
+    inputpattern = "*"
+}
+
+
 try {
     if (!nextflow.version.matches('>= 0.25')) { //ironically available since Nextflow 0.25 only
         log.error "Requires Nextflow >= 0.25, your version is too old"
@@ -74,7 +84,7 @@ try {
 }
 
 if (params.dbnl) {
-    teidocuments = Channel.fromPath(params.inputdir+"/*." + params.extension)
+    teidocuments = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
 
     oztfile = Channel.fromPath(params.oztfile)
 
@@ -161,15 +171,15 @@ if (params.dbnl) {
     //foliadocuments_tokenized.subscribe { println it }
 } else if (!params.tok) {
     //folia documents given as input are already tokenised
-    foliadocuments_tokenized = Channel.fromPath(params.inputdir+"/**.folia.xml")
-    foliadocuments_counter = Channel.fromPath(params.inputdir+"/**.folia.xml")
+    foliadocuments_tokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
+    foliadocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
 }
 
 if ((params.tok) && (params.mode != "convert")) {
     //documents need to be tokenised
     if (!params.dbnl) {
-        foliadocuments_untokenized = Channel.fromPath(params.inputdir+"/**.folia.xml")
-        foliadocuments_counter = Channel.fromPath(params.inputdir+"/**.folia.xml")
+        foliadocuments_untokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
+        foliadocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
     }
     process tokenize_ucto {
         //tokenize the text
