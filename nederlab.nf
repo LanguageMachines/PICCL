@@ -190,7 +190,11 @@ if ((params.tok) && (params.mode != "convert")) {
         fi
         set -u
 
-        ucto -L "${language}" -X -F "${inputdocument}" "${inputdocument.simpleName}.tok.folia.xml"
+        if [[ "${inputdocument}" != "${inputdocument.simpleName}.tok.folia.xml" ]]; then
+            ucto -L "${language}" -X -F "${inputdocument}" "${inputdocument.simpleName}.tok.folia.xml"
+        else
+            exit 0
+        fi
         """
     }
 }
