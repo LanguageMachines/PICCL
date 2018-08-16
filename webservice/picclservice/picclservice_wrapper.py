@@ -183,7 +183,12 @@ elif inputtype == 'pdftext':
     ticcl_inputtype = "pdf"
 else:
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
-    cmd = run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir ocr_output --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >ocr.nextflow.out.log 2>ocr.nextflow.err.log"
+    if ('ticcl' in clamdata and clamdata['ticcl']) or ('frog' in clamdata and clamdata['frog']) or ('tok' in clamdata and clamdata['tok']):
+        ocr_outputdir = "ocr_output"
+    else:
+        ocr_outputdir = outputdir
+
+    cmd = run_piccl + "ocr.nf --inputdir " + shellsafe(inputdir,'"') + " --outputdir " + shellsafe(ocr_outputdir,'"') + " --inputtype " + shellsafe(inputtype,'"') + " --language " + shellsafe(clamdata['lang'],'"') +" -with-trace >ocr.nextflow.out.log 2>ocr.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0: #use original clamdata['lang'] (may be deu_frak)
         fail('ocr')
@@ -192,7 +197,7 @@ else:
     #Print Nextflow information to stderr so it ends up in the CLAM error.log and is available for inspection
     nextflowout('ocr')
 
-    ticclinputdir = "ocr_output"
+    ticclinputdir = ocr_outputdir
     ticcl_inputtype = "folia"
 
 pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'] else 'single'
@@ -221,7 +226,7 @@ if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
     textclass_opts = ""
 else:
     print("TICCL skipped as requested...",file=sys.stderr)
-    frog_inputdir = 'ocr_output'
+    frog_inputdir = ocr_outputdir
     textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
 frog = False
@@ -260,6 +265,13 @@ elif 'tok' in clamdata and clamdata['tok']:
     if os.system(cmd) != 0:
         fail('ucto')
     nextflowout('ucto')
+else:
+    #no further
+    for file in os.path.join(frog_inputdir,'*.xml'):
+        filename = os.path.basename(filename)
+        os.symlink(file, os.path.join(outputdir, filename))
+
+
 
 #cleanup
 shutil.rmtree('work')
