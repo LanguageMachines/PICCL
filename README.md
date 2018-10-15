@@ -154,7 +154,7 @@ Note that here we pass a language-specific lexicon file, alphabet file, and char
 ``download-data.nf``. Result will be a file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
 containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
 
-    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/eng/nld.aspell.dict.c20.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion
 
 
 ## Webapplication / RESTful webservice
