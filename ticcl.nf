@@ -11,7 +11,8 @@ log.info "--------------------------"
 
 def env = System.getenv()
 
-params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
+//Set default parameter values
+params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : "" //automatically detects whether we are running in a Virtual Environment (one of the LaMachine flavours)
 params.language = "nld"
 params.extension = "folia.xml"
 params.inputtype = "folia"
@@ -23,6 +24,7 @@ params.alphabet = ""
 params.distance = 2
 params.clip = 1
 
+//Check mandatory parameters and produce sensible error messages
 if (!params.containsKey('inputdir')) {
     log.info "Error: Missing --inputdir parameter, see --help for usage details"
 } else {
@@ -45,7 +47,8 @@ if (!params.containsKey('charconfus')) {
     exit 2
 }
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('lexicon') || !params.containsKey('alphabet') || !params.containsKey('charconfus')) {
+//Output usage information if --help is specified
+if (params.containsKey('help')) {
     log.info "Usage:"
     log.info "  ticcl.nf [OPTIONS]"
     log.info ""
@@ -70,21 +73,27 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
 }
 
 
+//Initialise channels from various input files specified in parameters, these will be consumed as input by a process later on
 lexicon = Channel.fromPath(params.lexicon).ifEmpty("Lexicon file not found")
 alphabet = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
-
 charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusion file not found")
 
 
 if (params.inputtype == "folia") {
+    //Create a channel globbing all FoLiA documents in the input directory (recursively!)
     folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
 } else if (params.inputtype == "text") {
+    //Create a channel globbing all text documents in the input directory (recursively!)
     textdocuments = Channel.fromPath(params.inputdir+"/**.txt")
 } else if (params.inputtype == "pdf") {
+    //Create a channel globbing all PDF documents in the input directory (recursively!)
     pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
 
     process pdf2text {
-        //convert PDF to Text
+        /*
+            convert PDF to Text with pdftotext
+        */
+
         input:
         file pdfdocument from pdfdocuments
 
@@ -93,6 +102,7 @@ if (params.inputtype == "folia") {
 
         script:
         """
+        #!/bin/bash
         pdftotext -nopgbrk -eol unix "$pdfdocument" "${pdfdocument.baseName}.txt"
         """
     }
@@ -101,9 +111,12 @@ if (params.inputtype == "folia") {
     exit 2
 }
 
-if ((params.inputtype == "text") || (params.inputtype == "pdf")) {
+if ((params.inputtype == "text") || (params.inputtype == "pdf")) { //(pdf will have been converted to text by prior process)
     process txt2folia {
-        //Convert txt to FoLiA
+        /*
+             Convert txt to FoLiA with FoLiA-txt
+        */
+
         input:
         file textdocument from textdocuments
         val virtualenv from params.virtualenv
@@ -113,6 +126,8 @@ if ((params.inputtype == "text") || (params.inputtype == "pdf")) {
 
         script:
         """
+        #!/bin/bash
+        #set up the virtualenv (bit unelegant currently, but we have to do this for each process to ensure the LaMachine environment works)
         set +u
         if [ ! -z "${virtualenv}" ]; then
             source ${virtualenv}/bin/activate
@@ -125,16 +140,22 @@ if ((params.inputtype == "text") || (params.inputtype == "pdf")) {
     }
 }
 
+//fork the above output channel into two so it can be used as input by two processes  (a channel is consumed upon input)
 folia_ocr_documents.into { folia_ocr_documents_forcorpusfrequency; folia_ocr_documents_forfoliacorrect }
 
 if (params.containsKey('corpusfreqlist')) {
-    //corpus frequency list explicitly provided
+    //a corpus frequency is list explicitly provided as parameter, set up a channel
     corpusfreqlist = Channel.fromPath(params.corpusfreqlist)
 } else {
-    process corpusfrequency {
-        publishDir params.outputdir, mode: 'copy', overwrite: true
+    //no corpus frequency list is provided, so we compute one with FoLiA-stats
 
-        //Process corpus into frequency file for TICCL
+    process corpusfrequency {
+        /*
+            Process corpus into frequency file for TICCL (with FoLiA-stats)
+        */
+
+        publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
+
         input:
         file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
         val virtualenv from params.virtualenv
@@ -146,6 +167,8 @@ if (params.containsKey('corpusfreqlist')) {
 
         script:
         """
+        #!/bin/bash
+        #set up the virtualenv if necessary
         set +u
         if [ ! -z "${virtualenv}" ]; then
             source ${virtualenv}/bin/activate
@@ -158,8 +181,11 @@ if (params.containsKey('corpusfreqlist')) {
 }
 
 process ticclunk {
-    //Filter a wordfrequency list
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+    /*
+        Filter a wordfrequency list (TICCL-unk)
+    */
+
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
 
     input:
     file corpusfreqlist from corpusfreqlist //corpus frequency list in FoLiA-stats format
@@ -174,6 +200,7 @@ process ticclunk {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -184,14 +211,15 @@ process ticclunk {
     """
 }
 
-//split channel
+//fork the above output channel so it can be used as input for THREE processes
 corpusfreqlist_clean.into { corpusfreqlist_clean_foranahash; corpusfreqlist_clean_forresolver; corpusfreqlist_clean_forindexer }
 
 process anahash {
     /*
-        Read a clean wordfrequency list , and hash all items.
+        Read a clean wordfrequency list , and hash all items with TICCL-anahash
     */
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
 
     input:
     file corpusfreqlist from corpusfreqlist_clean_foranahash
@@ -206,6 +234,7 @@ process anahash {
     script:
 
 	"""
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -217,12 +246,14 @@ process anahash {
 }
 
 
-//split channels
+//fork channels so we can consume them from multiple processes
 anahashlist.into { anahashlist_forindexer; anahashlist_forresolver }
 charconfuslist.into { charconfuslist_forindexer; charconfuslist_forrank }
 
 process indexer {
-    //Computes an index from anagram hashes to
+    /*
+        Computes an index from anagram hashes (TICCL-indexerNT)
+    */
     publishDir params.outputdir, mode: 'copy', overwrite: true
 
     input:
@@ -237,6 +268,7 @@ process indexer {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -245,14 +277,16 @@ process indexer {
 
     TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus}
     """
-    // -o option is a prefix only, extension indexNT will be appended
+    //NOTE: -o option is a prefix only, extension indexNT will be appended !!
 }
 
+//set up a new channel for the alphebet file for the resolved (the other one is consumed already)
 alphabet_forresolver = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 
 process resolver {
     //Resolves numerical confusions back to word form confusions using TICCL-LDcalc
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
+
 
     input:
     file index from index
@@ -268,6 +302,7 @@ process resolver {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -281,8 +316,12 @@ process resolver {
 alphabet_forrank = Channel.fromPath(params.alphabet)
 
 process rank {
-    //Rank output
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+    /*
+        Rank output using TICCL-rank
+    */
+
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
+
 
     input:
     file wordconfusionlist from wordconfusionlist
@@ -309,6 +348,10 @@ process rank {
 }
 
 process chainer {
+    /*
+        Chain stuff? (@martinreynaert: update description to be more sensible?)
+    */
+
     input:
     file rankedlist from rankedlist
     val virtualenv from params.virtualenv
@@ -319,6 +362,7 @@ process chainer {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -337,13 +381,14 @@ process chainer {
 }
 
 process foliacorrect {
-    //Correct the input documents using the ranked list, produces final output documents with <str>
+    /*
+        Correct the input documents using the ranked list, produces final output documents with <str>, using FoLiA-correct
+    */
 
-    publishDir params.outputdir, mode: 'copy', overwrite: true
-
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
 
     input:
-    file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect()
+    file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect() //collects all files first
     file rankedlist from rankedlist_chained
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
@@ -356,6 +401,7 @@ process foliacorrect {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -367,6 +413,8 @@ process foliacorrect {
 
     FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
     cd outputdir
+
+    #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
     for f in *.xml; do
         if [[ \${f%.ticcl.xml} != \$f ]]; then
             newf="\${f%.ticcl.xml}.ticcl.folia.xml"
@@ -379,5 +427,6 @@ process foliacorrect {
     """
 }
 
+//explicitly report the final documents created to stdout
 folia_ticcl_documents.subscribe { println "TICCL output document written to " +  params.outputdir + "/" + it.name }
 

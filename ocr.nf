@@ -11,12 +11,14 @@ log.info "--------------------------"
 
 def env = System.getenv()
 
+//Set default parameter values
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 params.outputdir = "ocr_output"
 params.inputtype = "pdf"
 params.pdfhandling = "single"
 params.seqdelimiter = "_"
 
+//Check mandatory parameters and produce sensible error messages
 if (!params.containsKey('inputdir')) {
     log.info "Error: Missing --inputdir parameter, see --help for usage details"
 } else {
@@ -30,6 +32,8 @@ if (!params.containsKey('language')) {
     log.info "Error: Missing --language parameter, see --help for usage details"
     exit 2
 }
+
+//Output usage information if --help is specified
 if (params.containsKey('help')) {
     log.info "Usage:"
     log.info "  ocr.nf [PARAMETERS]"
@@ -59,23 +63,32 @@ if (params.containsKey('help')) {
 }
 
 if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
+    // The reassemble option was selected, this means
+    // that PDF input filenames should adhere to the
+    // $documentname-$sequencenumber.pdf convention
+    // which we turn into one $documentname.pdf
 
-    //Group $documentname-$sequencenumber.pdf in a channel emitting a documentname and a list of (unordered) sequence pdf files
+    //Group $documentname-$sequencenumber.pdf in a channel emitting a tuple consisting of a documentname and a list of (unordered) sequence pdf files
+    // e.g. the channel emits items such as (documentname, ["documentname-1.pdf", "documentname-2.pdf"] )
     Channel.fromPath(params.inputdir+"/**.pdf")
                 .map { partfile -> partfile.baseName.find(params.seqdelimiter) != null ? tuple(partfile.baseName.tokenize(params.seqdelimiter)[0..-2].join(params.seqdelimiter), partfile) : tuple(partfile.baseName, partfile) }
                 .groupTuple()
                 .set { pdfparts }
 
     process reassemble_pdf {
-        //Reassemble a PDF 'book' (or whatever) from its parts (e.g, chapters, pages)
+        /*
+            Reassemble a PDF 'book' (or whatever) from its parts (e.g, chapters, pages), using pdfunite
+        */
+
         input:
-        set val(documentname), file(pdffiles) from pdfparts
+        set val(documentname), file(pdffiles) from pdfparts //consume a documentname and list of pdffiles pertaining to that document
 
         output:
         file "${documentname}.pdf" into pdfdocuments
 
         script:
         """
+        #!/bin/bash
         count=\$(ls *.pdf | wc -l)
         if [ \$count -eq 1 ]; then
             cp \$(ls *.pdf) "${documentname}.pdf"
@@ -83,7 +96,7 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
             echo "No input PDFs to merge!">&2
             exit 5
         else
-            pdfinput=\$(ls -1v *.pdf | tr '\\n' ' ') #performs a natural sort and quotes
+            pdfinput=\$(ls -1v *.pdf | tr '\\n' ' ') #performs a *natural* sort and quotes
             pdfunite \$pdfinput "${documentname}.pdf"
         fi
         """
@@ -93,10 +106,13 @@ if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
 
 
 if (params.inputtype == "djvu") {
+    //Set up an input channel for DJVU documents (globs recursively in the input directory)
     djvudocuments = Channel.fromPath(params.inputdir+"/**.djvu").view { "Input document (djvu): " + it }
 
     process djvu {
-       //Extract images from DJVU
+       /*
+           Extract TIF images from DJVU
+       */
 
        input:
        file djvudocument from djvudocuments
@@ -106,11 +122,12 @@ if (params.inputtype == "djvu") {
 
        script:
        """
+       #!/bin/bash
        ddjvu -format=tiff -eachpage "${djvudocument}" "${djvudocument.baseName}_%d.tif"
        """
     }
 
-    //Convert (documentname, [imagefiles]) channel to [(documentname, imagefile)]
+    //Convert (documentname, [imagefiles]) channel to a channel emitting (documentname, imagefile) tuples
     djvuimages
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
@@ -120,11 +137,15 @@ if (params.inputtype == "djvu") {
 } else if ((params.inputtype == "pdf") || (params.inputtype == "pdfimages")) { //2nd condition is needed for backwards compatibility
 
     if (params.pdfhandling == "single") {
+        //pdfhandling simple means we don't need to reassemble (as done by the prior process), so
+        //we can just set up the input channel with the PDFs
         pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").view { "Input document (pdf): " + it }
     }
 
     process pdfimages {
-        //Extract images from PDF
+        /*
+            Extract images from PDF using pdfimages
+        */
         input:
         file pdfdocument from pdfdocuments
 
@@ -165,7 +186,7 @@ if (params.inputtype == "djvu") {
     }
 
 
-    //Convert (documentname, [imagefiles]) channel to [(documentname, imagefile)]
+    //Convert (documentname, [imagefiles]) channel to a channel emitting (documentname, imagefile) tuples
     pdfimages_bitmap
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
@@ -189,9 +210,8 @@ if (params.inputtype == "djvu") {
 
 } else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
 
-    //input is a set of images: $documentname_$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variery of formats
-    //we group and transform the data into a pageimages channel, structure will be: [(documentname, pagefile)
-
+    //The input is a set of images: $documentname_$sequencenr.$extension  (where $sequencenr can be alphabetically sorted ), Tesseract supports a variety of formats
+    //we group and transform the data into a pageimages channel which will emit (documentname, pagefile) tuples
 
    Channel
         .fromPath(params.inputdir+"/**." + params.inputtype)
@@ -211,7 +231,9 @@ if (params.inputtype == "djvu") {
 
 
 process tesseract {
-    //Do the actual OCR using Tesseract: outputs a hOCR document for each input page image
+    /*
+        Do the actual OCR using Tesseract: outputs a hOCR document for each input page image
+    */
 
     input:
     set val(documentname), file(pageimage) from pageimages
@@ -227,9 +249,11 @@ process tesseract {
 }
 
 process ocrpages_to_foliapages {
-    //Convert Tesseract hOCR output to FoLiA
+    /*
+        Convert Tesseract hOCR output to FoLiA
+    */
 
-    errorStrategy 'ignore' //not the most elegant solution, but sometimes 'empty' hocr files get fed that won't produce a folia file
+    errorStrategy 'ignore' //not the most elegant solution and a bit dangerous! But sometimes 'empty' hocr files get fed that won't produce a folia file
 
     input:
     set val(documentname), file(pagehocr) from ocrpages
@@ -243,6 +267,7 @@ process ocrpages_to_foliapages {
 
     script:
     """
+    #set up the virtualenv (bit unelegant currently, but we have to do this for each process to ensure the LaMachine environment works)
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -263,9 +288,11 @@ foliapages
     .set { groupfoliapages }
 
 process foliacat {
-    //Concatenate separate FoLiA pages pertaining to the same document into a single document again
+    /*
+        Concatenate separate FoLiA pages pertaining to the same document into a single document again
+    */
 
-    publishDir params.outputdir, mode: 'copy', overwrite: true
+    publishDir params.outputdir, mode: 'copy', overwrite: true  //publish the output for the end-user to see (this is the final output)
 
     input:
     set val(documentname), file("*.tif.folia.xml") from groupfoliapages
@@ -276,6 +303,7 @@ process foliacat {
 
     script:
     """
+    #!/bin/bash
     set +u
     if [ ! -z "${virtualenv}" ]; then
         source ${virtualenv}/bin/activate
@@ -293,4 +321,5 @@ process foliacat {
 }
 
 
+//explicitly report the final documents created to stdout
 foliaoutput.subscribe { println "OCR output document written to " +  params.outputdir + "/" + it.name }
