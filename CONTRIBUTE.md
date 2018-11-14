@@ -49,6 +49,12 @@ Contributor Guidelines
         * For the TICCL tools use https://github.com/LanguageMachines/Ticcltools/issues
         * For CLAM use https://github.com/proycon/clam/issues
         * For Tesseract (3rd party) use https://github.com/tesseract-ocr/tesseract/issues
+* Integration tests are defined in ``test.sh`` and will automatically be run on our continuous integration platform at
+    https://travis-ci.org/LanguageMachines/PICCL after each git push.
+    * If you add a feature, we strongly recommend you to add a test.
+    * The coverage of the tests is currently seriously sub-optimal!!
+    * Tests should be limited in scope so they can be performed quickly, often and with limited resources (no OCRing of whole books!!)
+    * Tests on a lower (unit) level are the responsibility of the underlying tools, rather than PICCL
 * Martin Reynaert is the project leader with the final say on what functionality is accepted into PICCL or not.
 
 
