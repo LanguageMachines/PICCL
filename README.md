@@ -171,6 +171,9 @@ hostname and edit the file with your host specific settings. Always enable authe
 documentation to read how).
 
 
+## Technical Details & Contributing
+
+Please see CONTRIBUTE.md for technical details and information on how to contribute.
 
 
 
