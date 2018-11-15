@@ -216,40 +216,36 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
             multi=True,
         )]
     outputtemplates += [
-         ParameterCondition(ticcl="yes", then=[
+         ParameterCondition(ticcl="yes", then=
             #TICCL was enabled, so we obtain TICCL output:
-            InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-               StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-               filename="lexicon.lst",
-               unique=True,
-               optional=True,
-            ),
             OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
                SetMetaField('encoding','utf-8'),
                filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
                unique=True,
             ),
+        ),
+        ParameterCondition(ticcl="yes", then=
             OutputTemplate('folia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
                 removeextension=inputextension,
                 extension='ticcl.folia.xml',
                 multi=True,
             ),
-          ]),
-          ParameterCondition(frog="yes", then=[
+        ),
+        ParameterCondition(frog="yes", then=
             #Frog was enabled, so we obtain Frog output:
             OutputTemplate('folia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
                 removeextension=inputextension,
                 extension='frogged.folia.xml',
                 multi=True,
             ),
-          ]),
-          ParameterCondition(ucto="yes", then=[
+        ),
+        ParameterCondition(ucto="yes", then=
             OutputTemplate('folia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
                 removeextension=inputextension,
                 extension='tok.folia.xml',
                 multi=True,
             ),
-          ])
+        )
     ]
     return outputtemplates
 
