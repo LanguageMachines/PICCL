@@ -210,7 +210,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
     outputtemplates = []
     if ocrinput:
         #do we have an OCR input stage? then we get OCR output
-        outputtemplates += [OutputTemplate('folia', FoLiAXMLFormat, 'OCR Output',
+        outputtemplates += [OutputTemplate('ocrfolia', FoLiAXMLFormat, 'OCR Output (Tesseract)',
             removeextension=inputextension,
             extension='folia.xml',
             multi=True,
@@ -218,14 +218,14 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
     outputtemplates += [
          ParameterCondition(ticcl="yes", then=
             #TICCL was enabled, so we obtain TICCL output:
-            OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+            OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output (TICCL)',
                SetMetaField('encoding','utf-8'),
                filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
                unique=True,
             ),
         ),
         ParameterCondition(ticcl="yes", then=
-            OutputTemplate('folia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
+            OutputTemplate('ticclfolia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
                 removeextension=inputextension,
                 extension='ticcl.folia.xml',
                 multi=True,
@@ -233,14 +233,14 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ),
         ParameterCondition(frog="yes", then=
             #Frog was enabled, so we obtain Frog output:
-            OutputTemplate('folia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
+            OutputTemplate('frogfolia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
                 removeextension=inputextension,
                 extension='frogged.folia.xml',
                 multi=True,
             ),
         ),
         ParameterCondition(ucto="yes", then=
-            OutputTemplate('folia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
+            OutputTemplate('uctofolia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
                 removeextension=inputextension,
                 extension='tok.folia.xml',
                 multi=True,
@@ -350,7 +350,7 @@ PARAMETERS = [
     ("OCR post-correction (TICCL)", [
         ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL? You can fine-tune parameters in the category below", choices=[('yes','Yes'),('no','No')], default='yes'),
     ]),
-    ('OCR post-correction parameters', [
+    ('TICCL parameters', [
         ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('1','First-best Only'),('2','Up to two N-best ranked'),('3','Up to three N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]), #old ticcl -r
         ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants (Edit/Levenshtein) distance)',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
     ]),
