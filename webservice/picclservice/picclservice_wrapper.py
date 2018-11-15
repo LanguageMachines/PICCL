@@ -286,7 +286,7 @@ if frog:
 #this goes beyond CLAM's ability to predict so we rename everything to retain only the last three extension elements (*.$system.folia.xml)
 for filename in glob.glob(os.path.join(outputdir,"*.folia.xml")):
     basename = os.path.basename(filename)
-    newbasename = ".".join([ field for field in basename.split('.')[:-3] if field not in ('ticcl','ocr','tok','frogged') ])
+    newbasename = ".".join([ field for field in basename.split('.')[:-3] if field not in ('ticcl','ocr','tok','frogged') ]) + ".folia.xml"
     if newbasename != basename:
         os.rename(filename, os.path.join(outputdir, newbasename))
 
