@@ -212,7 +212,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         #do we have an OCR input stage? then we get OCR output
         outputtemplates += [OutputTemplate('ocrfolia', FoLiAXMLFormat, 'OCR Output (Tesseract)',
             removeextension=inputextension,
-            extension='folia.xml',
+            extension='ocr.folia.xml',
             multi=True,
         )]
     outputtemplates += [
@@ -346,6 +346,8 @@ PARAMETERS = [
     ("Input Options", [
         ChoiceParameter('lang','Language?',"Specify the language of your input documents", choices=LANGUAGECHOICES), #old ticcl -t
         BooleanParameter('reassemble','Reassemble PDF',"Use this option if you have PDF input files, such as chapters or pages, that first need to be merged together prior to processing. Filenames must be named {documentname}-{sequencenumber}.pdf for this to work.")
+        #IMPORTANTNOTE: if reassemble is enabled, CLAM can no longer deduce the output filenames from the input!
+        #               things still work, but metadata for output files will be unavailable
     ]),
     ("OCR post-correction (TICCL)", [
         ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL? You can fine-tune parameters in the category below", choices=[('yes','Yes'),('no','No')], default='yes'),

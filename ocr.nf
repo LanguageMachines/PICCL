@@ -299,7 +299,7 @@ process foliacat {
     val virtualenv from params.virtualenv
 
     output:
-    file "${documentname}.folia.xml" into foliaoutput
+    file "${documentname}.ocr.folia.xml" into foliaoutput
 
     script:
     """
@@ -312,10 +312,10 @@ process foliacat {
 
     if [ -f .tif.folia.xml ]; then
         #only one file, nothing to cat
-        cp .tif.folia.xml "${documentname}.folia.xml"
+        cp .tif.folia.xml "${documentname}.ocr.folia.xml"
     else
         foliainput=\$(ls -1v *.tif.folia.xml | tr '\\n' ' ')
-        foliacat -i "${documentname}" -o "${documentname}.folia.xml" \$foliainput
+        foliacat -i "${documentname}" -o "${documentname}.ocr.folia.xml" \$foliainput
     fi
     """
 }
