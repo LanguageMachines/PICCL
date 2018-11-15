@@ -267,7 +267,7 @@ elif 'tok' in clamdata and clamdata['tok']:
     nextflowout('ucto')
 else:
     #no further
-    for filename in os.path.join(frog_inputdir,'*.xml'):
+    for filename in glob.glob(os.path.join(frog_inputdir,'*.xml')):
         filename = os.path.basename(filename)
         os.symlink(filename, os.path.join(outputdir, filename))
 
