@@ -241,7 +241,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ),
         ParameterCondition(ucto="yes", then=
             OutputTemplate('uctofolia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
-                removeextension=inputextension,
+                removeextensions=[inputextension,"ticcl.folia.xml"],
                 extension='tok.folia.xml',
                 multi=True,
             ),
