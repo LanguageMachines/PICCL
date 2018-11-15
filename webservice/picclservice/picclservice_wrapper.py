@@ -266,9 +266,9 @@ elif 'tok' in clamdata and clamdata['tok']:
         fail('ucto')
     nextflowout('ucto')
 else:
-    #no further
+    #no further processing, just move files to final output dir
     for filename in glob.glob(os.path.join(frog_inputdir,'*.xml')):
-        os.symlink(filename, os.path.join(outputdir, os.path.basename(filename)))
+        os.rename(filename, os.path.join(outputdir, os.path.basename(filename)))
 
 
 
