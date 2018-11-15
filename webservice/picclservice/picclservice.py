@@ -356,10 +356,10 @@ PARAMETERS = [
     ]),
     ('Tokenisation', [
         ChoiceParameter('ucto','Enable Tokenisation?',"Perform tokenisation using ucto? (works for various languages). There is no need to enable this if you also enable Frog below.", choices=[('yes','Yes'),('no','No')], default='yes'),
-    ])
+    ]),
     ('Linguistic Enrichment', [
         ChoiceParameter('frog','Enable Linguistic Enrichment?',"Perform linguistic enrichment using Frog? This works for dutch only. Use the next two categories to fine-tune your selection.", choices=[('yes','Yes'),('no','No')], default='yes'),
-    ])
+    ]),
     ('Basic enrichments steps (recommended)', [
         BooleanParameter('tok','Tokenisation',"Perform tokenisation", default=True),
         BooleanParameter('pos','Part-of-Speech Tagging',"Part-of-speech Tagging (for Dutch only!)",default=True),
