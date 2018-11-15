@@ -268,8 +268,7 @@ elif 'tok' in clamdata and clamdata['tok']:
 else:
     #no further
     for filename in glob.glob(os.path.join(frog_inputdir,'*.xml')):
-        filename = os.path.basename(filename)
-        os.symlink(filename, os.path.join(outputdir, filename))
+        os.symlink(filename, os.path.join(outputdir, os.path.basename(filename)))
 
 
 
