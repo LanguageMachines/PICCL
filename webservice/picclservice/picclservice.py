@@ -204,29 +204,66 @@ if os.path.exists(PICCLDATAROOT + "/data/int/nld"):
 
 
 
+def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
+    """Because we reuse output template for a large number of profiles, we return them on the fly there so we don't have
+    unnecessary duplication"""
+    outputtemplates = []
+    if ocrinput:
+        #do we have an OCR input stage? then we get OCR output
+        outputtemplates += [OutputTemplate('folia', FoLiAXMLFormat, 'OCR Output',
+            removeextension=inputextension,
+            extension='folia.xml',
+            multi=True,
+        )]
+    outputtemplates += [
+         ParameterCondition(ticcl="yes", then=[
+            #TICCL was enabled, so we obtain TICCL output:
+            InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
+               StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+               filename="lexicon.lst",
+               unique=True,
+               optional=True,
+            ),
+            OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
+               SetMetaField('encoding','utf-8'),
+               filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
+               unique=True,
+            ),
+            OutputTemplate('folia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
+                removeextension=inputextension,
+                extension='ticcl.folia.xml',
+                multi=True,
+            ),
+          ]),
+          ParameterCondition(frog="yes", then=[
+            #Frog was enabled, so we obtain Frog output:
+            OutputTemplate('folia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
+                removeextension=inputextension,
+                extension='frogged.folia.xml',
+                multi=True,
+            ),
+          ]),
+          ParameterCondition(ucto="yes", then=[
+            OutputTemplate('folia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
+                removeextension=inputextension,
+                extension='tok.folia.xml',
+                multi=True,
+            ),
+          ])
+    ]
+    return outputtemplates
+
+
 
 
 PROFILES = [
 
     Profile(
-        InputTemplate('tif', TiffImageFormat, 'TIF image of a scanned page',
+        InputTemplate('tif', TiffImageFormat, 'TIF image of a scanned page (perform OCR)',
            extension='tif',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            extension='ticcl.folia.xml', #pending
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=True, inputextension='.tif'),
     ),
 
     Profile(
@@ -234,22 +271,7 @@ PROFILES = [
            extension='pdf',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            removeextension='.pdf',
-            extension='ticcl.folia.xml',
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=True, inputextension='.pdf'), #this function is defined above to prevent unnecessary duplication
     ),
 
     Profile(
@@ -257,92 +279,35 @@ PROFILES = [
            extension='pdf',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            removeextension='.pdf',
-            extension='ticcl.folia.xml',
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=False, inputextension='.pdf'), #this function is defined above to prevent unnecessary duplication
+
     ),
 
 
     Profile(
-        InputTemplate('djvu', PDFFormat, 'DJVU document containing scanned pages',
+        InputTemplate('djvu', PDFFormat, 'DJVU document containing scanned pages (perform OCR)',
            extension='djvu',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            removeextension='.pdf',
-            extension='ticcl.folia.xml',
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=True, inputextension='.djvu'), #this function is defined above to prevent unnecessary duplication
+
     ),
 
     Profile(
-        InputTemplate('textocr', PDFFormat, 'Post-OCR text document',
+        InputTemplate('textocr', PDFFormat, 'Plain-text document (no OCR)',
            extension='txt',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-       OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            removeextension='.pdf',
-            extension='ticcl.folia.xml',
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=True, inputextension='.txt'), #this function is defined above to prevent unnecessary duplication
+
     ),
 
     Profile(
-        InputTemplate('foliaocr', FoLiAXMLFormat, 'FoLiA with OCR text layer',
+        InputTemplate('foliaocr', FoLiAXMLFormat, 'FoLiA with OCR text layer already present (no OCR)',
            extension='folia.xml',
            multi=True,
         ),
-        InputTemplate('lexicon', PlainTextFormat, "Lexicon (one word per line)",
-           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
-           filename="lexicon.lst",
-           unique=True,
-           optional=True,
-        ),
-        OutputTemplate('ranked', PlainTextFormat, 'Ranked Variant Output',
-           SetMetaField('encoding','utf-8'),
-           filename='corpus.wordfreqlist.tsv.clean.ldcalc.ranked',
-           unique=True,
-        ),
-        OutputTemplate('folia', FoLiAXMLFormat, 'TICCL Output',
-            removeextension='.pdf',
-            extension='ticcl.folia.xml',
-            multi=True,
-        ),
+        *generateoutputtemplates(ocrinput=False, inputextension='.folia.xml'), #this function is defined above to prevent unnecessary duplication
     ),
 
 ]
@@ -386,15 +351,19 @@ PARAMETERS = [
         ChoiceParameter('lang','Language?',"Specify the language of your input documents", choices=LANGUAGECHOICES), #old ticcl -t
         BooleanParameter('reassemble','Reassemble PDF',"Use this option if you have PDF input files, such as chapters or pages, that first need to be merged together prior to processing. Filenames must be named {documentname}-{sequencenumber}.pdf for this to work.")
     ]),
-    ("OCR post-correction", [
-        ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL?", choices=[('yes','Yes'),('no','No')], default='yes'),
+    ("OCR post-correction (TICCL)", [
+        ChoiceParameter('ticcl','Enable TICCL?',"Perform OCR post-correction and normalisation using TICCL? You can fine-tune parameters in the category below", choices=[('yes','Yes'),('no','No')], default='yes'),
     ]),
-    ('N-best Ranking', [
-            ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('1','First-best Only'),('2','Up to two N-best ranked'),('3','Up to three N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]) #old ticcl -r
+    ('OCR post-correction parameters', [
+        ChoiceParameter('rank','How many ranked variants?','Return N best-first ranked variants',choices=[('1','First-best Only'),('2','Up to two N-best ranked'),('3','Up to three N-best ranked'),('5','Up to five N-best ranked'),('10','Up to ten N-best ranked'),('20','Up to twenty N-best ranked')]), #old ticcl -r
+        ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants (Edit/Levenshtein) distance)',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
     ]),
-    ('Edit/Levenshtein Distance', [
-        ChoiceParameter('distance','How many edits?','Search a distance of N characters for variants',choices=[('2','Up to two edits'),('1','Only one edit')]) #old TICCL -L
-    ]),
+    ('Tokenisation', [
+        ChoiceParameter('ucto','Enable Tokenisation?',"Perform tokenisation using ucto? (works for various languages). There is no need to enable this if you also enable Frog below.", choices=[('yes','Yes'),('no','No')], default='yes'),
+    ])
+    ('Linguistic Enrichment', [
+        ChoiceParameter('frog','Enable Linguistic Enrichment?',"Perform linguistic enrichment using Frog? This works for dutch only. Use the next two categories to fine-tune your selection.", choices=[('yes','Yes'),('no','No')], default='yes'),
+    ])
     ('Basic enrichments steps (recommended)', [
         BooleanParameter('tok','Tokenisation',"Perform tokenisation", default=True),
         BooleanParameter('pos','Part-of-Speech Tagging',"Part-of-speech Tagging (for Dutch only!)",default=True),
