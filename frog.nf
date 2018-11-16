@@ -36,7 +36,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
     log.info "  --sentenceperline        Indicates that the input (plain text only) is already in a one sentence per line format, skips sentence detection (default: false)"
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --inputclass CLASS       Set the FoLiA text class to use as input (default: current)"
-    log.info "  --ouputclass CLASS       Set the FoLiA text class to use as input (default: current)"
+    log.info "  --outputclass CLASS       Set the FoLiA text class to use as output (default: current)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
     log.info "  --workers NUMBER         The number of workers (Frogs in parallel)"
     exit 2
