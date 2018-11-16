@@ -100,7 +100,7 @@ def nextflowout(prefix):
         os.unlink('trace.txt')
 
 def publish(d, extension="xml"):
-    """publish files to the output directory by symlinking"""
+    """publish files from directory d to the output directory by symlinking"""
     for filename in glob.glob(os.path.join(d,'*.' + extension)):
         os.symlink(os.path.abspath(filename), os.path.join(outputdir, os.path.basename(filename)))
 
@@ -200,6 +200,7 @@ else:
     #Print Nextflow information to stderr so it ends up in the CLAM error.log and is available for inspection
     nextflowout('ocr')
 
+    #make output files available
     publish(ocr_outputdir)
 
     ticclinputdir = ocr_outputdir
@@ -209,8 +210,6 @@ pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'
 
 if 'frog' in clamdata and clamdata['frog'] == 'yes':
     print("Frog enabled (" + str(clamdata['frog']) + ")",file=sys.stderr)
-if 'tok' in clamdata and clamdata['tok']:
-    print("Tokeniser enabled (" + str(clamdata['tok']) + ")",file=sys.stderr)
 
 if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
     clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
@@ -233,7 +232,7 @@ else:
     textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
 
-frog = clamdata['frog'] == 'yes' and lang == "nld"
+frog = 'frog' in clamdata and clamdata['frog'] == 'yes' and lang == "nld"
 if lang == "nld":
     for key in ('pos','lemma','morph','ner','parser','chunker'):
         if key in clamdata and clamdata[key]:
@@ -255,7 +254,7 @@ if frog:
         skip = "--skip=" + skip
 
 
-if clamdata['ucto'] == 'yes' or ('tok' in clamdata and clamdata['tok'] and not frog):
+if 'ucto' in clamdata and clamdata['ucto'] == 'yes':
     #fallback in case only tokenisation is enabled, no need for Frog but use ucto
 
     tok_output = "tok_output"
