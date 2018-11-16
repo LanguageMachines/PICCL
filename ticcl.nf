@@ -81,13 +81,13 @@ charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusio
 
 if (params.inputtype == "folia") {
     //Create a channel globbing all FoLiA documents in the input directory (recursively!)
-    folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).println( "TICCL FoLiA input: ${it.baseName}" )
+    folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).println{ "TICCL FoLiA input: ${it.baseName}" }
 } else if (params.inputtype == "text") {
     //Create a channel globbing all text documents in the input directory (recursively!)
-    textdocuments = Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace.txt" }.println( "TICCL text input: ${it.baseName}" )
+    textdocuments = Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace.txt" }.println { "TICCL text input: ${it.baseName}" }
 } else if (params.inputtype == "pdf") {
     //Create a channel globbing all PDF documents in the input directory (recursively!)
-    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").println("TICCL PDF input: ${it.baseName}")
+    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").println { "TICCL PDF input: ${it.baseName}" }
 
     process pdf2text {
         /*
