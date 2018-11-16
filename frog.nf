@@ -46,8 +46,8 @@ if ((params.extension.find('xml') != null)  || (params.extension.find('folia') !
     params.inputformat = "folia"
 }
 
-inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension)
-inputdocuments_counter = Channel.fromPath(params.inputdir + "/**." + params.extension)
+inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension).filter { it.baseName != "trace.txt" }
+inputdocuments_counter = Channel.fromPath(params.inputdir + "/**." + params.extension).filter { it.baseName != "trace.txt" }
 
 if (params.inputformat == "folia") {
     //group documents into n (=$worker) batches

@@ -84,7 +84,7 @@ if (params.inputtype == "folia") {
     folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension)
 } else if (params.inputtype == "text") {
     //Create a channel globbing all text documents in the input directory (recursively!)
-    textdocuments = Channel.fromPath(params.inputdir+"/**.txt")
+    textdocuments = Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace.txt" }
 } else if (params.inputtype == "pdf") {
     //Create a channel globbing all PDF documents in the input directory (recursively!)
     pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
