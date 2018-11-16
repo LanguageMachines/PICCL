@@ -57,5 +57,17 @@ Contributor Guidelines
     * Tests on a lower (unit) level are the responsibility of the underlying tools, rather than PICCL
 * Martin Reynaert is the project leader with the final say on what functionality is accepted into PICCL or not.
 
+Setting up a Development Environment
+---------------------------------------
 
-
+* Install the *development* version of [LaMachine](https://proycon.github.io/LaMachine), in any flavour, and enable
+    PICCL in the installation manifest during the bootstrap procedure (or just run ``lamachine-add piccl`` after the
+    fact)
+* The PICCL git repository will be cloned in ``$LM_SOURCEPATH/PICCL``. If you do not have direct push access to the
+    PICCL repository,  we recommend you fork
+    https://github.com/LanguageMachines/PICCL and add do a ``git remote add`` to track your own branch there.
+* You can always upgrade your LaMachine environment with ``lamachine-update``, but make sure you don't have uncommitted
+    changes (they will be stashed away automatically)!!
+* Run the *development* webservice as follows: ``cd $LM_SOURCEPATH/PICCL/webservice && ./startserver_development.sh``
+    and connect at ``http://127.0.0.1:8080``. If you are running the LaMachine VM, you may need to stop the
+    automatically started production webserver first with ``lamachine-stop-webserver`` as it shares the same port.
