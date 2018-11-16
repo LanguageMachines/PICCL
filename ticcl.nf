@@ -80,14 +80,19 @@ charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusio
 
 
 if (params.inputtype == "folia") {
-    //Create a channel globbing all FoLiA documents in the input directory (recursively!)
-    folia_ocr_documents = Channel.fromPath(params.inputdir+"/**." + params.extension).println{ "TICCL FoLiA input: ${it.baseName}" }
+    //Create two identical channels (folia_ocr_document & input_overview) globbing all FoLiA documents in the input directory (recursively!)
+    //the input_overview channel will be consumed immediately, simply printing all input filenames
+    Channel.fromPath(params.inputdir+"/**." + params.extension).into { folia_ocr_documents; input_overview }
+    input_overview.subscribe { println "TICCL FoLiA input: ${it.baseName}" }
 } else if (params.inputtype == "text") {
-    //Create a channel globbing all text documents in the input directory (recursively!)
-    textdocuments = Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace.txt" }.println { "TICCL text input: ${it.baseName}" }
+    //Create two identical channel globbing all text documents in the input directory (recursively!)
+    Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace" }.into { textdocuments; input_overview }
+    input_overview.subscribe { println "TICCL text input: ${it.baseName}" }
 } else if (params.inputtype == "pdf") {
-    //Create a channel globbing all PDF documents in the input directory (recursively!)
-    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf").println { "TICCL PDF input: ${it.baseName}" }
+    //Create two identical channel globbing all PDF documents in the input directory (recursively!)
+    pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
+    Channel.fromPath(params.inputdir+"/**.pdf").into { pdfdocuments; input_overview }
+    input_overview.subscribe { println "TICCL PDF input: ${it.baseName}" }
 
     process pdf2text {
         /*

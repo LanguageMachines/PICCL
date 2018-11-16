@@ -43,7 +43,7 @@ if ((params.extension.find('xml') != null)  || (params.extension.find('folia') !
     params.inputformat = "folia"
 }
 
-inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension).filter { it.baseName != "trace.txt" }
+inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension).filter { it.baseName != "trace" }
 
 if (params.inputformat == "folia") {
     process tokenize_folia2folia {
