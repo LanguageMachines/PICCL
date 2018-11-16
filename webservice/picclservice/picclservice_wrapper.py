@@ -80,7 +80,7 @@ def fail(prefix=None):
     if os.path.exists('work'):
         if 'debug' not in clamdata or not clamdata['debug']:
             shutil.rmtree('work')
-        sys.exit(1)
+    sys.exit(1)
 
 def nextflowout(prefix):
     print("[" + prefix + "] Nextflow standard error output",file=sys.stderr)
@@ -111,8 +111,7 @@ if lang == 'deu_frak': lang = 'deu' #Fraktur German is german for all other inte
 
 if 'frog' in clamdata and clamdata['frog']:
     if lang != 'nld':
-        print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice and aborting!!!",file=sys.stderr)
-        fail()
+        print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice!",file=sys.stderr)
 
 datadir = os.path.join(piccldataroot,'data','int',lang)
 if not os.path.exists(datadir):
