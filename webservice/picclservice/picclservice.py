@@ -52,7 +52,7 @@ SYSTEM_VERSION = "0.7.0" #also change in codemeta.json and setup.py
 
 SYSTEM_AUTHOR = "Martin Reynaert, Maarten van Gompel, Ko van der Sloot"
 
-SYSTEM_MAIL = "reynaert@uvt.nl"
+SYSTEM_EMAIL = "reynaert@uvt.nl"
 
 #Amount of free memory required prior to starting a new process (in MB!), Free Memory + Cached (without swap!). Set to 0 to disable this check (not recommended)
 REQUIREMEMORY = 1024
