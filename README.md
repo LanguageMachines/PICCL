@@ -139,7 +139,7 @@ directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image 
 
     $ ocr.nf --inputdir corpora/PDF/ENG/ --inputtype pdfimages --language eng
 
-Alternative input types are https://pythonhosted.org/bob/index.htmlimages per page, in which case ``inputtype`` is set to either ``tif``, ``jpg``, ``gif`` or ``png``. These input files should be placed in the designated input directory and follow the naming convention
+Alternative input types are images per page, in which case ``inputtype`` is set to either ``tif``, ``jpg``, ``gif`` or ``png``. These input files should be placed in the designated input directory and follow the naming convention
 ``$documentname-$sequencenumber.$extension``, for example ``harrypotter-032.png``. An example invocation on dutch
 scanned pages in the example collection would be:
 
