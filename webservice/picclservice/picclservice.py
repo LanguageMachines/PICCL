@@ -48,7 +48,7 @@ SYSTEM_NAME = "PICCL"
 #An informative description for this system (this should be fairly short, about one paragraph, and may not contain HTML)
 SYSTEM_DESCRIPTION = "PICCL offers a workflow for corpus building and builds on a variety of tools. The primary component of PICCL is TICCL; a Text-induced Corpus Clean-up system, which performs spelling correction and OCR post-correction (normalisation of spelling variants etc)."
 
-SYSTEM_VERSION = "0.7.0" #also change in codemeta.json and setup.py
+SYSTEM_VERSION = "0.7.1" #also change in codemeta.json and setup.py
 
 SYSTEM_AUTHOR = "Martin Reynaert, Maarten van Gompel, Ko van der Sloot"
 
@@ -84,6 +84,8 @@ ADMINS = None #List of usernames that are administrator and can access the admin
 #using pwhash and plaintext password in this code is not secure!!
 
 #USERS = { user1': '4f8dh8337e2a5a83734b','user2': pwhash('username', REALM, 'secret') }
+
+FLATURL = "https://flat.science.ru.nl"
 
 
 #The secret key is used internally for cryptographically signing session data, in production environments, you'll want to set this to a persistent value. If not set it will be randomly generated.
@@ -217,6 +219,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
     if ocrinput:
         #do we have an OCR input stage? then we get OCR output
         outputtemplates += [OutputTemplate('ocrfolia', FoLiAXMLFormat, 'OCR Output (Tesseract)',
+            FLATViewer(url=FLATURL, mode='viewer'),
             removeextension=inputextension,
             extension='ocr.folia.xml',
             multi=True,
@@ -232,6 +235,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ),
         ParameterCondition(ticcl="yes", then=
             OutputTemplate('ticclfolia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
+                FLATViewer(url=FLATURL, mode='viewer'),
                 removeextension=inputextension,
                 extension='ticcl.folia.xml',
                 multi=True,
@@ -240,6 +244,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ParameterCondition(frog="yes", then=
             #Frog was enabled, so we obtain Frog output:
             OutputTemplate('frogfolia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
+                FLATViewer(url=FLATURL, mode='viewer'),
                 removeextension=inputextension,
                 extension='frogged.folia.xml',
                 multi=True,
@@ -247,6 +252,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ),
         ParameterCondition(ucto="yes", then=
             OutputTemplate('uctofolia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
+                FLATViewer(url=FLATURL, mode='viewer'),
                 removeextensions=[inputextension,"ticcl.folia.xml"],
                 extension='tok.folia.xml',
                 multi=True,
