@@ -179,12 +179,15 @@ if not inputtype:
 if inputtype == 'foliaocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "folia"
+    ocr_inputdir = inputdir
 elif inputtype == 'textocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "text"
+    ocr_inputdir = inputdir
 elif inputtype == 'pdftext':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "pdf"
+    ocr_inputdir = inputdir
 else:
     #run the OCR pipeline prior to running TICCL
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
