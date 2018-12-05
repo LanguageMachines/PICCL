@@ -24,29 +24,6 @@ params.alphabet = ""
 params.distance = 2
 params.clip = 1
 
-//Check mandatory parameters and produce sensible error messages
-if (!params.containsKey('inputdir')) {
-    log.info "Error: Missing --inputdir parameter, see --help for usage details"
-} else {
-    def dircheck = new File(params.inputdir)
-    if (!dircheck.exists()) {
-        log.info "Error: Specified input directory does not exist"
-        exit 2
-    }
-}
-if (!params.containsKey('lexicon')) {
-    log.info "Error: Missing --lexicon parameter, see --help for usage details"
-    exit 2
-}
-if (!params.containsKey('alphabet')) {
-    log.info "Error: Missing --alphabet parameter, see --help for usage details"
-    exit 2
-}
-if (!params.containsKey('charconfus')) {
-    log.info "Error: Missing --charconfus parameter, see --help for usage details"
-    exit 2
-}
-
 //Output usage information if --help is specified
 if (params.containsKey('help')) {
     log.info "Usage:"
@@ -69,6 +46,29 @@ if (params.containsKey('help')) {
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
     log.info "  --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)"
+    exit 2
+}
+
+//Check mandatory parameters and produce sensible error messages
+if (!params.containsKey('inputdir')) {
+    log.info "Error: Missing --inputdir parameter, see --help for usage details"
+} else {
+    def dircheck = new File(params.inputdir)
+    if (!dircheck.exists()) {
+        log.info "Error: Specified input directory does not exist"
+        exit 2
+    }
+}
+if (!params.containsKey('lexicon')) {
+    log.info "Error: Missing --lexicon parameter, see --help for usage details"
+    exit 2
+}
+if (!params.containsKey('alphabet')) {
+    log.info "Error: Missing --alphabet parameter, see --help for usage details"
+    exit 2
+}
+if (!params.containsKey('charconfus')) {
+    log.info "Error: Missing --charconfus parameter, see --help for usage details"
     exit 2
 }
 

@@ -18,21 +18,6 @@ params.inputtype = "pdf"
 params.pdfhandling = "single"
 params.seqdelimiter = "_"
 
-//Check mandatory parameters and produce sensible error messages
-if (!params.containsKey('inputdir')) {
-    log.info "Error: Missing --inputdir parameter, see --help for usage details"
-} else {
-    def dircheck = new File(params.inputdir)
-    if (!dircheck.exists()) {
-        log.info "Error: Specified input directory does not exist"
-        exit 2
-    }
-}
-if (!params.containsKey('language')) {
-    log.info "Error: Missing --language parameter, see --help for usage details"
-    exit 2
-}
-
 //Output usage information if --help is specified
 if (params.containsKey('help')) {
     log.info "Usage:"
@@ -61,6 +46,22 @@ if (params.containsKey('help')) {
     log.info "  --seqstart               What input field is the sequence number (may be a negative number to count from the end), default: -2"
     exit 2
 }
+
+//Check mandatory parameters and produce sensible error messages
+if (!params.containsKey('inputdir')) {
+    log.info "Error: Missing --inputdir parameter, see --help for usage details"
+} else {
+    def dircheck = new File(params.inputdir)
+    if (!dircheck.exists()) {
+        log.info "Error: Specified input directory does not exist"
+        exit 2
+    }
+}
+if (!params.containsKey('language')) {
+    log.info "Error: Missing --language parameter, see --help for usage details"
+    exit 2
+}
+
 
 if ((params.inputtype == "pdf") && (params.pdfhandling == "reassemble")) {
     // The reassemble option was selected, this means
