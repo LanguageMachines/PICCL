@@ -205,7 +205,7 @@ if (params.inputtype == "djvu") {
 
         script:
         """
-        convert "${bitmapimage}" "${bitmapimage.baseName}.tif"
+        convert -density 300 "${bitmapimage}" "${bitmapimage.baseName}.tif"
         """
     }
 
