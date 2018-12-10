@@ -238,10 +238,12 @@ else:
 
 
 frog = 'frog' in clamdata and clamdata['frog'] == 'yes' and lang == "nld"
-if lang == "nld":
+if not frog and lang == "nld":
     for key in ('pos','lemma','morph','ner','parser','chunker'):
         if key in clamdata and clamdata[key]:
+            print("Frog enabled because user selected: " + key,file=sys.stderr)
             frog = True #enable frog on the fly even if the user forgot to explicitly enable it
+            break
 if frog:
     skip = ""
     #PoS can't be skipped
