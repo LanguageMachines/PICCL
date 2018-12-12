@@ -145,69 +145,33 @@ if (params.inputtype == "djvu") {
 
     process pdfimages {
         /*
-            Extract images from PDF using pdfimages
+            Extract images from PDF using pdftoppm
         */
         input:
         file pdfdocument from pdfdocuments
 
         output:
-        set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.p?m") into pdfimages_bitmap
+        set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.tif") into pdfimages
 
-        script: //#older versions of pdfimages can not do tiff directly, we have to accommodate this so do conversion in two steps
         """
-        #!/usr/bin/env python3
-        import os
-        import glob
-        import sys
 
-        r = os.system("pdfimages -p '${pdfdocument}' '${pdfdocument.baseName}'")
-        if r != 0:
-            print("pdfimages failed...", file=sys.stderr)
-            sys.exit(r)
+       #!/bin/bash
+       pdftoppm -tiff "${pdfdocument}" "${pdfdocument.baseName}"
 
-        #This post processing script deletes all images extracted from pages EXCEPT the largest one (bitmap filesize-wise)
-        def prune(sizes):
-            for i, (filename, size) in enumerate(sorted(sizes.items(), key= lambda x: x[1]*-1)):
-                if i > 0:
-                    print("pruning image that is not the largest for a this page:  ", filename, size, file=sys.stderr)
-                    os.unlink(filename)
-
-        sizes = {}
-        prev_docname_page = None
-        for imagefile in sorted(glob.glob("${pdfdocument.baseName}*.p?m")):
-            fields = imagefile[:-4].split('-')
-            docname_page = tuple(fields[:-1])
-            if docname_page != prev_docname_page and sizes:
-                prune(sizes)
-                sizes = {}
-            sizes[imagefile] = os.path.getsize(imagefile)
-            prev_docname_page = docname_page
-        prune(sizes)
         """
+	// Probably better to have sth. like the following?
+        //if r != 0:
+            //print("pdfimages failed...", file=sys.stderr)
+            //sys.exit(r)
     }
 
 
     //Convert (documentname, [imagefiles]) channel to a channel emitting (documentname, imagefile) tuples
-    pdfimages_bitmap
+    pdfimages
         .collect { documentname, imagefiles -> [[documentname],imagefiles].combinations() }
         .flatten()
         .collate(2)
-        .set { pageimages_bitmap }
-
-
-    process bitmap2tif {
-        //Convert images to tif
-        input:
-        set val(basename), file(bitmapimage) from pageimages_bitmap
-
-        output:
-        set val(basename), file("${bitmapimage.baseName}.tif") into pageimages
-
-        script:
-        """
-        convert -density 300 "${bitmapimage}" "${bitmapimage.baseName}.tif"
-        """
-    }
+        .set { pageimages }
 
 } else if ((params.inputtype == "jpg") || (params.inputtype == "jpeg") || (params.inputtype == "tif") || (params.inputtype == "tiff") || (params.inputtype == "png") || (params.inputtype == "gif")) {
 
