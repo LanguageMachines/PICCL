@@ -153,10 +153,10 @@ if (params.inputtype == "djvu") {
         output:
         set val("${pdfdocument.baseName}"), file("${pdfdocument.baseName}*.tif") into pdfimages
 
+        script:
         """
-
-       #!/bin/bash
-       pdftoppm -tiff "${pdfdocument}" "${pdfdocument.baseName}"
+        #!/bin/bash
+        pdftoppm -tiff "${pdfdocument}" "${pdfdocument.baseName}"
 
         """
 	// Probably better to have sth. like the following?
