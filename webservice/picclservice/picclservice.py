@@ -30,7 +30,7 @@ import sys
 import os
 from base64 import b64decode as D
 
-REQUIRE_VERSION = 2.3
+REQUIRE_VERSION = 2.4
 
 CLAMDIR = clam.__path__[0] #directory where CLAM is installed, detected automatically
 WEBSERVICEDIR = os.path.dirname(os.path.abspath(__file__)) #directory where this webservice is installed, detected automatically
@@ -48,7 +48,7 @@ SYSTEM_NAME = "PICCL"
 #An informative description for this system (this should be fairly short, about one paragraph, and may not contain HTML)
 SYSTEM_DESCRIPTION = "PICCL offers a workflow for corpus building and builds on a variety of tools. The primary component of PICCL is TICCL; a Text-induced Corpus Clean-up system, which performs spelling correction and OCR post-correction (normalisation of spelling variants etc)."
 
-SYSTEM_VERSION = "0.7.3" #also change in codemeta.json and setup.py
+SYSTEM_VERSION = "0.7.4" #also change in codemeta.json and setup.py
 
 SYSTEM_AUTHOR = "Martin Reynaert, Maarten van Gompel, Ko van der Sloot"
 
@@ -261,7 +261,12 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
     ]
     return outputtemplates
 
-
+try:
+    if AUTOSEARCH_FORWARD_URL:
+        FORWARDERS = [ Forwarder('autosearch', "Autosearch", AUTOSEARCH_FORWARD_URL, "Upload all output to Autosearch, allowing you to search through the data, provided you enabled tokenisation", "zip") ]
+except NameError:
+    #no forwardlink defined
+    pass
 
 
 PROFILES = [
@@ -347,6 +352,7 @@ if PICCLDIR:
     COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT + " " + PICCLDIR
 else:
     COMMAND = WEBSERVICEDIR + "/picclservice_wrapper.py $DATAFILE $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + PICCLDATAROOT
+
 
 # ======== PARAMETER DEFINITIONS ===========
 

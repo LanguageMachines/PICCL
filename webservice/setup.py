@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name = "PICCL",
-    version = "0.7.3", #also change in codemeta.json and picclservice.py
+    version = "0.7.4", #also change in codemeta.json and picclservice.py
     author = "Martin Reynaert, Maarten van Gompel",
     author_email = "reynaert@uvt.nl",
     description = ("Webservice for PICCL; a set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing"),
@@ -33,5 +33,5 @@ setup(
     ],
     package_data = {'picclservice':['picclservice/*.wsgi','picclservice/*.yml'] },
     include_package_data=True,
-    install_requires=['CLAM >= 2.3']
+    install_requires=['CLAM >= 2.4.4']
 )
