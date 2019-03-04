@@ -14,7 +14,6 @@ def env = System.getenv()
 params.virtualenv =  env.containsKey('VIRTUAL_ENV') ? env['VIRTUAL_ENV'] : ""
 
 params.extension = "txt"
-params.inputformat = "text"
 params.outputdir = "frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
@@ -44,6 +43,8 @@ if (params.containsKey('help') || !params.containsKey('inputdir')) {
 
 if ((params.extension.find('xml') != null)  || (params.extension.find('folia') != null)) {
     params.inputformat = "folia"
+} else {
+    params.inputformat = "text"
 }
 
 inputdocuments = Channel.fromPath(params.inputdir + "/**." + params.extension).filter { it.baseName != "trace" }
