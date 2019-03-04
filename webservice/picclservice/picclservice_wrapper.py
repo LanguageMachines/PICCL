@@ -61,7 +61,7 @@ locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 #Obtain all data from the CLAM system (passed in $DATAFILE (clam.xml)), always pass CUSTOM_FORMATS as second argument if you make use of it!
 clamdata = clam.common.data.getclamdata(datafile)
 
-if 'debug' in clamdata and clamdata['debug']:
+if clamdata.get('debug'):
     print("Locale information (will force en_US.UTF-8): ", file=sys.stderr)
     os.system("locale >&2")
     print("Nextflow: ", file=sys.stderr)
@@ -85,6 +85,7 @@ def fail(prefix=None):
     sys.exit(1)
 
 def nextflowout(prefix):
+    """Re-outputs nextflow logs to stderr, which in turn ends up in CLAM's error.log"""
     print("[" + prefix + "] Nextflow standard error output",file=sys.stderr)
     print("-------------------------------------------------",file=sys.stderr)
     print(open(prefix+'.nextflow.err.log','r',encoding='utf-8').read(), file=sys.stderr)
@@ -111,7 +112,7 @@ def publish(d, extension="xml"):
 lang = clamdata['lang']
 if lang == 'deu_frak': lang = 'deu' #Fraktur German is german for all other intents and purposes
 
-if 'frog' in clamdata and clamdata['frog']:
+if clamdata.get('frog'):
     if lang != 'nld':
         print("Input document is not dutch (got + " + str(lang) + "), defiantly ignoring linguistic enrichment choice!",file=sys.stderr)
 
@@ -179,26 +180,29 @@ if not inputtype:
     sys.exit(5)
 
 if inputtype == 'foliaocr':
-    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    #FoLiA input files provided directly, no need to run OCR pipeline
+    ticcl_inputdir = "."
     ticcl_inputtype = "folia"
     ocr_outputdir = inputdir
-    frog_inputtype = "folia"
-    ocr = False
+    enrichment_inputtype = "folia" #for frog and ucto later on
+    ocr_enabled = False
 elif inputtype == 'textocr':
-    ticclinputdir = "." #Text input files provided directly, no need to run OCR pipeline
+    #Text input files provided directly, no need to run OCR pipeline
+    ticcl_inputdir = "."
     ticcl_inputtype = "text"
     ocr_outputdir = inputdir
-    frog_inputtype = "text" #also applies to ucto, may be overriden by ticcl
-    ocr = False
+    enrichment_inputtype = "text" #for frog and ucto, may be overriden by ticcl
+    ocr_enabled = False
 elif inputtype == 'pdftext':
-    ticclinputdir = "." #PDF with text provided directly, no need to run OCR pipeline
+    #PDF with text provided directly, no need to run OCR pipeline
+    ticcl_inputdir = "."
     ticcl_inputtype = "pdf"
-    frog_inputtype = "folia"
+    enrichment_inputtype = "folia" #for frog and ucto later on
     ocr_outputdir = inputdir
-    ocr = False
+    ocr_enabled = False
 else:
-    ocr = True
-    frog_inputtype = "folia"
+    ocr_enabled = True
+    enrichment_inputtype = "folia" #for frog and ucto later on
     #run the OCR pipeline prior to running TICCL
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
 
@@ -216,18 +220,19 @@ else:
     #make output files available
     publish(ocr_outputdir)
 
-    ticclinputdir = ocr_outputdir
+    ticcl_inputdir = ocr_outputdir
     ticcl_inputtype = "folia"
 
-pdfhandling = 'reassemble' if 'reassemble' in clamdata and clamdata['reassemble'] else 'single'
+pdfhandling = 'reassemble' if clamdata.get('reassemble') else 'single'
 
-if 'frog' in clamdata and clamdata['frog'] == 'yes':
+if clamdata.get('frog') == 'yes':
     print("Frog enabled (" + str(clamdata['frog']) + ")",file=sys.stderr)
+    frog_enabled = True
 
-if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
+if clamdata.get('ticcl') == 'yes':
     clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
     ticcl_outputdir = 'ticcl_out'
-    cmd = run_piccl + "ticcl.nf --inputdir " + ticclinputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
+    cmd = run_piccl + "ticcl.nf --inputdir " + ticcl_inputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('ticcl')
@@ -237,79 +242,83 @@ if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
 
     publish(ticcl_outputdir)
 
-    frog_inputdir = ticcl_outputdir
-    frog_inputtype = "folia"
+    enrichment_inputdir = ticcl_outputdir
+    enrichment_inputtype = "folia"
     textclass_opts = ""
 else:
     print("TICCL skipped as requested...",file=sys.stderr)
-    if ocr:
-        frog_inputdir = ocr_outputdir
+    if ocr_enabled:
+        enrichment_inputdir = ocr_outputdir
         textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
     else:
         assert ocr_outputdir == inputdir
-        frog_inputdir = ocr_outputdir
+        enrichment_inputdir = ocr_outputdir
         if 'inputtextclass' in clamdata and clamdata['inputtextclass'] and clamdata['inputtextclass'] != "current":
             textclass_opts = "--inputclass " +  shellsafe(clamdata['inputtextclass']) + " --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
 
-frog = 'frog' in clamdata and clamdata['frog'] == 'yes' and lang == "nld"
-if not frog and lang == "nld":
+if frog_enabled and lang != "nld":
+    print("Frog automatically *DISABLED* because input is not dutch", file=sys.stderr)
+    frog_enabled = False
+elif not frog_enabled and lang == "nld":
     for key in ('pos','lemma','morph','ner','parser','chunker'):
         if key in clamdata and clamdata[key]:
-            print("Frog enabled because user selected: " + key,file=sys.stderr)
-            frog = True #enable frog on the fly even if the user forgot to explicitly enable it
+            print("Frog automatically enabled because user selected: " + key,file=sys.stderr)
+            frog_enabled = True #enable frog on the fly even if the user forgot to explicitly enable it
             break
-if frog:
+
+if frog_enabled:
     skip = ""
     #PoS can't be skipped
-    if 'lemma' not in clamdata or not clamdata['lemma']:
+    if not clamdata.get('lemma'):
         skip += 'l'
-    if 'parser' not in clamdata or not clamdata['parser']:
+    if not clamdata.get('parser'):
         skip += 'mp'
-    if 'morph' not in clamdata or not clamdata['morph']:
+    if not clamdata.get('morph'):
         skip += 'a'
-    if 'ner' not in clamdata or not clamdata['ner']:
+    if not clamdata.get('ner'):
         skip += 'n'
-    if 'chunker' not in clamdata or not clamdata['chunker']:
+    if not clamdata.get('chunker'):
         skip += 'c'
     if skip:
         skip = "--skip=" + skip
 
 
-#(also for ucto)
-if frog_inputtype == "folia":
+#for frog and ucto, they may handle both folia and text as input, but we need to know which
+if enrichment_inputtype == "folia":
     extension = "folia.xml"
-elif frog_inputtype == "text":
+elif enrichment_inputtype == "text":
     extension = "txt"
 else:
-    raise ValueError("Unexpected inputtype" + frog_inputtype)
-
-if 'ucto' in clamdata and clamdata['ucto'] == 'yes':
-    #fallback in case only tokenisation is enabled, no need for Frog but use ucto
-
-    tok_output = "tok_output"
-    if not os.path.exists(tok_output): os.mkdir(tok_output)
-    clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    cmd = run_piccl + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat " + frog_inputtype + " --inputdir " + shellsafe(frog_inputdir,'"') + " --extension " + extension + " --outputdir " + shellsafe(tok_output,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"
-    print("Command: " + cmd, file=sys.stderr)
-    if os.system(cmd) != 0:
-        fail('ucto')
-    nextflowout('ucto')
-    publish(tok_output)
+    raise ValueError("Unexpected inputtype" + enrichment_inputtype)
 
 
-if frog:
+
+if frog_enabled:
     #is Frog selected?
-    frog_output = "frog_output"
-    if not os.path.exists(frog_output): os.mkdir(frog_output)
+    frog_outputdir = "frog_outputdir"
+    if not os.path.exists(frog_outputdir): os.mkdir(frog_outputdir)
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    cmd = run_piccl + "frog.nf " + textclass_opts + " " + skip + " --inputdir " + shellsafe(frog_inputdir,'"') + " --inputformat " + frog_inputtype + " --extension " + extension + " --outputdir " + shellsafe(frog_output,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"
+    cmd = run_piccl + "frog.nf " + textclass_opts + " " + skip + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --inputformat " + enrichment_inputtype + " --extension " + extension + " --outputdir " + shellsafe(frog_outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('frog')
     nextflowout('frog')
-    publish(frog_output)
+    publish(frog_outputdir)
+
+elif clamdata.get('ucto') == 'yes':
+    #fallback in case only tokenisation is enabled, no need for Frog but use ucto
+
+    tok_outputdir = "tok_outputdir"
+    if not os.path.exists(tok_outputdir): os.mkdir(tok_outputdir)
+    clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
+    cmd = run_piccl + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat " + enrichment_inputtype + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --extension " + extension + " --outputdir " + shellsafe(tok_outputdir,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"
+    print("Command: " + cmd, file=sys.stderr)
+    if os.system(cmd) != 0:
+        fail('ucto')
+    nextflowout('ucto')
+    publish(tok_outputdir)
 
 #PICCL produces concatenative output filenames (e.g  $documentbase.ocr.ticcl.frogged.folia.xml)
 #this goes beyond CLAM's ability to predict so we rename everything to retain only the last three extension elements (*.$system.folia.xml)
@@ -321,7 +330,7 @@ for filename in glob.glob(os.path.join(outputdir,"*.folia.xml")):
 
 
 #cleanup
-if 'debug' not in clamdata or not clamdata['debug']:
+if not clamdata.get('debug'):
     shutil.rmtree('work')
 
 #A nice status message to indicate we're done
