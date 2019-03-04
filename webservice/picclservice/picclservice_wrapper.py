@@ -182,15 +182,19 @@ if inputtype == 'foliaocr':
     ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "folia"
     ocr_outputdir = inputdir
+    ocr = False
 elif inputtype == 'textocr':
-    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    ticclinputdir = "." #Text input files provided directly, no need to run OCR pipeline
     ticcl_inputtype = "text"
     ocr_outputdir = inputdir
+    ocr = False
 elif inputtype == 'pdftext':
-    ticclinputdir = "." #FoLiA input files provided directly, no need to run OCR pipeline
+    ticclinputdir = "." #PDF with text provided directly, no need to run OCR pipeline
     ticcl_inputtype = "pdf"
     ocr_outputdir = inputdir
+    ocr = False
 else:
+    ocr = True
     #run the OCR pipeline prior to running TICCL
     clam.common.status.write(statusfile, "Running OCR Pipeline",1) # status update
 
@@ -233,8 +237,14 @@ if 'ticcl' in clamdata and clamdata['ticcl'] == 'yes':
     textclass_opts = ""
 else:
     print("TICCL skipped as requested...",file=sys.stderr)
-    frog_inputdir = ocr_outputdir
-    textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
+    if ocr:
+        frog_inputdir = ocr_outputdir
+        textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
+    else:
+        assert ocr_outputdir == inputdir
+        frog_inputdir = ocr_outputdir
+        if 'inputtextclass' in clamdata and clamdata['inputtextclass'] and clamdata['inputtextclass'] != "current":
+            textclass_opts = "--inputclass " +  shellsafe(clamdata['inputtextclass']) + " --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
 
 
 frog = 'frog' in clamdata and clamdata['frog'] == 'yes' and lang == "nld"
