@@ -307,7 +307,8 @@ PROFILES = [
     ),
 
     Profile(
-        InputTemplate('textocr', PDFFormat, 'Plain-text document (no OCR)',
+        InputTemplate('textocr', PlainTextFormat, 'Plain-text document (no OCR)',
+           encoding='utf-8',
            extension='txt',
            multi=True,
         ),
