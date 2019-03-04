@@ -307,8 +307,8 @@ PROFILES = [
     ),
 
     Profile(
-        InputTemplate('textocr', PlainTextFormat, 'Plain-text document (no OCR)',
-           encoding='utf-8',
+        InputTemplate('textocr', PlainTextFormat, 'Plain-text document (UTF-8, no OCR)',
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
            extension='txt',
            multi=True,
         ),
