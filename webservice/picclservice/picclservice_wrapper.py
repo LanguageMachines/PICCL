@@ -247,6 +247,7 @@ if clamdata.get('ticcl') == 'yes':
     textclass_opts = ""
 else:
     print("TICCL skipped as requested...",file=sys.stderr)
+    textclass_opts = ""
     if ocr_enabled:
         enrichment_inputdir = ocr_outputdir
         textclass_opts = "--inputclass \"OCR\" --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
@@ -255,6 +256,7 @@ else:
         enrichment_inputdir = ocr_outputdir
         if 'inputtextclass' in clamdata and clamdata['inputtextclass'] and clamdata['inputtextclass'] != "current":
             textclass_opts = "--inputclass " +  shellsafe(clamdata['inputtextclass']) + " --outputclass \"current\"" #extra textclass opts for both frog and/or ucto
+
 
 
 if frog_enabled and lang != "nld":
