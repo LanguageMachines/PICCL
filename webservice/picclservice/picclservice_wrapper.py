@@ -228,6 +228,9 @@ pdfhandling = 'reassemble' if clamdata.get('reassemble') else 'single'
 if clamdata.get('frog') == 'yes':
     print("Frog enabled (" + str(clamdata['frog']) + ")",file=sys.stderr)
     frog_enabled = True
+else:
+    frog_enabled = False
+
 
 if clamdata.get('ticcl') == 'yes':
     clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
