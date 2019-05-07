@@ -419,6 +419,7 @@ process foliacorrect {
     #some bookkeeping
     mkdir outputdir
 
+    find . -name '*.xml' -size 0 -print0 | xargs -0 rm
     FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
     cd outputdir
 
