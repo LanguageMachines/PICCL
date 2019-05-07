@@ -125,7 +125,7 @@ information.
       --outputdir DIRECTORY    Output directory (FoLiA documents)
       --language LANGUAGE      Language
       --extension STR          Extension of FoLiA documents in input directory (default: folia.xml)
-      --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well
+      --inputclass CLASS       FoLiA text class to use for input, defaults to 'current' for FoLiA input; must be set to 'OCR' for FoLiA documents produced by ocr.nf
       --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)
       --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)
       --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)
@@ -146,15 +146,16 @@ scanned pages in the example collection would be:
     $ ocr.nf --inputdir corpora/TIFF/NLD/ --inputtype tif --language nld
 
 In case of the first example the result will be a file ``OllevierGeets.folia.xml`` in the ``ocr_output/`` directory. This in turn can serve as
-input for the TICCL workflow, which will attempt to correct OCR errors:
+input for the TICCL workflow, which will attempt to correct OCR errors. Take care that that the ``--inputclass OCR``
+parameter is mandatory if you want to use the FoLiA output of ``ocr.nf`` as input for TICCL:
 
-    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
 
 Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
 ``download-data.nf``. Result will be a file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
 containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
 
-    $ ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion
 
 
 ## Webapplication / RESTful webservice

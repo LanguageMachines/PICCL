@@ -235,7 +235,14 @@ else:
 if clamdata.get('ticcl') == 'yes':
     clam.common.status.write(statusfile, "Running TICCL Pipeline",50) # status update
     ticcl_outputdir = 'ticcl_out'
-    cmd = run_piccl + "ticcl.nf --inputdir " + ticcl_inputdir + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
+    ticcl_textclass_opts = ""
+    if ocr_enabled:
+        ticcl_textclass_opts = "--inputclass \"OCR\""
+    elif 'inputtextclass' in clamdata and clamdata['inputtextclass'] and clamdata['inputtextclass'] != "current":
+        ticcl_textclass_opts = "--inputclass " +  shellsafe(clamdata['inputtextclass'])
+    else:
+        ticcl_textclass_opts = "--inputclass \"current\""
+    cmd = run_piccl + "ticcl.nf --inputdir " + ticcl_inputdir + " " + ticcl_textclass_opts + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('ticcl')

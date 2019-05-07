@@ -17,7 +17,7 @@ params.language = "nld"
 params.extension = "folia.xml"
 params.inputtype = "folia"
 params.outputdir = "ticcl_output"
-params.inputclass = "OCR"
+params.inputclass = "current"
 params.lexicon = ""
 params.artifrq = 10000000
 params.alphabet = ""
@@ -39,7 +39,7 @@ if (params.containsKey('help')) {
     log.info "  --outputdir DIRECTORY    Output directory (FoLiA documents)"
     log.info "  --language LANGUAGE      Language"
     log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml, must always end in xml)!"
-    log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'OCR', may be set to 'current' as well"
+    log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'current' for FoLiA input; must be set to 'OCR' for FoLiA documents produced by ocr.nf"
     log.info "  --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
     log.info "  --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)"
@@ -78,12 +78,14 @@ lexicon = Channel.fromPath(params.lexicon).ifEmpty("Lexicon file not found")
 alphabet = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 charconfuslist = Channel.fromPath(params.charconfus).ifEmpty("Character confusion file not found")
 
+inputclass = "OCR" //default internal inputclass (will be overriden with the default 'current' in case of FoLiA input)
 
 if (params.inputtype == "folia") {
     //Create two identical channels (folia_ocr_document & input_overview) globbing all FoLiA documents in the input directory (recursively!)
     //the input_overview channel will be consumed immediately, simply printing all input filenames
     Channel.fromPath(params.inputdir+"/**." + params.extension).into { folia_ocr_documents; input_overview }
     input_overview.subscribe { println "TICCL FoLiA input: ${it.baseName}" }
+    inputclass = params.inputclass //use user-supplied input class (default to 'current')
 } else if (params.inputtype == "text") {
     //Create two identical channel globbing all text documents in the input directory (recursively!)
     Channel.fromPath(params.inputdir+"/**.txt").filter { it.baseName != "trace" }.into { textdocuments; input_overview }
@@ -93,6 +95,7 @@ if (params.inputtype == "folia") {
     pdfdocuments = Channel.fromPath(params.inputdir+"/**.pdf")
     Channel.fromPath(params.inputdir+"/**.pdf").into { pdfdocuments; input_overview }
     input_overview.subscribe { println "TICCL PDF input: ${it.baseName}" }
+    inputclass = "OCR"
 
     process pdf2text {
         /*
@@ -164,7 +167,7 @@ if (params.containsKey('corpusfreqlist')) {
         input:
         file "doc*." + params.extension from folia_ocr_documents_forcorpusfrequency
         val virtualenv from params.virtualenv
-        val inputclass from params.inputclass
+        val inputclass from inputclass
         val extension from params.extension
 
         output:
@@ -398,7 +401,7 @@ process foliacorrect {
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
-    val inputclass from params.inputclass
+    val inputclass from inputclass
     val virtualenv from params.virtualenv
 
     output:

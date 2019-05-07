@@ -135,7 +135,7 @@ fi
 if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (eng) =========">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
-    $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+    $PICCL/ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
     checkfolia ticcl_output/OllevierGeets.ticcl.folia.xml
 fi
 
@@ -150,7 +150,7 @@ fi
 if [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing TICCL (nld) ============ ">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
-    $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
+    $PICCL/ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
     checkfolia ticcl_output/dpo.ticcl.folia.xml
 fi
 
