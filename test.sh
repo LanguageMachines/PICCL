@@ -181,7 +181,7 @@ if [ ! -z "$PICCLDIR" ]; then
     if [[ "$TEST" == "ticcl-nld-2" ]] || [[ "$TEST" == "all" ]]; then
         echo -e "\n\n======== Testing TICCL (nld; philips data) =========">&2
         if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
-        $PICCL/ticcl.nf --inputdir ocr_output/ --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
+        $PICCL/ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion $WITHDOCKER || exit 2
         checkfolia ticcl_output/philips.ticcl.folia.xml
     fi
 fi
