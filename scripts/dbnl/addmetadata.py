@@ -3,7 +3,7 @@
 import sys
 import os
 import json
-from pynlpl.formats import folia
+import foliapy.main as folia
 
 inputfile, outputfile, metadatadir = sys.argv[1:]
 
@@ -18,7 +18,6 @@ if os.path.exists(metadatafile):
         doc.metadata[key] = value
 
     print("Added metadata for " + id,file=sys.stderr)
-
     doc.save(outputfile)
 else:
     print("No metadata found for " + id,file=sys.stderr)

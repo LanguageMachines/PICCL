@@ -134,10 +134,10 @@ if (params.dbnl) {
         ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
 
         #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
-        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > "${teidocument.simpleName}.folia.xml"
+        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > tmp3.xml
 
-        #validate the FoLiA
-        foliavalidator "${teidocument.simpleName}.folia.xml"
+        #validate the FoLiA and use the autodeclare method to automatically add missing declarations
+        foliavalidator --autodeclare --output tmp3.xml > "${teidocument.simpleName}.folia.xml"
         """
     }
 
