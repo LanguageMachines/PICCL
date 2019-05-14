@@ -158,7 +158,7 @@ THEEND
 print "  <text xml:id=\"${idno}_text\">";
 my $root = $twig->root->first_child('text')->first_child('body');
 foreach my $div ($root->children) {
-   if ($div->text !~ /^\s*$/ or $div->name eq "external") {
+   if ($div->text !~ /^\s*$/ or $div->name eq "relation") {
       $div->print;
    }
 }
