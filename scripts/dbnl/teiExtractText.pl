@@ -220,13 +220,13 @@ sub processExternal {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
    $tag->set_name("relation");
-   foreach my $att (keys %{$atts}) {
-      if ($att eq "include" ) { $tag->del_att($att); }
-   }
    $tag->set_att("class","subdocument");
    $tag->set_att("xlink:href", $tag->{'att'}->{'src'});
    $tag->set_att("xlink:type","simple");
    $tag->set_att("format","text/folia+xml");
+   foreach my $att (keys %{$atts}) {
+      if ($att eq "include" or $att eq "src") { $tag->del_att($att); }
+   }
 }
 
 sub copy {
