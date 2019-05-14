@@ -141,6 +141,7 @@ print <<THEEND;
     <event-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-events.foliaset.ttl" />
     <paragraph-annotation />
     <string-annotation />
+    <part-annotation />
    </annotations>
    <provenance>
     <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7" host="${host}" user="${user}" src="https://github.com/LanguageMachines/PICCL">
@@ -376,10 +377,19 @@ sub processL {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      $tag->set_name('t-str');
-      $tag->set_text(normspaces($tag->text));
-      my $linebreak = new XML::Twig::Elt('br');
-      $linebreak->paste('last_child',$tag);
+      if ($tag->parent->name ne "lg") {
+        #this is for corner cases where l was not part of an lg  (ugly patch by proycon to prevent invalid FoLiA creation)
+        $tag->set_name("part");
+        my $t = new XML::Twig::Elt('t',normspaces($tag->text));
+        $t->set_text($tag->text);
+        $tag->set_text("");
+        $t->paste("last_child" => $tag);
+      } else {
+        $tag->set_name('t-str');
+        $tag->set_text(normspaces($tag->text));
+        my $linebreak = new XML::Twig::Elt('br');
+        $linebreak->paste('last_child',$tag);
+      }
    }
 }
 
