@@ -8,6 +8,7 @@
 use XML::Twig;
 use strict;
 use utf8;
+use Sys::Hostname;
 
 my $version = "3.0";
 
@@ -127,6 +128,8 @@ if ($idno eq "") {
     print STDERR "Empty ID not valid! ($file)";
     exit(1);
 }
+my $host = hostname;
+my $user = $ENV{LOGNAME} || $ENV{USER} || getpwuid($<);
 print <<THEEND;
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE folia [ <!ENTITY nbsp " "> <!ENTITY lsquo "`"> <!ENTITY rsquo "’"> <!ENTITY ldquo '"'> <!ENTITY rdquo '"'> <!ENTITY eacute 'é'> <!ENTITY euml 'ë'> <!ENTITY egrave 'è'> <!ENTITY uuml 'ü'> <!ENTITY iuml 'ï'> <!ENTITY ouml 'ö'> <!ENTITY ecirc 'ê'> <!ENTITY ugrave 'ù'>  <!ENTITY aacute 'á'> <!ENTITY agrave 'à'> <!ENTITY ocirc 'ô'> <!ENTITY acirc 'â'> <!ENTITY epsilon 'ε'> <!ENTITY Euml 'Ë'> <!ENTITY otilde 'õ'> <!ENTITY atilde 'ã'> <!ENTITY ntilde 'ñ'> <!ENTITY plusmn '±'> <!ENTITY times '×'> <!ENTITY Egrave 'È'> <!ENTITY sect '§'> <!ENTITY Uuml 'Ü'> <!ENTITY Auml 'Ä'> <!ENTITY scaron 'š'> <!ENTITY yacute 'ý'> <!ENTITY Ouml 'Ö'> <!ENTITY omicron 'ο'> <!ENTITY lambda 'λ'> <!ENTITY tau 'τ'> <!ENTITY rho 'ρ'> <!ENTITY sigmaf 'ς'> <!ENTITY Pi 'Π'> <!ENTITY nu 'ν'> <!ENTITY theta 'θ'> <!ENTITY omega 'ω'> <!ENTITY delta 'δ'> <!ENTITY alpha 'α'> <!ENTITY kappa 'κ'> <!ENTITY beta 'β'> <!ENTITY gamma 'γ'> <!ENTITY sigma 'σ'> <!ENTITY mu 'μ'> <!ENTITY psi 'ψ'> <!ENTITY chi 'χ'> <!ENTITY upsilon 'υ'> <!ENTITY iota 'ι'> <!ENTITY igrave 'ì'> <!ENTITY ograve 'ò'> <!ENTITY ccedil 'ç'> <!ENTITY ucirc 'û'> <!ENTITY auml 'ä'> <!ENTITY icirc 'î'> <!ENTITY oacute 'ó'> <!ENTITY pi 'π'> <!ENTITY Theta 'Θ'> <!ENTITY dagger '†'> <!ENTITY Omicron "Ο"> <!ENTITY Mu 'Μ'> <!ENTITY Iota 'Ι'> <!ENTITY Sigma 'Σ'> <!ENTITY Delta 'Δ'> <!ENTITY Alpha 'Α'> <!ENTITY Omega 'Ω'> <!ENTITY Nu 'Ν'> <!ENTITY uacute 'ú'> <!ENTITY iacute 'í'> <!ENTITY phi 'φ'> <!ENTITY eta 'η'> <!ENTITY Epsilon 'Ε'> <!ENTITY zeta 'ζ'> <!ENTITY Tau 'Τ'> <!ENTITY Eta 'Η'> <!ENTITY nacute 'ń'> <!ENTITY acute '´'> <!ENTITY Oslash 'Ø'> <!ENTITY ndash '–'> <!ENTITY AElig 'Æ'> <!ENTITY frac12 '½'> <!ENTITY copy '©'> <!ENTITY fnof 'ƒ'> ]>
@@ -139,10 +142,10 @@ print <<THEEND;
     <paragraph-annotation />
    </annotations>
    <provenance>
-    <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7">
+    <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7" host="${host}" user="${user}">
      <processor xml:id="proc0.nederlab" name="nederlab.nf">
       <processor xml:id="proc0.teiExtractText.pl" name="teiExtractText.pl" version="${version}">
-       <processor xml:id="proc0.TEI.source" name="${file}" type="datasource" />
+       <processor xml:id="proc0.TEI.source" name="${file}" src="${file}" type="datasource" format="text/tei+xml" />
       </processor>
      </processor>
     </processor>
