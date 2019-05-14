@@ -97,7 +97,7 @@ my $twig = new XML::Twig(
                         'lb' => \&cut,
                         'lg' => \&processLg,
                         'list' => \&processStructure,
-                        'name' => \&processHi,
+                        'name' => \&processName,
                         'note' => \&processNote,
                         'p' => \&processStructure,
                         'poem' => \&convertToDiv,
@@ -142,6 +142,7 @@ print <<THEEND;
     <relation-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-relations.foliaset.ttl" />
     <paragraph-annotation />
     <string-annotation />
+    <style-annotation />
     <part-annotation />
    </annotations>
    <provenance>
@@ -349,6 +350,30 @@ sub processHi {
       $tag->set_text("");
       my $newT = new XML::Twig::Elt("t",normspaces($text));
       $newT->paste("last_child",$tag);
+   } else {
+       my $atts = $tag->atts;
+       my $cls = "";
+       foreach my $att (keys %{$atts}) {
+           if ($att eq "rend") { 
+                $cls = $tag->{'att'}->{'rend'};
+                $tag->del_att($att);
+           }
+       }
+       $tag->set_name("t-style");
+       if ($cls ne "") {
+          $tag->set_att("class",$cls);
+       }
+   }
+}
+
+sub processName {
+   my ($twig,$tag) = @_;
+   if ($tag->parent->name eq "div") {
+      $tag->set_name("p");
+      my $text = $tag->text;
+      $tag->set_text("");
+      my $newT = new XML::Twig::Elt("t",normspaces($text));
+      $newT->paste("last_child",$tag);
    }
 }
 
@@ -485,24 +510,24 @@ sub processLg {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
-   my $newElement = new XML::Twig::Elt("t","");
+   my $textElement = new XML::Twig::Elt("t","");
    my @lines = $tag->children;
    my $found = 0;
    foreach my $line (@lines) {
       if ($line->name eq "t-str") {
          $line->cut;
          if ($line->text !~ /^\s*$/) {
-            $line->paste('last_child',$newElement);
+            $line->paste('last_child',$textElement);
             $found++;
          }
       }
       if ($line->name eq "br") {
          $line->cut;
-         $line->paste('last_child',$newElement);
+         $line->paste('last_child',$textElement);
       }
    }
    if ($found) {
-       $newElement->paste('last_child',$tag);
+       $textElement->paste('last_child',$tag);
    }
 }
 
@@ -541,7 +566,7 @@ sub processSp {
          $tag->set_text("");
          my $textmarkupfound = 0;
          foreach my $c (@children) {
-            if ($c->name eq "l") {
+            if ($c->name eq "t-str") {
                 $c->paste("last_child" => $speakerturnTextTag);
                 $textmarkupfound = 1;
             } else {
