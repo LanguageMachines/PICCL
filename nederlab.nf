@@ -32,17 +32,17 @@ params.frogconfig = ""
 params.recursive = false
 
 
-if (params.containsKey('help') || !params.containsKey('inputdir') || !params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
+if (params.containsKey('help') || !params.containsKey('inputdir') ) {
     log.info "Usage:"
     log.info "  nederlab.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
     log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents or DBNL TEI documents if --dbnl is set)"
-    log.info "  --dictionary FILE        Modernisation dictionary"
-    log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file"
     log.info ""
     log.info "Optional parameters:"
     log.info "  --mode [modernize|simple|both|convert]  Add modernisation layer, process original content immediately (simple), do both? Or convert to FoLiA only (used with --dbnl)? Default: simple"
+    log.info "  --dictionary FILE        Modernisation dictionary (required for modernize mode)"
+    log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file (required for modernize mode)"
     log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
     log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)"
     log.info "  --tok                    FoLiA Input is not tokenised yet, do so (adds a tokenisation step)"
@@ -64,6 +64,10 @@ if (params.containsKey('help') || !params.containsKey('inputdir') || !params.con
     exit 2
 }
 
+if (params.mode == "modernize" && (!params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
+    log.error "Modernisation mode requires --dictionary and --inthislexicon"
+    exit 2
+}
 
 if (params.recursive) {
     inputpattern = "**"
