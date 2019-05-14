@@ -383,7 +383,7 @@ sub processL {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      if ($tag->parent->name ne "lg") {
+      if ($tag->parent->name ne "lg" and $tag->parent->name ne "sp") {
         #this is for corner cases where l was not part of an lg  (ugly patch by proycon to prevent invalid FoLiA creation)
         $tag->set_name("part");
         my $t = new XML::Twig::Elt('t',normspaces($tag->text));

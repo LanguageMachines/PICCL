@@ -111,7 +111,7 @@ if (params.dbnl) {
     process tei2folia {
         //Extract text from TEI documents and convert to FoLiA
 
-        if (params.mode == "convert") {
+        if (params.mode == "convert" && params.metadatadir == "") {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
 
@@ -146,6 +146,10 @@ if (params.dbnl) {
 
     if (params.metadatadir != "") {
         process addmetadata {
+            if (params.mode == "convert" && params.metadatadir == "") {
+                publishDir params.outputdir, mode: 'copy', overwrite: true
+            }
+
             input:
             file inputdocument from foliadocuments
             val virtualenv from params.virtualenv
