@@ -375,10 +375,20 @@ sub processL {
       foreach my $att (keys %{$atts}) {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
-      $tag->set_name('t-str');
-      $tag->set_text(normspaces($tag->text));
-      my $newElement = new XML::Twig::Elt('br');
-      $newElement->paste('last_child',$tag);
+      my $parent = $tag->parent;
+      if ($parent->tag == "t") {
+          $tag->set_name('t-str');
+          $tag->set_text(normspaces($tag->text));
+          my $linebreak = new XML::Twig::Elt('br');
+          $linebreak->paste('last_child',$tag);
+      } else {
+          $tag->set_name('t');
+          $tstr = new XML::Twig::Elt('t-str', normspaces($tag->text));
+          $tag->set_text("");
+          $tstr->paste("last_child" => $tag);
+          my $linebreak = new XML::Twig::Elt('br');
+          $linebreak->paste('last_child',$tstr);
+      }
    }
 }
 
