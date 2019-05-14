@@ -14,7 +14,7 @@ if os.path.exists(metadatafile):
 
     with open(metadatafile,'r') as f:
         data = json.load(f)
-    for key, value in sorted(metadata.items()):
+    for key, value in sorted(data.items()):
         doc.metadata[key] = value
 
     print("Added metadata for " + id,file=sys.stderr)
