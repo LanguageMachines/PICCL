@@ -92,14 +92,29 @@ FLATURL = "https://flat.science.ru.nl"
 #SECRET_KEY = 'mysecret'
 
 
-#load external configuration file (see piccl.config.yml)
-loadconfig(__name__)
 
 
 # ======== WEB-APPLICATION STYLING =============
 
 #Choose a style (has to be defined as a CSS file in clam/style/ ). You can copy, rename and adapt it to make your own style
 STYLE = 'classic'
+
+
+
+
+#Here you can specify additional interface options (space separated list), see the documentation for all allowed options
+INTERFACEOPTIONS = "disableliveinput inputfromweb"
+
+# ======== LOAD EXTERNAL CONFIGURATION =============
+# Load external configuration file (see piccl.config.yml)
+# This can override any of the variables set until this point, and should take care of setting host specific variables
+loadconfig(__name__)
+
+try:
+    AUTOSEARCH_FORWARD_URL
+except NameError:
+    #make sure it is defined at least
+    AUTOSEARCH_FORWARD_URL = None
 
 # ======== ENABLED FORMATS ===========
 
@@ -112,17 +127,6 @@ STYLE = 'classic'
 #    mimetype = 'text/xml'
 
 # CUSTOM_FORMATS = [ MyXMLFormat ]
-
-# ======= INTERFACE OPTIONS ===========
-
-#Here you can specify additional interface options (space separated list), see the documentation for all allowed options
-INTERFACEOPTIONS = "disableliveinput inputfromweb"
-
-# ======== PREINSTALLED DATA ===========
-
-#INPUTSOURCES = [
-#    InputSource(id='sampledocs',label='Sample texts',path=ROOT+'/inputsources/sampledata',defaultmetadata=PlainTextFormat(None, encoding='utf-8') ),
-#]
 
 # ======== PROFILE DEFINITIONS ===========
 
@@ -220,6 +224,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         #do we have an OCR input stage? then we get OCR output
         outputtemplates += [OutputTemplate('ocrfolia', FoLiAXMLFormat, 'OCR Output (Tesseract)',
             FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
+            ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
             removeextension=inputextension,
             extension='ocr.folia.xml',
             multi=True,
@@ -236,6 +241,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ParameterCondition(ticcl="yes", then=
             OutputTemplate('ticclfolia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
                 FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
+                ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
                 removeextension=inputextension,
                 extension='ticcl.folia.xml',
                 multi=True,
@@ -245,6 +251,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
             #Frog was enabled, so we obtain Frog output:
             OutputTemplate('frogfolia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
                 FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
+                ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
                 removeextension=inputextension,
                 extension='frogged.folia.xml',
                 multi=True,
@@ -262,8 +269,8 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
     return outputtemplates
 
 try:
-    if AUTOSEARCH_FORWARD_URL:
-        FORWARDERS = [ Forwarder('autosearch', "Autosearch", AUTOSEARCH_FORWARD_URL, "Upload all output to Autosearch, allowing you to search through the data, provided you enabled tokenisation", "zip") ]
+   if AUTOSEARCH_FORWARD_ALL_URL:
+        FORWARDERS = [ Forwarder('autosearch', "Autosearch", AUTOSEARCH_FORWARD_ALL_URL, "Upload all output to Autosearch, allowing you to search through the data, provided you enabled tokenisation", "zip") ]
 except NameError:
     #no forwardlink defined
     pass
