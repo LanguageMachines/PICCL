@@ -8,7 +8,7 @@ import folia.main as folia
 inputfile, outputfile, metadatadir = sys.argv[1:]
 
 id = os.path.basename(inputfile).split('.')[0]
-metadatafile = metadatadir + '/' + id + '.json'
+metadatafile = os.path.join(metadatadir, id + '.json')
 if os.path.exists(metadatafile):
     doc = folia.Document(file=inputfile)
 
