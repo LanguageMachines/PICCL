@@ -219,7 +219,7 @@ sub convertToP {
 sub processExternal {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
-   $tag->name = "relation";
+   $tag->set_name("relation");
    foreach my $att (keys %{$atts}) {
       if ($att eq "include" ) { $tag->del_att($att); }
    }
