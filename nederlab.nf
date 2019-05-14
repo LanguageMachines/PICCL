@@ -64,7 +64,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') ) {
     exit 2
 }
 
-if (params.mode == "modernize" && (!params.containsKey('dictionary') || !params.containsKey('inthistlexicon')) {
+if (params.mode == "modernize" && (!params.containsKey('dictionary') || !params.containsKey('inthistlexicon'))) {
     log.error "Modernisation mode requires --dictionary and --inthislexicon"
     exit 2
 }
