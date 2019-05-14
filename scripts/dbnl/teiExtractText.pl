@@ -140,9 +140,10 @@ print <<THEEND;
     <division-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-div.foliaset.ttl" />
     <event-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-events.foliaset.ttl" />
     <paragraph-annotation />
+    <string-annotation />
    </annotations>
    <provenance>
-    <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7" host="${host}" user="${user}">
+    <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7" host="${host}" user="${user}" src="https://github.com/LanguageMachines/PICCL">
      <processor xml:id="proc0.nederlab" name="nederlab.nf">
       <processor xml:id="proc0.teiExtractText.pl" name="teiExtractText.pl" version="${version}">
        <processor xml:id="proc0.TEI.source" name="${file}" src="${file}" type="datasource" format="text/tei+xml" />
@@ -522,11 +523,19 @@ sub processSp {
 
          my @children = $tag->children;
          $tag->set_text("");
+         my $textmarkupfound = 0;
          foreach my $c (@children) {
-            $c->paste("last_child" => $speakerturnTextTag);
+            if ($c->name eq "l") {
+                $c->paste("last_child" => $speakerturnTextTag);
+                $textmarkupfound = 1;
+            } else {
+                $c->paste("last_child" => $tag); #re-add child
+            }
          }
 
-         $speakerturnTextTag->paste(last_child => $tag);
+         if ($textmarkupfound == 1) {
+            $speakerturnTextTag->paste(last_child => $tag);
+         }
          $speakerTag->paste(before => $tag);
       }
    }
