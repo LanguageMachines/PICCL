@@ -383,7 +383,7 @@ sub processL {
           $linebreak->paste('last_child',$tag);
       } else {
           $tag->set_name('t');
-          $tstr = new XML::Twig::Elt('t-str', normspaces($tag->text));
+          my $tstr = new XML::Twig::Elt('t-str', normspaces($tag->text));
           $tag->set_text("");
           $tstr->paste("last_child" => $tag);
           my $linebreak = new XML::Twig::Elt('br');
