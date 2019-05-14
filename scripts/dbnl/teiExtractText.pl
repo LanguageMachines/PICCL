@@ -133,12 +133,13 @@ my $user = $ENV{LOGNAME} || $ENV{USER} || getpwuid($<);
 print <<THEEND;
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE FoLiA [ <!ENTITY nbsp " "> <!ENTITY lsquo "`"> <!ENTITY rsquo "’"> <!ENTITY ldquo '"'> <!ENTITY rdquo '"'> <!ENTITY eacute 'é'> <!ENTITY euml 'ë'> <!ENTITY egrave 'è'> <!ENTITY uuml 'ü'> <!ENTITY iuml 'ï'> <!ENTITY ouml 'ö'> <!ENTITY ecirc 'ê'> <!ENTITY ugrave 'ù'>  <!ENTITY aacute 'á'> <!ENTITY agrave 'à'> <!ENTITY ocirc 'ô'> <!ENTITY acirc 'â'> <!ENTITY epsilon 'ε'> <!ENTITY Euml 'Ë'> <!ENTITY otilde 'õ'> <!ENTITY atilde 'ã'> <!ENTITY ntilde 'ñ'> <!ENTITY plusmn '±'> <!ENTITY times '×'> <!ENTITY Egrave 'È'> <!ENTITY sect '§'> <!ENTITY Uuml 'Ü'> <!ENTITY Auml 'Ä'> <!ENTITY scaron 'š'> <!ENTITY yacute 'ý'> <!ENTITY Ouml 'Ö'> <!ENTITY omicron 'ο'> <!ENTITY lambda 'λ'> <!ENTITY tau 'τ'> <!ENTITY rho 'ρ'> <!ENTITY sigmaf 'ς'> <!ENTITY Pi 'Π'> <!ENTITY nu 'ν'> <!ENTITY theta 'θ'> <!ENTITY omega 'ω'> <!ENTITY delta 'δ'> <!ENTITY alpha 'α'> <!ENTITY kappa 'κ'> <!ENTITY beta 'β'> <!ENTITY gamma 'γ'> <!ENTITY sigma 'σ'> <!ENTITY mu 'μ'> <!ENTITY psi 'ψ'> <!ENTITY chi 'χ'> <!ENTITY upsilon 'υ'> <!ENTITY iota 'ι'> <!ENTITY igrave 'ì'> <!ENTITY ograve 'ò'> <!ENTITY ccedil 'ç'> <!ENTITY ucirc 'û'> <!ENTITY auml 'ä'> <!ENTITY icirc 'î'> <!ENTITY oacute 'ó'> <!ENTITY pi 'π'> <!ENTITY Theta 'Θ'> <!ENTITY dagger '†'> <!ENTITY Omicron "Ο"> <!ENTITY Mu 'Μ'> <!ENTITY Iota 'Ι'> <!ENTITY Sigma 'Σ'> <!ENTITY Delta 'Δ'> <!ENTITY Alpha 'Α'> <!ENTITY Omega 'Ω'> <!ENTITY Nu 'Ν'> <!ENTITY uacute 'ú'> <!ENTITY iacute 'í'> <!ENTITY phi 'φ'> <!ENTITY eta 'η'> <!ENTITY Epsilon 'Ε'> <!ENTITY zeta 'ζ'> <!ENTITY Tau 'Τ'> <!ENTITY Eta 'Η'> <!ENTITY nacute 'ń'> <!ENTITY acute '´'> <!ENTITY Oslash 'Ø'> <!ENTITY ndash '–'> <!ENTITY AElig 'Æ'> <!ENTITY frac12 '½'> <!ENTITY copy '©'> <!ENTITY fnof 'ƒ'> ]>
-<FoLiA xmlns="http://ilk.uvt.nl/folia" xml:id="$idno" generator="teiExtractText.pl" version="2.0.3">
+<FoLiA xmlns="http://ilk.uvt.nl/folia" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="$idno" generator="teiExtractText.pl" version="2.0.3">
   <metadata type="native">
    <annotations>
     <text-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/text.foliaset.ttl" />
     <division-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-div.foliaset.ttl" />
     <event-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-events.foliaset.ttl" />
+    <relation-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-relations.foliaset.ttl" />
     <paragraph-annotation />
     <string-annotation />
     <part-annotation />
@@ -218,9 +219,14 @@ sub convertToP {
 sub processExternal {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
+   $tag->name = "relation";
    foreach my $att (keys %{$atts}) {
-      if ($att eq "xml:id" ) { $tag->del_att($att); }
+      if ($att eq "include" ) { $tag->del_att($att); }
    }
+   $tag->set_att("class","subdocument");
+   $tag->set_att("xlink:href", $tag->{'att'}->{'src'});
+   $tag->set_att("xlink:type","simple");
+   $tag->set_att("format","text/folia+xml");
 }
 
 sub copy {
