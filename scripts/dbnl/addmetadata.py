@@ -3,7 +3,7 @@
 import sys
 import os
 import json
-import foliapy.main as folia
+import folia.main as folia
 
 inputfile, outputfile, metadatadir = sys.argv[1:]
 
