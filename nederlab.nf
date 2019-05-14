@@ -97,7 +97,6 @@ if (params.dbnl) {
         input:
         each file(teidocument) from teidocuments
         file oztfile
-        val baseDir
 
         output:
         file "*.xml" into tei_id_documents mode flatten //input file should be excluded by nextflow already, output may be one simplename.ids.xml doc or multiple in case of a split
@@ -105,7 +104,7 @@ if (params.dbnl) {
         script:
         """
         rm *.folia.ids.xml >/dev/null 2>/dev/null || true  #remove existing output
-        ${baseDir}/scripts/dbnl/teiAddIds.pl "${teidocument}" "${oztfile}"
+        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/teiAddIds.pl "${teidocument}" "${oztfile}"
         """
     }
 
@@ -132,13 +131,13 @@ if (params.dbnl) {
         fi
         set -u
 
-        ${baseDir}/scripts/dbnl/teiExtractText.pl "${teidocument}" > tmp.xml
+        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/teiExtractText.pl "${teidocument}" > tmp.xml
 
         #Delete any empty paragraphs (invalid FoLiA)
-        ${baseDir}/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
+        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
 
         #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
-        ${baseDir}/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > tmp3.xml
+        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > tmp3.xml
 
         #validate the FoLiA and use the autodeclare method to automatically add missing declarations
         foliavalidator --autodeclare --output tmp3.xml > "${teidocument.simpleName}.folia.xml"
@@ -163,7 +162,7 @@ if (params.dbnl) {
             fi
             set -u
 
-            python ${baseDir}/scripts/dbnl/addmetadata.py ${inputdocument} ${inputdocument.simpleName}.withmetadata.folia.xml ${metadatadir}
+            python ${LM_PREFIX}/opt/PICCL/scripts/dbnl/addmetadata.py ${inputdocument} ${inputdocument.simpleName}.withmetadata.folia.xml ${metadatadir}
             """
         }
     } else {
