@@ -89,7 +89,7 @@ try {
 if (params.dbnl) {
     teidocuments = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
 
-    oztfile = Channel.fromPath(params.oztfile)
+    oztfile = Channel.fromPath(params.oztids)
 
     process teiAddIds {
         //Add ID attribute to TEI file
