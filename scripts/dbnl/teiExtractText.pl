@@ -376,7 +376,7 @@ sub processL {
          if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
       }
       my $parent = $tag->parent;
-      if ($parent->tag == "t") {
+      if ($parent->tag eq "t") {
           $tag->set_name('t-str');
           $tag->set_text(normspaces($tag->text));
           my $linebreak = new XML::Twig::Elt('br');
