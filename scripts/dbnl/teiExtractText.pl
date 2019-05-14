@@ -513,11 +513,21 @@ sub processSp {
          my $newT = new XML::Twig::Elt("t",normspaces($speakerText));
          $newT->paste(last_child => $speakerTag);
          $speakerTag->cut;
-         $speakerTag->paste(before => $tag);
          $tag->set_att('actor',$speakerText);
          if (defined $tag->first_child("speaker")) {
             die "$command: error: duplicate speaker found in file $file\n";
          }
+
+         my $speakerturnTextTag = new XML::Twig::Elt("t","");
+
+         my @children = $tag->children;
+         $tag->set_text("");
+         foreach my $c (@children) {
+            $c->paste("last_child" => $speakerturnTextTag);
+         }
+
+         $speakerturnTextTag->paste(last_child => $tag);
+         $speakerTag->paste(before => $tag);
       }
    }
    #my @lines = $tag->children;
