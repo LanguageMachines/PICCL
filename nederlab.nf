@@ -170,6 +170,10 @@ if (params.dbnl) {
         foliadocuments.set { foliadocuments_untokenized }
     }
 
+    if (params.mode == "convert") {
+        // we only did conversion so we're all done
+        return
+    }
 
     //foliadocuments_tokenized.subscribe { println it }
 } else if (!params.tok) {
