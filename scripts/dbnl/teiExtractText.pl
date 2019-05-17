@@ -119,6 +119,17 @@ my $twig = new XML::Twig(
    pretty_print  => 'indented'
 );
 
+my $hasevents = 0;
+my $hasrelations = 0;
+my $hasstrings = 0;
+my $hasstyles = 0;
+my $hasparagraphs = 0;
+my $hasdivisions = 0;
+my $hasheads = 0;
+my $haslists = 0;
+my $hastables = 0;
+my $hasfigures = 0;
+
 # process file
 # $twig->parsefile($file); # useful for debugging
 $twig->parsefile($file);
@@ -137,13 +148,19 @@ print <<THEEND;
   <metadata type="native">
    <annotations>
     <text-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/text.foliaset.ttl" />
-    <division-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-div.foliaset.ttl" />
-    <event-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-events.foliaset.ttl" />
-    <relation-annotation set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/nederlab-relations.foliaset.ttl" />
-    <paragraph-annotation />
-    <string-annotation />
-    <style-annotation />
-    <part-annotation />
+THEEND
+
+if ($hasdivisions) { print "    <division-annotation set=\"https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/dbnl/div.foliaset.ttl\" />"; }
+if ($hasevents) { print "    <event-annotation set=\"https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/dbnl/events.foliaset.ttl\" />"; }
+if ($hasstyles) { print "    <style-annotation set=\"https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/dbnl/styles.foliaset.ttl\" />"; }
+if ($hasrelations) { print "    <relation-annotation set=\"https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/dbnl/relations.foliaset.ttl\" />"; }
+if ($hasparagraphs) { print "    <paragraph-annotation />"; }
+if ($haslists) { print "    <list-annotation />"; }
+if ($hasparts) { print "    <part-annotation />"; }
+if ($hastables) { print "    <table-annotation />"; }
+if ($hasfigures) { print "    <figure-annotation />"; }
+
+print <<THEEND;
    </annotations>
    <provenance>
     <processor xml:id="proc0.piccl" name="PICCL" version="0.7.7" host="${host}" user="${user}" src="https://github.com/LanguageMachines/PICCL">
@@ -156,6 +173,7 @@ print <<THEEND;
    </provenance>
   </metadata>
 THEEND
+
 print "  <text xml:id=\"${idno}_text\">";
 my $root = $twig->root->first_child('text')->first_child('body');
 foreach my $div ($root->children) {
@@ -175,6 +193,7 @@ sub normspaces {
 
 sub convertToDiv {
    my ($twig,$tag) = @_;
+   $hasdivisions++;
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
@@ -202,6 +221,7 @@ sub convertToDiv {
 
 sub convertToP {
    my ($twig,$tag) = @_;
+   $hasparagraphs++;
    $tag->set_name('p');
    my $atts = $tag->atts;
    foreach my $att (keys %{$atts}) {
@@ -260,6 +280,7 @@ sub divDeleteAttr {
    my @children = $tag->children;
    foreach my $child (@children) {
       if ($child->name eq "#PCDATA") {
+         $hasparagraphs++;
          $child->set_name("p");
          $addedCounter++;
          $child->set_att("xml:id","addedByTET-".$addedCounter);
@@ -345,6 +366,7 @@ sub processIdno {
 sub processHi {
    my ($twig,$tag) = @_;
    if ($tag->parent->name eq "div") {
+      $hasparagraphs++;
       $tag->set_name("p");
       my $text = $tag->text;
       $tag->set_text("");
@@ -359,6 +381,7 @@ sub processHi {
                 $tag->del_att($att);
            }
        }
+       $hasstyles++;
        $tag->set_name("t-style");
        if ($cls ne "") {
           $tag->set_att("class",$cls);
@@ -369,6 +392,7 @@ sub processHi {
 sub processName {
    my ($twig,$tag) = @_;
    if ($tag->parent->name eq "div") {
+      $hasparagraphs++;
       $tag->set_name("p");
       my $text = $tag->text;
       $tag->set_text("");
@@ -384,6 +408,7 @@ sub processHead {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
    my $parent = $tag->parent;
+   $hasheads++;
    $tag->set_name('head');
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
@@ -392,6 +417,7 @@ sub processHead {
       $tag->set_text("");
       $newElement->paste("last_child" => $tag);
       if ($parent->name =~ /^(lg|list|table)$/) {
+         $hasparagraphs++;
          $tag->set_name('p');
          &moveToGrandParent($twig,$tag,"before");
       }
@@ -410,12 +436,14 @@ sub processL {
       }
       if ($tag->parent->name ne "lg" and $tag->parent->name ne "sp") {
         #this is for corner cases where l was not part of an lg  (ugly patch by proycon to prevent invalid FoLiA creation)
+        $hasparts++;
         $tag->set_name("part");
         my $t = new XML::Twig::Elt('t',normspaces($tag->text));
         $t->set_text($tag->text);
         $tag->set_text("");
         $t->paste("last_child" => $tag);
       } else {
+        $hasstrings++;
         $tag->set_name('t-str');
         $tag->set_text(normspaces($tag->text));
         my $linebreak = new XML::Twig::Elt('br');
@@ -460,6 +488,7 @@ sub processItem {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
    # $tag->set_name('p');
+   $haslists++;
    my $content = $tag->text;
    $content =~ s/&nbsp;/ /g;
    $content =~ s/^\s+//g;
@@ -483,10 +512,11 @@ sub processFigure {
    # $tag->del_att('rend');
    if ($tag->text =~ /^\s*$/) { $tag->cut; }
    else {
+      $hasparagraphs++;
       $tag->set_name('p');
       $tag->set_text(normspaces($tag->text));
       &processStructure($twig,$tag);
-      &addT($twig,$tag);
+      addT($twig,$tag);
    }
 }
 
@@ -496,6 +526,7 @@ sub processQ {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
+   $hasparagraphs++;
    $tag->set_name('p');
    $tag->set_att("class","quote");
    &processStructure($twig,$tag);
@@ -545,6 +576,7 @@ sub processSp {
       $tag->set_att('actor',"UNKNOWN");
    } else {
       my $speakerTag = $tag->first_child("speaker");
+      $hasparaevents++;
       $speakerTag->set_name('event');;
       $speakerTag->set_att("class","stage"); # remove internal tags
       my $speakerText = $speakerTag->text;
@@ -560,6 +592,7 @@ sub processSp {
             die "$command: error: duplicate speaker found in file $file\n";
          }
 
+         my $speakerturnParagraphTag = new XML::Twig::Elt("p","");
          my $speakerturnTextTag = new XML::Twig::Elt("t","");
 
          my @children = $tag->children;
@@ -570,13 +603,23 @@ sub processSp {
                 $c->paste("last_child" => $speakerturnTextTag);
                 $textmarkupfound = 1;
             } else {
+                if ($textmarkupfound == 1) {
+                    $hasparagraphs++;
+                    $speakerturnTextTag->paste(before => $speakerTurnParagraphTag);
+                    $speakerturnParagraphTag->paste(last_child => $tag);
+                    $textmarkupfound = 0;
+                    $speakerturnParagraphTag = new XML::Twig::Elt("p","");
+                    $speakerturnTextTag = new XML::Twig::Elt("t","");
+                }
                 $c->paste("last_child" => $tag); #re-add child
             }
          }
-
          if ($textmarkupfound == 1) {
-            $speakerturnTextTag->paste(last_child => $tag);
+            $hasparagraphs++;
+            $speakerturnTextTag->paste(before => $speakerTurnParagraphTag);
+            $speakerturnParagraphTag->paste(last_child => $tag);
          }
+
          $speakerTag->paste(before => $tag);
       }
    }
@@ -597,6 +640,15 @@ sub processSp {
 sub processStructure {
    my ($twig,$tag) = @_;
    my $atts = $tag->atts;
+   if ($tag->name eq "p") {
+     $hasparagraphs++;
+   } elsif ($tag->name eq "div") {
+     $hasdivisions++;
+   } elsif ($tag->name eq "list") {
+     $haslists++;
+   } elsif ($tag->name eq "row" or $tag->name eq "table") {
+     $hastables++;
+   }
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
@@ -650,6 +702,7 @@ sub processTune {
    foreach my $att (keys %{$atts}) {
       if ($att ne "xml:id" and $att ne "class") { $tag->del_att($att); }
    }
+   $hasparagraphs++;
    $tag->set_name("p");
    my $newT = new XML::Twig::Elt("t",normspaces($tag->text));
    $tag->set_text("");
