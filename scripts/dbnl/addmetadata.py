@@ -59,6 +59,7 @@ def addsubmetadata_ozt(doc, oztfile, metadatadir):
                 div.id = ozt_id  + ".text"
                 div.metadata = ozt_id  + ".metadata"
                 doc.submetadata[ozt_id + ".metadata"] = folia.NativeMetaData()
+                doc.submetadatatype[ozt_id+".metadata"] = "native"
                 metadatafile = os.path.join(metadatadir, ozt_id + '.json')
                 if os.path.exists(metadatafile):
                     with open(metadatafile,'r') as f:
