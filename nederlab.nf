@@ -120,7 +120,7 @@ if (params.tei) {
 
     if (params.metadatadir != "") {
         process addmetadata {
-            if (params.mode == "convert" && params.metadatadir == "") {
+            if (params.mode == "convert" && params.metadatadir != "") {
                 publishDir params.outputdir, mode: 'copy', overwrite: true
             }
 
