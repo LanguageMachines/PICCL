@@ -49,26 +49,26 @@ def addsubmetadata_ozt(doc, oztfile, metadatadir):
     #verify
     found = 0
     # "divs of type chapter with descendant head of type h3 will be put in a separate documents (ozt: onzelfstandige titels)" (ETKS)
-    for div in doc.select(folia.Division, "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/tei2folia/divisions.foliaset.ttl"):
-        if div.cls == "chapter":
-            if any( head.cls == "h3" for head in div.select(folia.Head, False)):
-                found += 1
-                seq_id = str(found).zfill(4)
-                ozt_id = doc.id + "_" + seq_id
-                print("Processing ",ozt_id,file=sys.stderr)
-                div.id = ozt_id  + ".text"
-                div.metadata = ozt_id  + ".metadata"
-                doc.submetadata[ozt_id + ".metadata"] = folia.NativeMetaData()
-                doc.submetadatatype[ozt_id+".metadata"] = "native"
-                metadatafile = os.path.join(metadatadir, ozt_id + '.json')
-                if os.path.exists(metadatafile):
-                    with open(metadatafile,'r') as f:
-                        data = json.load(f)
-                    for key, value in sorted(data.items()):
-                        doc.submetadata[ozt_id + ".metadata"][key] = value
-                    print("Added submetadata from JSON file for " + ozt_id,file=sys.stderr)
-                else:
-                    print("No submetadata for " + ozt_id,file=sys.stderr)
+    for head in doc.select(folia.Head, False ):
+        if head.cls == "h3":
+            div = head.ancestor(folia.Division)
+            found += 1
+            seq_id = str(found).zfill(4)
+            ozt_id = doc.id + "_" + seq_id
+            print("Processing ",ozt_id,file=sys.stderr)
+            div.id = ozt_id  + ".text"
+            div.metadata = ozt_id  + ".metadata"
+            doc.submetadata[ozt_id + ".metadata"] = folia.NativeMetaData()
+            doc.submetadatatype[ozt_id+".metadata"] = "native"
+            metadatafile = os.path.join(metadatadir, ozt_id + '.json')
+            if os.path.exists(metadatafile):
+                with open(metadatafile,'r') as f:
+                    data = json.load(f)
+                for key, value in sorted(data.items()):
+                    doc.submetadata[ozt_id + ".metadata"][key] = value
+                print("Added submetadata from JSON file for " + ozt_id,file=sys.stderr)
+            else:
+                print("No submetadata for " + ozt_id,file=sys.stderr)
 
     if found != expected:
         print("WARNING: Found " + str(found) + " OZT chapters for " + doc.id + ", expected " + str(expected) ,file=sys.stderr)
