@@ -78,6 +78,6 @@ if __name__ == '__main__':
     parser.add_argument('-d','--metadatadir', type=str,help="Collect JSON metadata files from this directory (with a similar basename as the input document)", action='store',default=".",required=False)
     parser.add_argument('-o','--output', type=str,help="Output file (defaults to stdout)", action='store',default="-",required=False)
     parser.add_argument('--oztfile', type=str,help="Input file containing 'Onzelfstandige Titels'", action='store',default=None,required=False)
-    parser.add_argument('file', nargs=1, help='input document')
+    parser.add_argument('files', nargs=1, help='input document')
     args = parser.parse_args()
-    process(args.file, args.output, args.metadatadir,args.oztfile)
+    process(args.files[0], args.output, args.metadatadir,args.oztfile)
