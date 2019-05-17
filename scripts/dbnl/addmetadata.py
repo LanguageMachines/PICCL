@@ -21,7 +21,7 @@ def process(inputfile, outputfile, metadatadir,oztfile):
             data = json.load(f)
         for key, value in sorted(data.items()):
             doc.metadata[key] = value
-        print("Added metadata from JSON file for " + id,file=sys.stderr)
+        print("Added metadata from JSON file for " + docid,file=sys.stderr)
 
     if oztfile:
         addsubmetadata_ozt(doc, oztfile, metadatadir)
