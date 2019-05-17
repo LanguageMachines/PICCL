@@ -43,6 +43,9 @@ def addsubmetadata_ozt(doc, oztfile, metadatadir):
                 if fields[0] == doc.id:
                     expected = int(fields[1])
                     break
+    if expected == 0:
+        return False
+
     #verify
     found = 0
     if found:
