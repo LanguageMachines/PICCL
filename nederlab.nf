@@ -25,7 +25,7 @@ params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, 
 params.metadatadir = ""
 params.mode = "simple"
 params.uselangid = false
-params.dbnl = false
+params.tei = false
 params.tok = false
 params.workers = 1
 params.frogconfig = ""
@@ -37,14 +37,14 @@ if (params.containsKey('help') || !params.containsKey('inputdir') ) {
     log.info "  nederlab.nf [OPTIONS]"
     log.info ""
     log.info "Mandatory parameters:"
-    log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents or DBNL TEI documents if --dbnl is set)"
+    log.info "  --inputdir DIRECTORY     Input directory (FoLiA documents or TEI documents if --tei is set)"
     log.info ""
     log.info "Optional parameters:"
-    log.info "  --mode [modernize|simple|both|convert]  Add modernisation layer, process original content immediately (simple), do both? Or convert to FoLiA only (used with --dbnl)? Default: simple"
+    log.info "  --mode [modernize|simple|both|convert]  Add modernisation layer, process original content immediately (simple), do both? Or convert to FoLiA only (used with --tei)? Default: simple"
     log.info "  --dictionary FILE        Modernisation dictionary (required for modernize mode)"
     log.info "  --inthistlexicon FILE    INT Historical Lexicon dump file (required for modernize mode)"
     log.info "  --workers NUMBER         The number of workers (e.g. frogs) to run in parallel; input will be divided into this many batches"
-    log.info "  --dbnl                   Input DBNL TEI XML instead of FoLiA (adds a conversion step)"
+    log.info "  --tei                    Input TEI XML instead of FoLiA (adds a conversion step), this https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-encodingc.html"
     log.info "  --tok                    FoLiA Input is not tokenised yet, do so (adds a tokenisation step)"
     log.info "  --recursive              Process input directory recursively (make sure it's not also your current working directory or weird recursion may ensue)"
     log.info "  --inthistlexicon FILE    INT historical lexicon"
@@ -86,27 +86,10 @@ try {
     exit 2
 }
 
-if (params.dbnl) {
+if (params.tei) {
     teidocuments = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
 
     oztfile = Channel.fromPath(params.oztids)
-
-    process teiAddIds {
-        //Add ID attribute to TEI file
-
-        input:
-        each file(teidocument) from teidocuments
-        file oztfile
-
-        output:
-        file "*.xml" into tei_id_documents mode flatten //input file should be excluded by nextflow already, output may be one simplename.ids.xml doc or multiple in case of a split
-
-        script:
-        """
-        rm *.folia.ids.xml >/dev/null 2>/dev/null || true  #remove existing output
-        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/teiAddIds.pl "${teidocument}" "${oztfile}"
-        """
-    }
 
     process tei2folia {
         //Extract text from TEI documents and convert to FoLiA
@@ -116,7 +99,7 @@ if (params.dbnl) {
         }
 
         input:
-        file teidocument from tei_id_documents
+        file teidocument from teidocuments
         val virtualenv from params.virtualenv
 
         output:
@@ -131,16 +114,7 @@ if (params.dbnl) {
         fi
         set -u
 
-        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/teiExtractText.pl "${teidocument}" > tmp.xml
-
-        #Delete any empty paragraphs (invalid FoLiA)
-        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/frogDeleteEmptyPs.pl tmp.xml > tmp2.xml
-
-        #the generated FoLiA may not be valid due to multiple heads in a single section, eriktks post-corrected this with the following script:
-        ${LM_PREFIX}/opt/PICCL/scripts/dbnl/frogHideHeads.pl tmp2.xml NODECODE > tmp3.xml
-
-        #validate the FoLiA and use the autodeclare method to automatically add missing declarations
-        foliavalidator --autodeclare --output tmp3.xml > "${teidocument.simpleName}.folia.xml"
+        tei2folia "${teidocument}"
         """
     }
 
@@ -154,6 +128,7 @@ if (params.dbnl) {
             file inputdocument from foliadocuments
             val virtualenv from params.virtualenv
             val metadatadir from params.metadatadir
+            file oztfile
 
             output:
             file "${inputdocument.simpleName}.withmetadata.folia.xml" into foliadocuments_untokenized
@@ -166,7 +141,7 @@ if (params.dbnl) {
             fi
             set -u
 
-            python ${LM_PREFIX}/opt/PICCL/scripts/dbnl/addmetadata.py ${inputdocument} ${inputdocument.simpleName}.withmetadata.folia.xml ${metadatadir}
+            python ${LM_PREFIX}/opt/PICCL/scripts/dbnl/addmetadata.py --oztfile ${oztfile} -d ${metadatadir} -o ${inputdocument.simpleName}.withmetadata.folia.xml ${inputdocument}
             """
         }
     } else {
@@ -187,7 +162,7 @@ if (params.dbnl) {
 
 if ((params.tok) && (params.mode != "convert")) {
     //documents need to be tokenised
-    if (!params.dbnl) {
+    if (!params.tei) {
         foliadocuments_untokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
         foliadocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
     }
