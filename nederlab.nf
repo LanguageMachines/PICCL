@@ -125,7 +125,7 @@ if (params.tei) {
             }
 
             input:
-            file inputdocument from foliadocuments
+            each file(inputdocument) from foliadocuments
             val virtualenv from params.virtualenv
             val metadatadir from params.metadatadir
             file oztfile
@@ -150,6 +150,7 @@ if (params.tei) {
 
     if (params.mode == "convert") {
         // we only did conversion so we're all done
+        foliadocuments_untokenized.subscribe { println it }
         return
     }
 
