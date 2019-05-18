@@ -114,7 +114,7 @@ if (params.tei) {
         fi
         set -u
 
-        tei2folia --dtddir /tmp "${teidocument}"
+        tei2folia --traceback --dtddir /tmp "${teidocument}"
         """
     }
 
