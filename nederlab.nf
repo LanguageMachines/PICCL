@@ -207,8 +207,6 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         //Linguistic enrichment on the original text of the document (pre-modernization)
         //Receives multiple input files in batches
 
-        cpus params.workers
-
         if ((params.entitylinking == "") && (params.mode == "simple")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
@@ -299,8 +297,6 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         if ((params.entitylinking == "") && (params.mode == "modernize")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
-
-        cpus params.workers
 
         input:
         file inputdocuments from foliadocuments_modernized
