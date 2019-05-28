@@ -27,7 +27,7 @@ params.mode = "simple"
 params.uselangid = false
 params.tei = false
 params.tok = false
-params.workers = 1
+params.workers = Runtime.runtime.availableProcessors()
 params.frogconfig = ""
 params.recursive = false
 
@@ -245,7 +245,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         mv *.folia.xml input/
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --threads 1 --nostdout --testdir input/ -x
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical --xmldir "." --nostdout --testdir input/ -x
 
         #set proper output extension
         mmv "*.folia.xml" "#1.frogoriginal.folia.xml"
@@ -264,10 +264,10 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         .set { foliadocuments_batches_withdata }
 
     process modernize {
-        //translate the document to contemporary dutch for PoS tagging AND run Frog on it
+        //translate the document to contemporary dutch for PoS tagging
         //adds an extra <t class="contemporary"> layer
 
-        cpus Runtime.runtime.availableProcessors()
+        cpus Math.ceil(foliadocuments_counter.count().val / params.workers).toInteger()
 
         input:
         set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
@@ -333,7 +333,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         fi
 
         #output will be in cwd
-        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --threads=1 --textclass contemporary --nostdout --testdir in/ --retry
+        frog \$opts --override tokenizer.rulesFile=tokconfig-nld-historical -x --xmldir "out/" --textclass contemporary --nostdout --testdir in/ --retry
 
 
         #set proper output extension

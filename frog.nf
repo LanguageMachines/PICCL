@@ -18,7 +18,7 @@ params.outputdir = "frog_output"
 params.sentenceperline = false
 params.inputclass = "current"
 params.outputclass = "current"
-params.workers = 1
+params.workers = Runtime.runtime.availableProcessors()
 params.skip = ""
 
 if (params.containsKey('help') || !params.containsKey('inputdir')) {
@@ -60,8 +60,6 @@ if (params.inputformat == "folia") {
     process frog_folia2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
 
-        cpus params.workers
-
         input:
         file foliadocuments from foliainput_batched
 		val skip from params.skip
@@ -91,7 +89,7 @@ if (params.inputformat == "folia") {
 
         #output will be in output/
         mkdir output
-        frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/ -x
+        frog \$opts --inputclass "${inputclass}" --outputclass "${outputclass}" --xmldir "output" --nostdout --testdir input/ -x
         cd output
         for f in *.xml; do
             if [[ \${f%.folia.xml} == \$f ]]; then
@@ -114,8 +112,6 @@ if (params.inputformat == "folia") {
 
     process frog_text2folia {
         publishDir params.outputdir, pattern: "*.xml", mode: 'copy', overwrite: true
-
-        cpus params.workers
 
         input:
         file foliadocuments from textinput_batched
@@ -150,7 +146,7 @@ if (params.inputformat == "folia") {
 
         #output will be in cwd
         mkdir output
-        frog \$opts --outputclass "${outputclass}" --xmldir "output" --threads 1 --nostdout --testdir input/
+        frog \$opts --outputclass "${outputclass}" --xmldir "output" --nostdout --testdir input/
         cd output
         for f in *.xml; do
             if [[ \${f%.folia.xml} == \$f ]]; then
