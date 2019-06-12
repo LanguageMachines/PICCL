@@ -20,10 +20,11 @@ params.skip = "mcpa"
 params.oztids = "data/dbnl_ozt_ids.txt"
 params.preservation = "/dev/null"
 params.rules = "/dev/null"
-params.entitylinking = ""; //Methods correspond to FoliaEntity.exe -m option, if empty, entity linking is disabled
-params.entitylinkeroptions = ""; //Extra options for entity linker (such as -u, include the actual option flags in string"
+params.wikiente = false
+params.spotlight = "http://127.0.0.1:2222/rest/"
 params.metadatadir = ""
 params.mode = "simple"
+params.dolangid = false
 params.uselangid = false
 params.tei = false
 params.tok = false
@@ -57,10 +58,11 @@ if (params.containsKey('help') || !params.containsKey('inputdir') ) {
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
     log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
+    log.info "  --dolangid               Do language identification"
     log.info "  --uselangid              Take language identification into account (does not perform identification but takes already present identification into account!)"
+    log.info "  --wikiente               Run WikiEnte for Name Entity Recognition and entity linking"
+    log.info "  --spotlight URL          URL to spotlight server (should end in rest/, defaults to http://127.0.0.1:2222/rest"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine, autodetected if enabled)"
-    log.info "  --entitylinking METHODS  Do entity linking according to specified methods (see -m option of FoliaEntity) (DISABLED BY DEFAULT!)"
-    log.info "  --entitylinkeroptions X  Extra options to pass to entity linker"
     exit 2
 }
 
@@ -207,7 +209,7 @@ if ((params.mode == "both") || (params.mode == "simple")) {
         //Linguistic enrichment on the original text of the document (pre-modernization)
         //Receives multiple input files in batches
 
-        if ((params.entitylinking == "") && (params.mode == "simple")) {
+        if ((!params.wikiente) && (params.mode == "simple")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
 
@@ -294,7 +296,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
     }
 
     process frog_modernized {
-        if ((params.entitylinking == "") && (params.mode == "modernize")) {
+        if ((!params.wikiente) && (params.mode == "modernize")) {
             publishDir params.outputdir, mode: 'copy', overwrite: true
         }
 
@@ -402,8 +404,8 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
 
 }
 
-if (params.entitylinking != "") {
-    process entitylinker {
+if (params.wikiente) {
+    process wikiente {
         publishDir params.outputdir, mode: 'copy', overwrite: true
 
         input:
@@ -421,21 +423,10 @@ if (params.entitylinking != "") {
         set +u
         if [ ! -z "${virtualenv}" ]; then
             source ${virtualenv}/bin/activate
-            rootpath=${virtualenv}
-        else
-            rootpath=/opt
         fi
         set -u
 
-        if [ ! -z "${extraoptions}" ]; then
-            extraoptions="-u ${extraoptions}"
-        else
-            extraoptions=""
-        fi
-
-        mkdir out
-        \$rootpath/foliaentity/FoliaEntity.exe -w -a "foliaentity" -m ${methods} \$extraoptions -i "${document}" -o out/
-        zcat out/\$(basename "${document}").gz > "${document.simpleName}.linked.folia.xml"
+        wikiente -c 0.75 -o "${document.simpleName}.linked.folia.xml" "${document}"
         """
     }
 
