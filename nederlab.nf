@@ -198,8 +198,36 @@ if ((params.tok) && (params.mode != "convert")) {
 }
 
 
+if (dolangid) {
+    process langid {
+        input:
+        file foliadocuments from foliadocuments_tokenized
+        val virtualenv from params.virtualenv
+
+        output:
+        file "${inputdocument.simpleName}.langid.folia.xml" into foliadocuments_tokenized
+
+        script:
+        """
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
+
+        if [[ "${inputdocument}" != "${inputdocument.simpleName}.langid.folia.xml" ]]; then
+            folialangid -n -l nld,eng,deu,lat,fra,spa,ita,por,rus,tur,fas,ara "${inputdocument}" > "${inputdocument.simpleName}.langid.folia.xml"
+        else
+            exit 0
+        fi
+        """
+    }
+} else {
+    foliadocuments_tokenized.into(foliadocuments_postlangid)
+}
+
 //split the tokenized documents into batches, fork into two channels
-foliadocuments_tokenized
+foliadocuments_postlangid
     .buffer( size: Math.ceil(foliadocuments_counter.count().val / params.workers).toInteger(), remainder: true)
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
@@ -411,8 +439,7 @@ if (params.wikiente) {
         input:
         file document from foliadocuments_merged
         val virtualenv from params.virtualenv
-        val methods from params.entitylinking
-        val extraoptions from params.entitylinkeroptions
+        val spotlightserver from params.spotlight
 
         output:
         file "${document.simpleName}.linked.folia.xml" into entitylinker_output
@@ -426,7 +453,7 @@ if (params.wikiente) {
         fi
         set -u
 
-        wikiente -c 0.75 -o "${document.simpleName}.linked.folia.xml" "${document}"
+        wikiente -s "${spotlightserver}" -c 0.75 -o "${document.simpleName}.linked.folia.xml" "${document}"
         """
     }
 
