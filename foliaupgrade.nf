@@ -44,7 +44,7 @@ process foliaupgrade {
 
     output:
     file "*.foliaupgrade" into upgraderesults
-    file "output/${doc.simpleName}.folia.xml" into outputdocuments
+    file "${doc.simpleName}.folia.xml" into outputdocuments
 
     script:
     """
