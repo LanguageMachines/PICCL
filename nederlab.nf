@@ -198,7 +198,7 @@ if ((params.tok) && (params.mode != "convert")) {
 }
 
 
-if (dolangid) {
+if (params.dolangid) {
     process langid {
         input:
         file foliadocuments from foliadocuments_tokenized
