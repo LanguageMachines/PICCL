@@ -58,8 +58,10 @@ process foliaupgrade {
     foliaupgrade -n "${doc}" > output/${doc.simpleName}.folia.xml 2>> "${doc}.foliaupgrade"
     if [ \$? -eq 0 ]; then
         echo \$(readlink "${doc}")"\tOK" >> "${doc}.foliaupgrade"
+        exit 0
     else
         echo \$(readlink "${doc}")"\tFAILED" >> "${doc}.foliaupgrade"
+        exit 1
     fi
     """
 }
