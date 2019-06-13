@@ -42,7 +42,7 @@ process foliaupgrade {
 
     output:
     file "*.foliaupgrade" into upgraderesults
-    file "output/${doc.simpleName}.folia.xml" into upgraderesults
+    file "output/${doc.simpleName}.folia.xml" into outputdocuments
 
     script:
     """
@@ -103,3 +103,5 @@ report
 summary
     .collectFile(name: params.outsummary)
     .println { it.text }
+
+outputdocuments.subscribe { "Upgraded " + it.name }
