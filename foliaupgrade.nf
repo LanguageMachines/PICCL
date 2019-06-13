@@ -56,8 +56,9 @@ process foliaupgrade {
     date=\$(date +"%Y-%m-%d %H:%M:%S")
     echo "--------------- \$date ---------------" > "${doc}.foliaupgrade"
     echo "md5 checksum: "\$(md5sum ${doc}) >> "${doc}.foliaupgrade"
-    mkdir output
-    foliaupgrade -n "${doc}" > output/${doc.simpleName}.folia.xml 2>> "${doc}.foliaupgrade"
+    mkdir input
+    mv ${doc} input/
+    foliaupgrade -n "input/${doc}" > ${doc.simpleName}.folia.xml 2>> "${doc}.foliaupgrade"
     if [ \$? -eq 0 ]; then
         echo \$(readlink "${doc}")"\tOK" >> "${doc}.foliaupgrade"
         exit 0
