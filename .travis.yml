@@ -14,6 +14,8 @@ matrix:
           language: generic
           env:
             - CONF_NAME=devlm FLAVOUR=local VERSION=development LOCALENV_TYPE=virtualenv
+    allow_failures:
+        - env: CONF_NAME=devlm
 
 notifications:
   irc:
