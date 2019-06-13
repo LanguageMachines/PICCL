@@ -34,7 +34,7 @@ report = Channel.create()
 summary = Channel.create()
 
 process foliaupgrade {
-    validExitStatus 0,1
+    //validExitStatus 0,1
 
     input:
     file doc from documents
