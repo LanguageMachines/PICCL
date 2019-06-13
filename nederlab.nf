@@ -88,6 +88,8 @@ try {
     exit 2
 }
 
+inputdocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
+
 if (params.tei) {
     teidocuments = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
 
@@ -106,7 +108,6 @@ if (params.tei) {
 
         output:
         file "${teidocument.simpleName}.folia.xml" into foliadocuments
-        file "${teidocument.simpleName}.folia.xml" into foliadocuments_counter
 
         script:
         """
@@ -157,17 +158,14 @@ if (params.tei) {
     }
 
     //foliadocuments_tokenized.subscribe { println it }
-} else if (!params.tok) {
-    //folia documents given as input are already tokenised
-    foliadocuments_tokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
-    foliadocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
+} else {
+    foliadocuments_untokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
 }
 
 if ((params.tok) && (params.mode != "convert")) {
     //documents need to be tokenised
     if (!params.tei) {
         foliadocuments_untokenized = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
-        foliadocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + ".folia.xml")
     }
     process tokenize_ucto {
         //tokenize the text
@@ -195,6 +193,8 @@ if ((params.tok) && (params.mode != "convert")) {
         fi
         """
     }
+} else {
+    foliadocuments_untokenized.set { foliadocuments_tokenize }
 }
 
 
@@ -226,9 +226,10 @@ if (params.dolangid) {
     foliadocuments_tokenized.set { foliadocuments_postlangid }
 }
 
+
 //split the tokenized documents into batches, fork into two channels
 foliadocuments_postlangid
-    .buffer( size: Math.ceil(foliadocuments_counter.count().val / params.workers).toInteger(), remainder: true)
+    .buffer( size: Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger(), remainder: true)
     .into { foliadocuments_batches_tokenized1; foliadocuments_batches_tokenized2 }
 
 if ((params.mode == "both") || (params.mode == "simple")) {
@@ -297,7 +298,7 @@ if ((params.mode == "both") || (params.mode == "modernize")) {
         //translate the document to contemporary dutch for PoS tagging
         //adds an extra <t class="contemporary"> layer
 
-        cpus Math.ceil(foliadocuments_counter.count().val / params.workers).toInteger()
+        cpus Math.ceil(inputdocuments_counter.count().val / params.workers).toInteger()
 
         input:
         set file(inputdocuments), file(dictionary), file(preservationlexicon), file(rulefile), file(inthistlexicon) from foliadocuments_batches_withdata
