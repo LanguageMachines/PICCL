@@ -201,7 +201,7 @@ if ((params.tok) && (params.mode != "convert")) {
 if (params.dolangid) {
     process langid {
         input:
-        file foliadocuments from foliadocuments_tokenized
+        file inputdocument from foliadocuments_tokenized
         val virtualenv from params.virtualenv
 
         output:
@@ -223,7 +223,7 @@ if (params.dolangid) {
         """
     }
 } else {
-    foliadocuments_tokenized.into(foliadocuments_postlangid)
+    foliadocuments_tokenized.set { foliadocuments_postlangid }
 }
 
 //split the tokenized documents into batches, fork into two channels
