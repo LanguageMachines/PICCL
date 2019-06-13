@@ -36,6 +36,8 @@ summary = Channel.create()
 process foliaupgrade {
     //validExitStatus 0,1
 
+    publishDir params.outputdir, mode: 'copy', overwrite: true, pattern: "*.folia.xml"
+
     input:
     file doc from documents
     val virtualenv from params.virtualenv
@@ -106,4 +108,3 @@ summary
     .collectFile(name: params.outsummary)
     .println { it.text }
 
-outputdocuments.subscribe { "Upgraded " + it.name }
