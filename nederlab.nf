@@ -205,7 +205,7 @@ if (params.dolangid) {
         val virtualenv from params.virtualenv
 
         output:
-        file "${inputdocument.simpleName}.langid.folia.xml" into foliadocuments_tokenized
+        file "${inputdocument.simpleName}.langid.folia.xml" into foliadocuments_postlangid
 
         script:
         """
