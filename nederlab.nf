@@ -57,7 +57,7 @@ if (params.containsKey('help') || !params.containsKey('inputdir') ) {
     log.info "  --frogconfig FILE        Path to frog.cfg (or using the default if not set)"
     log.info "  --oztids FILE            List of IDs for DBNL onzelfstandige titels (default: data/dbnl_ozt_ids.txt)"
     log.info "  --extension STR          Extension of TEI documents in input directory (default: xml)"
-    log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)"
+    log.info "  --skip=[mptncla]         Skip Tokenizer (t), Lemmatizer (l), Morphological Analyzer (a), Chunker (c), Multi-Word Units (m), Named Entity Recognition (n), or Parser (p)  (default: mcpa)"
     log.info "  --dolangid               Do language identification"
     log.info "  --uselangid              Take language identification into account (does not perform identification but takes already present identification into account!)"
     log.info "  --wikiente               Run WikiEnte for Name Entity Recognition and entity linking"
@@ -87,6 +87,10 @@ try {
     log.error "Requires Nextflow >= 0.25, your version is too old"
     exit 2
 }
+
+println "Reading documents from " + params.inputdir + "/" + inputpattern + "." + params.extension
+inputdocuments_test = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
+println "Found " + inputdocuments_test.count().val + " input documents"
 
 inputdocuments_counter = Channel.fromPath(params.inputdir+"/" + inputpattern + "." + params.extension)
 
