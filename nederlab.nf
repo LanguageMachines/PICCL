@@ -194,7 +194,7 @@ if ((params.tok) && (params.mode != "convert")) {
         """
     }
 } else {
-    foliadocuments_untokenized.set { foliadocuments_tokenize }
+    foliadocuments_untokenized.set { foliadocuments_tokenized }
 }
 
 
