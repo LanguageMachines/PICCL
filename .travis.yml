@@ -15,7 +15,7 @@ matrix:
           env:
             - CONF_NAME=devlm FLAVOUR=local VERSION=development LOCALENV_TYPE=virtualenv
     allow_failures:
-        - env: CONF_NAME=devlm
+        - env: CONF_NAME=devlm FLAVOUR=local VERSION=development LOCALENV_TYPE=virtualenv
 
 notifications:
   irc:
