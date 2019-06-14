@@ -42,8 +42,8 @@ if len(sys.argv) >= 7:
     run_piccl = sys.argv[6]
     if run_piccl[-1] != '/': run_piccl += "/"
     print("Running PICCL from " + run_piccl,file=sys.stderr)
-    run_antilope = os.path.join(os.path.basename(run_piccl[:-1]),"aNtiLoPe") + "/"
-    print("Running aNtiLoPe from " + run_piccl,file=sys.stderr)
+    run_antilope = os.path.join(os.path.dirname(run_piccl[:-1]),"aNtiLoPe") + "/"
+    print("Running aNtiLoPe from " + run_antilope,file=sys.stderr)
 else:
     #use the piccl nextflow downloads (this is not very well supported/tested currently!)
     run_piccl = "nextflow run LanguageMachines/PICCL/"
