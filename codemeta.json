@@ -11,7 +11,7 @@
     "identifier": "piccl",
     "name": "PICCL",
     "version": "0.8.0",
-    "description": "A set of workflows for corpus building through OCR, post-correction, modernization of historic language and Natural Language Processing",
+    "description": "A set of workflows for corpus building through OCR, post-correction, and normalisation.",
     "license": "https://spdx.org/licenses/GPL-3.0",
 	"url": "https://github.com/LanguageMachines/PICCL",
     "producer": {
@@ -101,6 +101,11 @@
 		},
         {
 			"@type": "SoftwareApplication",
+			"identifier": "antilope",
+			"name": "aNtiLoPe"
+		},
+        {
+			"@type": "SoftwareApplication",
 			"identifier": "tesseract",
 			"name": "Tesseract OCR"
 		}
@@ -114,11 +119,6 @@
 			"@type": "Organization",
 			"name": "CLARIAH",
 			"url": "https://www.clariah.nl"
-		},
-		{
-			"@type": "Organization",
-			"name": "Nederlab",
-			"url": "http://www.nederlab.nl"
 		}
 	],
 	"readme": "https://github.com/LanguageMachines/PICCL/blob/master/README.md",
@@ -157,20 +157,6 @@
             "urlTemplate": "file:///ticcl.nf",
             "name": "TICCL",
             "description": "TICCL: Text-induced Corpus Cleanup (OCR post-correction and spelling normalisation pipeline)",
-            "interfaceType": "CLI"
-        },
-        {
-            "@type": "EntryPoint",
-            "urlTemplate": "file:///frog.nf",
-            "name": "Frog",
-            "description": "Dutch linguistic enrichment pipeline (Frog)",
-            "interfaceType": "CLI"
-        },
-        {
-            "@type": "EntryPoint",
-            "urlTemplate": "file:///nederlab.nf",
-            "name": "Nederlab",
-            "description": "Nederlab linguistic enrichment of historical texts pipeline",
             "interfaceType": "CLI"
         }
     ]
