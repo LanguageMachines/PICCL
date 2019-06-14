@@ -69,9 +69,6 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``ocr.nf``   - A pipeline for Optical Character Recognition using [Tesseract](https://github.com/tesseract-ocr/tesseract); takes PDF documents or images of scanned pages and produces [FoLiA](https://proycon.github.io/folia) documents.
  * ``ticcl.nf`` - The Text-induced Corpus Clean-up system: performs OCR-postcorrection, takes as input the result from
    ``ocr.nf``, or standalone text or PDF (text; no OCR), and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
- * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
- * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
- * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
 
 If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMAchine through docker, then
 you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl``. This applies to all examples in this section.

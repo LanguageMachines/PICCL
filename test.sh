@@ -111,19 +111,6 @@ fi
 
 ###################################################### TESTS ###########################################################
 
-if [[ "$TEST" == "toktxt" ]] || [[ "$TEST" == "all" ]]; then
-    echo -e "\n\n======== Testing tokenisation pipeline from plain text ========= ">&2
-    if [ -d tokenized_output ]; then rm -Rf tokenized_output; fi  #cleanup previous results if they're still lingering around
-    $PICCL/tokenize.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
-    checkfolia tokenized_output/magnetisme.tok.folia.xml
-fi
-
-if [[ "$TEST" == "frogtxt" ]] || [[ "$TEST" == "all" ]]; then
-    echo -e "\n\n========= Testing frog pipeline from plain text ========= ">&2
-    if [ -d frog_output ]; then rm -Rf frog_output; fi  #cleanup previous results if they're still lingering around
-    $PICCL/frog.nf --inputdir text_input --inputformat text --language nld $WITHDOCKER || exit 2
-    checkfolia frog_output/magnetisme.frogged.folia.xml
-fi
 
 if [[ "$TEST" == "ocrpdf-eng" ]] || [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing OCR (eng) with inputtype pdf ======">&2
