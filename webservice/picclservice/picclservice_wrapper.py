@@ -42,11 +42,13 @@ if len(sys.argv) >= 7:
     run_piccl = sys.argv[6]
     if run_piccl[-1] != '/': run_piccl += "/"
     print("Running PICCL from " + run_piccl,file=sys.stderr)
+    run_antilope = os.path.join(os.path.basename(run_piccl[:-1]),"aNtiLoPe") + "/"
+    print("Running aNtiLoPe from " + run_piccl,file=sys.stderr)
 else:
     #use the piccl nextflow downloads (this is not very well supported/tested currently!)
     run_piccl = "nextflow run LanguageMachines/PICCL/"
     print("Running PICCL mediated by Nextflow",file=sys.stderr)
-
+    run_antilope = "nextflow run proycon/aNtiLoPe/"
 
 print("Virtual Environment: ", os.environ.get('VIRTUAL_ENV', "(none)"), file=sys.stderr)
 print("System default encoding: ", sys.getdefaultencoding(), file=sys.stderr)
@@ -312,7 +314,7 @@ if frog_enabled:
     if not os.path.exists(frog_outputdir): os.mkdir(frog_outputdir)
     print("Running Frog...",file=sys.stderr)
     clam.common.status.write(statusfile, "Running Frog Pipeline (linguistic enrichment)",75) # status update
-    cmd = run_piccl + "frog.nf " + textclass_opts + " " + skip + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --inputformat " + enrichment_inputtype + " --extension " + extension + " --outputdir " + shellsafe(frog_outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"
+    cmd = run_antilope + "frog.nf " + textclass_opts + " " + skip + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --inputformat " + enrichment_inputtype + " --extension " + extension + " --outputdir " + shellsafe(frog_outputdir,'"') + " -with-trace >frog.nextflow.out.log 2>frog.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('frog')
@@ -325,7 +327,7 @@ elif clamdata.get('ucto') == 'yes':
     tok_outputdir = "tok_outputdir"
     if not os.path.exists(tok_outputdir): os.mkdir(tok_outputdir)
     clam.common.status.write(statusfile, "Running Tokeniser (ucto)",75) # status update
-    cmd = run_piccl + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat " + enrichment_inputtype + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --extension " + extension + " --outputdir " + shellsafe(tok_outputdir,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"
+    cmd = run_antilope + "tokenize.nf " + textclass_opts + " --language " + shellsafe(lang,'"') + " --inputformat " + enrichment_inputtype + " --inputdir " + shellsafe(enrichment_inputdir,'"') + " --extension " + extension + " --outputdir " + shellsafe(tok_outputdir,'"') + " -with-trace >ucto.nextflow.out.log 2>ucto.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('ucto')
