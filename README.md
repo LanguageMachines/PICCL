@@ -1,6 +1,5 @@
 [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/PICCL)](http://applejack.science.ru.nl/languagemachines/)
 [![Build Status](https://travis-ci.org/LanguageMachines/PICCL.svg?branch=master)](https://travis-ci.org/LanguageMachines/PICCL)
-[![Docker Pulls](https://img.shields.io/docker/pulls/proycon/lamachine.svg)](https://hub.docker.com/r/proycon/lamachine/)
 
 # PICCL: Philosophical Integrator of Computational and Corpus Libraries
 
