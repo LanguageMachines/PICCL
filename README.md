@@ -72,7 +72,6 @@ PICCL comes with the following workflows, most of them complement one or more ot
  * ``tokenize.nf`` - A tokenisation workflow using the [ucto](https://LanguageMachines.github.io/ucto) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces tokenised FoLiA documents.
  * ``frog.nf`` - An NLP workflow for Dutch using the [frog](https://LanguageMachines.github.io/frog) tokeniser; takes either plaintext or untokenised FoLiA documents (e.g. output from ticcl), and produces linguistically enriched FoLiA documents, takes care of tokenisation as well.
  * ``foliavalidator.nf`` - A simple validation workflow to validate FoLiA documents.
- * ``nederlab.nf`` - A pipeline for linguistic enrichment for the Nederlab project, handles FoLiA input as well as very specific support DBNL TEI XML. Does not use TICCL!
 
 If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMAchine through docker, then
 you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl``. This applies to all examples in this section.
