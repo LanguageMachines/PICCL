@@ -419,18 +419,22 @@ process foliacorrect {
     #some bookkeeping
     mkdir outputdir
 
-    find . -name '*.xml' -size 0 -print0 | xargs -0 rm
+
     FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
+
     cd outputdir
+    ls
 
     #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
     for f in *.xml; do
-        if [[ \${f%.ticcl.xml} != \$f ]]; then
-            newf="\${f%.ticcl.xml}.ticcl.folia.xml"
-        else
-            newf="\$f"
+        if [[ $f != "*.xml" ]]; then
+            if [[ \${f%.ticcl.xml} != \$f ]]; then
+                newf="\${f%.ticcl.xml}.ticcl.folia.xml"
+            else
+                newf="\$f"
+            fi
+            mv \$f ../\$newf
         fi
-        mv \$f ../\$newf
     done
     cd ..
     """
