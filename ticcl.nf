@@ -427,7 +427,7 @@ process foliacorrect {
 
     #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
     for f in *.xml; do
-        if [[ $f != "*.xml" ]]; then
+        if [[ \$f != "*.xml" ]]; then
             if [[ \${f%.ticcl.xml} != \$f ]]; then
                 newf="\${f%.ticcl.xml}.ticcl.folia.xml"
             else
