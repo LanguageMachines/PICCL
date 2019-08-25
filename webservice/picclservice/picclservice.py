@@ -48,7 +48,7 @@ SYSTEM_NAME = "PICCL"
 #An informative description for this system (this should be fairly short, about one paragraph, and may not contain HTML)
 SYSTEM_DESCRIPTION = "PICCL offers a workflow for corpus building and builds on a variety of tools. The primary component of PICCL is TICCL; a Text-induced Corpus Clean-up system, which performs spelling correction and OCR post-correction (normalisation of spelling variants etc)."
 
-SYSTEM_VERSION = "0.8.1" #also change in codemeta.json and setup.py
+SYSTEM_VERSION = "0.8.2" #also change in codemeta.json and setup.py
 
 SYSTEM_AUTHOR = "Martin Reynaert, Maarten van Gompel, Ko van der Sloot"
 
