@@ -1,6 +1,9 @@
 [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/PICCL)](http://applejack.science.ru.nl/languagemachines/)
 [![Build Status](https://travis-ci.org/LanguageMachines/PICCL.svg?branch=master)](https://travis-ci.org/LanguageMachines/PICCL)
 
+[![GitHub release](https://img.shields.io/github/release/LanguageMachines/PICCL.svg)](https://GitHub.com/LanguageMachines/PICCL/releases/)
+[![Project Status: Suspended – Initial development has started, but there has not yet been a stable, usable release; work has been stopped for the time being but the author(s) intend on resuming work.](https://www.repostatus.org/badges/latest/suspended.svg)](https://www.repostatus.org/#suspended)
+
 # PICCL: Philosophical Integrator of Computational and Corpus Libraries
 
 PICCL offers a workflow for corpus building and builds on a variety of tools.
