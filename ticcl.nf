@@ -288,7 +288,7 @@ process indexer {
     //NOTE: -o option is a prefix only, extension indexNT will be appended !!
 }
 
-//set up a new channel for the alphebet file for the resolved (the other one is consumed already)
+//set up a new channel for the alphabet file for the resolved (the other one is consumed already)
 alphabet_forresolver = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
 
 process resolver {
@@ -362,6 +362,7 @@ process chainer {
 
     input:
     file rankedlist from rankedlist
+    file alphabet from alphabet
     val virtualenv from params.virtualenv
     val clip from params.clip
 
@@ -378,7 +379,7 @@ process chainer {
     set -u
 
     if [ $clip -eq 1 ]; then
-        TICCL-chain --caseless ${rankedlist}
+        TICCL-chain --caseless ${rankedlist} --alph ${alphabet}
         mv ${rankedlist}.chained ${rankedlist}.chained.ranked #FoLiA-correct requires extension to be *.ranked so we add it
     else
         #we can only chain with clip 1, just copy the file unmodified if clip>1
@@ -442,4 +443,3 @@ process foliacorrect {
 
 //explicitly report the final documents created to stdout
 folia_ticcl_documents.subscribe { println "TICCL output document written to " +  params.outputdir + "/" + it.name }
-
