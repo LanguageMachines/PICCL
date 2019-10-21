@@ -355,6 +355,8 @@ process rank {
     """
 }
 
+alphabet_forchain = Channel.fromPath(params.alphabet)
+
 process chainer {
     /*
         Chain stuff? (@martinreynaert: update description to be more sensible?)
@@ -362,7 +364,7 @@ process chainer {
 
     input:
     file rankedlist from rankedlist
-    file alphabet from alphabet
+    file alphabet from alphabet_forchain
     val virtualenv from params.virtualenv
     val clip from params.clip
 
