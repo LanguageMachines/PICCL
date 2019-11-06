@@ -244,7 +244,7 @@ if clamdata.get('ticcl') == 'yes':
         ticcl_textclass_opts = "--inputclass " +  shellsafe(clamdata['inputtextclass'])
     else:
         ticcl_textclass_opts = "--inputclass \"current\""
-    cmd = run_piccl + "ticcl.nf --inputdir " + ticcl_inputdir + " " + ticcl_textclass_opts + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --clip " + shellsafe(clamdata['rank']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
+    cmd = run_piccl + "ticcl.nf --inputdir " + ticcl_inputdir + " " + ticcl_textclass_opts + " --inputtype " + ticcl_inputtype + " --outputdir " + shellsafe(ticcl_outputdir,'"') + " --lexicon lexicon.lst --alphabet alphabet.lst --charconfus confusion.lst --clip " + shellsafe(clamdata['rank']) + " --distance " + shellsafe(clamdata['distance']) + " --pdfhandling " + pdfhandling + " -with-trace >ticcl.nextflow.out.log 2>ticcl.nextflow.err.log"
     print("Command: " + cmd, file=sys.stderr)
     if os.system(cmd) != 0:
         fail('ticcl')
