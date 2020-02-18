@@ -67,7 +67,7 @@ next section. In addition, you can also download example corpora (>300MB), which
 
 ## Architecture
 
-PICCL consists of two workflows, one for optical character recognition using tesseract, and a TICCL workflow for
+PICCL consists of two workflows, one for optical character recognition using [tesseract](https://github.com/tesseract-ocr/tesseract), and a TICCL workflow for
 OCR-post-correction and normalisation. Third, PICCL provides a webservice that ties together both these workflows and
 also integrates two other workflows from [aNtiLoPe](https://github.com/proycon/antilope): a workflow for tokenisation (using [ucto](https://languagemachines.github.io/ucto)) and Dutch Linguistic Enrichment (using [frog](https://languagemachines.github.io/frog)).
 
