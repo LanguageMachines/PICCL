@@ -429,8 +429,8 @@ process chainer {
         ln -s ${rankedlist} ${rankedlist}.chained.ranked
     fi
 
-    if [ ! -s "${rankedlist}.chained.rank" ]; then
-        echo "ERROR: Expected output ${rankedlist}.chained.rank does not exist or is empty">&2
+    if [ ! -s "${rankedlist}.chained.ranked" ]; then
+        echo "ERROR: Expected output ${rankedlist}.chained.ranked does not exist or is empty">&2
         exit 6
     fi
     """
