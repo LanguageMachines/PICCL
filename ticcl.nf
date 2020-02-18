@@ -142,7 +142,12 @@ if ((params.inputtype == "text") || (params.inputtype == "pdf")) { //(pdf will h
         fi
         set -u
 
-        FoLiA-txt --class OCR -t 1 -O . "${textdocument}"
+        FoLiA-txt --class OCR -t 1 -O . "${textdocument}" || exit 1
+
+        if [ ! -s "${textdocument.baseName}.folia.xml" ]; then
+            echo "ERROR: Expected output ${textdocument.baseName}.folia.xml does not exist or is empty">&2
+            exit 6
+        fi
         """
 
     }
@@ -183,7 +188,12 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --ngram 1 -o corpus .
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --ngram 1 -o corpus . || exit 1
+
+        if [ ! -s "corpus.wordfreqlist.tsv" ]; then
+            echo "ERROR: Expected output corpus.wordfreqlist.tsv does not exist or is empty">&2
+            exit 6
+        fi
         """
     }
 }
@@ -215,7 +225,12 @@ process ticclunk {
     fi
     set -u
 
-    TICCL-unk --background "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}"
+    TICCL-unk --background "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}" || exit 1
+
+    if [ ! -s "${corpusfreqlist}.clean" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.clean does not exist or is empty">&2
+        exit 6
+    fi
     """
 }
 
@@ -249,7 +264,12 @@ process anahash {
     fi
     set -u
 
-    TICCL-anahash --alph "${alphabet}" --artifrq ${artifrq} "${corpusfreqlist}"
+    TICCL-anahash --alph "${alphabet}" --artifrq ${artifrq} "${corpusfreqlist}" || exit 1
+
+    if [ ! -s "${corpusfreqlist}.anahash" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.anahash does not exist or is empty">&2
+        exit 6
+    fi
     """
 }
 
@@ -283,7 +303,12 @@ process indexer {
     fi
     set -u
 
-    TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus}
+    TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus} || exit 1
+
+    if [ ! -s "${corpusfreqlist}.indexNT" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.indexNT does not exist or is empty">&2
+        exit 6
+    fi
     """
     //NOTE: -o option is a prefix only, extension indexNT will be appended !!
 }
@@ -317,7 +342,12 @@ process resolver {
     fi
     set -u
 
-	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus} --alph ${alphabet}
+	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus} --alph ${alphabet} || exit 1
+
+    if [ ! -s "${corpusfreqlist}.ldcalc" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.ldcalc does not exist or is empty">&2
+        exit 6
+    fi
     """
 }
 
@@ -351,7 +381,12 @@ process rank {
     fi
     set -u
 
-    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" --debugfile "${wordconfusionlist}.debug.ranked" --artifrq ${artifrq} --clip ${clip} --skipcols=10,11  -t ${task.cpus} "${wordconfusionlist}"
+    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" --debugfile "${wordconfusionlist}.debug.ranked" --artifrq ${artifrq} --clip ${clip} --skipcols=10,11  -t ${task.cpus} "${wordconfusionlist}" || exit 1
+
+    if [ ! -s "${wordconfusionlist}.ranked" ]; then
+        echo "ERROR: Expected output ${wordconfusionlist}.ranked does not exist or is empty">&2
+        exit 6
+    fi
     """
 }
 
@@ -381,12 +416,17 @@ process chainer {
     set -u
 
     if [ $clip -eq 1 ]; then
-        TICCL-chain --caseless ${rankedlist} --alph ${alphabet}
-        mv ${rankedlist}.chained ${rankedlist}.chained.ranked #FoLiA-correct requires extension to be *.ranked so we add it
+        TICCL-chain --caseless ${rankedlist} --alph ${alphabet} || exit 1
+        mv ${rankedlist}.chained ${rankedlist}.chained.ranked || exit 2 #FoLiA-correct requires extension to be *.ranked so we add it
     else
         #we can only chain with clip 1, just copy the file unmodified if clip>1
         echo "(skipping TICCL-chain because clip==$clip)">&2
         ln -s ${rankedlist} ${rankedlist}.chained.ranked
+    fi
+
+    if [ ! -s "${rankedlist}.chained.rank" ]; then
+        echo "ERROR: Expected output ${rankedlist}.chained.rank does not exist or is empty">&2
+        exit 6
     fi
     """
 }
@@ -423,7 +463,7 @@ process foliacorrect {
     mkdir outputdir
 
 
-    FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} .
+    FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
 
     cd outputdir
     ls
