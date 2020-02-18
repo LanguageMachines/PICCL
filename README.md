@@ -64,17 +64,30 @@ next section. In addition, you can also download example corpora (>300MB), which
 
     $ nextflow run LanguageMachines/PICCL/download-examples.nf -with-docker proycon/lamachine:piccl
 
+
+## Architecture
+
+PICCL consists of two workflows, one for optical character recognition using tesseract, and a TICCL workflow for
+OCR-post-correction and normalisation. Third, PICCL provides a webservice that ties together both these workflows and
+also integrates two other workflows from [aNtiLoPe](https://github.com/proycon/antilope): a workflow for tokenisation (using [ucto](https://languagemachines.github.io/ucto)) and Dutch Linguistic Enrichment (using [frog](https://languagemachines.github.io/frog)).
+
+The architecture of the PICCL webservice, and its two integral workflows, is visualised schematically as follows:
+
+![PICCL Architecture](https://raw.githubusercontent.com/LanguageMachines/PICCL/master/architecture.png)
+
+
 ## Usage
 
 ### Command line interface
 
-PICCL comes with the following workflows, most of them complement one or more others:
+PICCL encompasses two workflows (and in webservice form it also integrates two more from
+[aNtiLoPe](https://github.com/proycon/antilope))
 
  * ``ocr.nf``   - A pipeline for Optical Character Recognition using [Tesseract](https://github.com/tesseract-ocr/tesseract); takes PDF documents or images of scanned pages and produces [FoLiA](https://proycon.github.io/folia) documents.
  * ``ticcl.nf`` - The Text-induced Corpus Clean-up system: performs OCR-postcorrection, takes as input the result from
    ``ocr.nf``, or standalone text or PDF (text; no OCR), and produces further enriched [FoLiA](https://proycon.github.io/folia) documents.
 
-If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMAchine through docker, then
+If you are inside LaMachine, you can invoke these directly. If you let Nextflow manage LaMachine through docker, then
 you have to invoke them like ``nextflow run LanguageMachines/PICCL/ocr.nf -with-docker proycon/lamachine:piccl``. This applies to all examples in this section.
 
 Running with the ``--help`` parameter or absence of any parameters will output usage
@@ -106,6 +119,8 @@ information.
                              for instance reassemble a book that has its chapters in different PDFs.
                              Input PDFs must adhere to a \$document-\$sequencenumber.pdf convention.
                              (The hyphen delimiter may optionally be changed using --seqdelimiter)
+    --seqdelimiter           Sequence delimiter in input files (defaults to: _)
+    --seqstart               What input field is the sequence number (may be a negative number to count from the end), default: -2
 
 
     $ ticcl.nf --help
