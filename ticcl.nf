@@ -270,6 +270,11 @@ process anahash {
         echo "ERROR: Expected output ${corpusfreqlist}.anahash does not exist or is empty">&2
         exit 6
     fi
+
+    if [ ! -s "${corpusfreqlist}.corpusfoci" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.corpusfoci does not exist or is empty">&2
+        exit 6
+    fi
     """
 }
 
