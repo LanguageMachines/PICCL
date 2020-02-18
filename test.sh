@@ -30,7 +30,7 @@ if [ -d /vagrant ] || [ ! -z "$VIRTUAL_ENV" ] || [ -f /usr/bin/TICCL-anahash ] |
         echo "PICCL directory is $PICCLDIR"
     fi
 else
-    #we are not in LaMachine so use the docker LaMachine:
+    #we are not in LaMachine so use the docker LaMachine (this is not tested as much):
     WITHDOCKER="-with-docker proycon/lamachine:piccl"
 fi
 

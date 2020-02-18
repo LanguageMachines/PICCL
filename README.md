@@ -36,7 +36,7 @@ annotation.
 
 ## Installation
 
-PICCL is already shipped as a part of [LaMachine](https://proycon.github.io/LaMachine), although you may need to explicitly install it using ``lamachine-update --edit``. Once inside LaMachine, the command line interface can be invoked by directly specifying one of the workflows:
+PICCL is shipped as a part of [LaMachine](https://proycon.github.io/LaMachine), although you need to explicitly select it for installation using ``lamachine-add piccl && lamachine-update`` (from inside a LaMachine installation). Once inside LaMachine, the command line interface can be invoked by directly specifying one of the workflows:
 
     $ ocr.nf
 
@@ -49,7 +49,9 @@ following to obtain the latest development release of PICCL:
 
     $ nextflow pull LanguageMachines/PICCL
 
-In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine:piccl`` parameter:
+In this case you need to ensure to always run it with the ``-with-docker proycon/lamachine:piccl`` parameter, this lets
+nextflow manage your LaMachine docker container (this is not tested as much as running from inside the container
+directly):
 
     $ nextflow run LanguageMachines/PICCL -with-docker proycon/lamachine:piccl
 
