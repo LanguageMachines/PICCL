@@ -454,7 +454,7 @@ process chainclean {
     val low from params.low
 
     output:
-    file "${rankedlist}.chained.ranked" into rankedlist_chained_output
+    file "${rankedlist}.chained.ranked.cleaned" into rankedlist_chained_output
 
 
     script:
