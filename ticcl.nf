@@ -26,6 +26,7 @@ params.clip = 1
 params.low = 5
 params.high = 35
 params.chainclean = 0
+params.ngram = 1
 
 //Output usage information if --help is specified
 if (params.containsKey('help')) {
@@ -195,7 +196,7 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --maxngram $ngram -o corpus . || exit 1
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --maxngram ${ngram} -o corpus . || exit 1
 
         if [ ! -s "corpus.wordfreqlist.tsv" ]; then
             echo "ERROR: Expected output corpus.wordfreqlist.tsv does not exist or is empty">&2
