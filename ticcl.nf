@@ -23,6 +23,8 @@ params.artifrq = 10000000
 params.alphabet = ""
 params.distance = 2
 params.clip = 1
+params.low = 5
+params.high = 35
 
 //Output usage information if --help is specified
 if (params.containsKey('help')) {
@@ -46,6 +48,8 @@ if (params.containsKey('help')) {
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
     log.info "  --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)"
+    log.info "  --low INT                skip entries from the anagram file shorter than 'low' characters. (default = 5)"
+    log.info "  --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)"
     exit 2
 }
 
@@ -174,6 +178,7 @@ if (params.containsKey('corpusfreqlist')) {
         val virtualenv from params.virtualenv
         val inputclass from inputclass
         val extension from params.extension
+        val ngram from params.ngram
 
         output:
         file "corpus.wordfreqlist.tsv" into corpusfreqlist
@@ -188,7 +193,7 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --ngram 1 -o corpus . || exit 1
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --maxngram $ngram -o corpus . || exit 1
 
         if [ ! -s "corpus.wordfreqlist.tsv" ]; then
             echo "ERROR: Expected output corpus.wordfreqlist.tsv does not exist or is empty">&2
@@ -264,7 +269,7 @@ process anahash {
     fi
     set -u
 
-    TICCL-anahash --alph "${alphabet}" --artifrq ${artifrq} "${corpusfreqlist}" || exit 1
+    TICCL-anahash --alph "${alphabet}" --artifrq ${artifrq} "${corpusfreqlist}" --ngrams || exit 1
 
     if [ ! -s "${corpusfreqlist}.anahash" ]; then
         echo "ERROR: Expected output ${corpusfreqlist}.anahash does not exist or is empty">&2
@@ -295,6 +300,8 @@ process indexer {
     file charconfuslist from charconfuslist_forindexer
     file corpusfocilist from corpusfocilist
     val virtualenv from params.virtualenv
+    val low from params.low
+    val high from params.high
 
     output:
     file "${corpusfreqlist}.indexNT" into index
@@ -308,7 +315,7 @@ process indexer {
     fi
     set -u
 
-    TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus} || exit 1
+    TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus} --low ${low} --high ${high} || exit 1
 
     if [ ! -s "${corpusfreqlist}.indexNT" ]; then
         echo "ERROR: Expected output ${corpusfreqlist}.indexNT does not exist or is empty">&2
@@ -334,6 +341,8 @@ process resolver {
     val distance from params.distance
     val artifrq from params.artifrq
     val virtualenv from params.virtualenv
+    val low from params.low
+    val high from params.high
 
     output:
     file "${corpusfreqlist}.ldcalc" into wordconfusionlist
@@ -347,7 +356,7 @@ process resolver {
     fi
     set -u
 
-	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus} --alph ${alphabet} || exit 1
+	TICCL-LDcalc --index "${index}" --hash "${anahashlist}" --clean "${corpusfreqlist}" --LD ${distance} --artifrq ${artifrq} -o "${corpusfreqlist}.ldcalc" -t ${task.cpus} --alph ${alphabet} --low ${low} --high ${high} || exit 1
 
     if [ ! -s "${corpusfreqlist}.ldcalc" ]; then
         echo "ERROR: Expected output ${corpusfreqlist}.ldcalc does not exist or is empty">&2
