@@ -442,7 +442,7 @@ process chainer {
 }
 
 // implement TICCL-chainclean, MAKE OPTIONAL!
-if params.chainclean {
+if (params.chainclean) {
 
     process chainclean {
         /*
