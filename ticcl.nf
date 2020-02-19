@@ -197,7 +197,7 @@ if (params.containsKey('corpusfreqlist')) {
         set -u
 
         FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --max-ngram ${ngram} -o corpus . || exit 1
-        mv corpus.wordfreqlist.1to1.tsv corpus.wordfreqlist.tsv
+        mv corpus.wordfreqlist.?to?.tsv corpus.wordfreqlist.tsv
 
         if [ ! -s "corpus.wordfreqlist.tsv" ]; then
             echo "ERROR: Expected output corpus.wordfreqlist.tsv does not exist or is empty">&2
