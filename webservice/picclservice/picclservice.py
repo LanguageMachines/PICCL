@@ -283,6 +283,11 @@ PROFILES = [
            extension='tif',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
+        ),
         *generateoutputtemplates(ocrinput=True, inputextension='.tif'),
     ),
 
@@ -291,6 +296,11 @@ PROFILES = [
            extension='pdf',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
+        ),
         *generateoutputtemplates(ocrinput=True, inputextension='.pdf'), #this function is defined above to prevent unnecessary duplication
     ),
 
@@ -298,6 +308,11 @@ PROFILES = [
         InputTemplate('pdftext', PDFFormat, 'PDF document with embedded text (no OCR)',
            extension='pdf',
            multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
         ),
         *generateoutputtemplates(ocrinput=False, inputextension='.pdf'), #this function is defined above to prevent unnecessary duplication
 
@@ -309,6 +324,11 @@ PROFILES = [
            extension='djvu',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
+        ),
         *generateoutputtemplates(ocrinput=True, inputextension='.djvu'), #this function is defined above to prevent unnecessary duplication
 
     ),
@@ -319,6 +339,11 @@ PROFILES = [
            extension='txt',
            multi=True,
         ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
+        ),
         *generateoutputtemplates(ocrinput=True, inputextension='.txt'), #this function is defined above to prevent unnecessary duplication
 
     ),
@@ -327,6 +352,11 @@ PROFILES = [
         InputTemplate('foliaocr', FoLiAXMLFormat, 'FoLiA with OCR text layer already present (no OCR)',
            extension='folia.xml',
            multi=True,
+        ),
+        InputTemplate('lexicon', PlainTextFormat, "Custom Lexicon",
+           StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+           filename='lexicon.lst',
+           optional=True,
         ),
         *generateoutputtemplates(ocrinput=False, inputextension='.folia.xml'), #this function is defined above to prevent unnecessary duplication
     ),
