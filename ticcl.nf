@@ -196,7 +196,8 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --maxngram ${ngram} -o corpus . || exit 1
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --max-ngram ${ngram} -o corpus . || exit 1
+        mv corpus.wordfreqlist.1to1.tsv corpus.wordfreqlist.tsv
 
         if [ ! -s "corpus.wordfreqlist.tsv" ]; then
             echo "ERROR: Expected output corpus.wordfreqlist.tsv does not exist or is empty">&2
@@ -398,7 +399,7 @@ process rank {
     fi
     set -u
 
-    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" "${wordconfusionlist}.debug.ranked" --subtractartifrqfeature2 0  0 --clip ${clip} --skipcols=1,10,11,13 -t ${task.cpus} "${wordconfusionlist}" || exit 1
+    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" --subtractartifrqfeature2 0 --clip ${clip} --skipcols=1,10,11,13 -t ${task.cpus} "${wordconfusionlist}" || exit 1
 
     if [ ! -s "${wordconfusionlist}.ranked" ]; then
         echo "ERROR: Expected output ${wordconfusionlist}.ranked does not exist or is empty">&2
@@ -481,7 +482,7 @@ if (params.chainclean) {
     }
 
 } else {
-    rankedlist_chained_cleaned.set { rankedlist_chained }
+    rankedlist_chained_cleaned = rankedlist_chained
 }
 
 

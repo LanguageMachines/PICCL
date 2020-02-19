@@ -119,13 +119,20 @@ if [[ "$TEST" == "ocrpdf-eng" ]] || [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" =
     checkfolia ocr_output/OllevierGeets.folia.xml
 fi
 
-if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]]; then
+
+if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]] || [[ "$TEST" == "tmp" ]]; then
     echo -e "\n\n======== Testing TICCL (eng) =========">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
     checkfolia ticcl_output/OllevierGeets.ticcl.folia.xml
 fi
 
+if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]] || [[ "$TEST" == "tmp" ]]; then
+    echo -e "\n\n======== Testing TICCL with bigrams (eng) =========">&2
+    if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
+    $PICCL/ticcl.nf --inputdir ocr_output/ --ngram 2 --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
+    checkfolia ticcl_output/OllevierGeets.ticcl.folia.xml
+fi
 
 if [[ "$TEST" == "ocrtif-nld" ]] || [[ "$TEST" == "ticcl-nld" ]] || [[ "$TEST" == "all" ]]; then
     echo -e "\n\n======== Testing OCR (nld) with inputtype tif ==========">&2
