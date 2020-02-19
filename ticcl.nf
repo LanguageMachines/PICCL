@@ -207,6 +207,8 @@ if (params.containsKey('corpusfreqlist')) {
     }
 }
 
+alphabet_forunk = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file not found")
+
 process ticclunk {
     /*
         Filter a wordfrequency list (TICCL-unk)
@@ -217,6 +219,7 @@ process ticclunk {
     input:
     file corpusfreqlist from corpusfreqlist //corpus frequency list in FoLiA-stats format
     file lexicon from lexicon
+    file alphabet from alphabet_forunk
     val virtualenv from params.virtualenv
     val artifrq from params.artifrq
 
@@ -234,7 +237,7 @@ process ticclunk {
     fi
     set -u
 
-    TICCL-unk --background "${lexicon}" --artifrq ${artifrq} "${corpusfreqlist}" || exit 1
+    TICCL-unk --background "${lexicon}" --artifrq ${artifrq} --alph "${alphabet}" "${corpusfreqlist}" || exit 1
 
     if [ ! -s "${corpusfreqlist}.clean" ]; then
         echo "ERROR: Expected output ${corpusfreqlist}.clean does not exist or is empty">&2
@@ -446,8 +449,9 @@ process chainer {
     """
 }
 
-// implement TICCL-chainclean, MAKE OPTIONAL!
 if (params.chainclean) {
+
+    lexicon_forchainclean = Channel.fromPath(params.lexicon).ifEmpty("Lexicon file not found")
 
     process chainclean {
         /*
@@ -456,7 +460,7 @@ if (params.chainclean) {
 
         input:
         file rankedlist from rankedlist_chained
-        file lexicon from lexicon_forchain
+        file lexicon from lexicon_forchainclean
         val virtualenv from params.virtualenv
         val artifrq from params.artifrq
         val low from params.low
