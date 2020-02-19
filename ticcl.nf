@@ -196,7 +196,7 @@ if (params.containsKey('corpusfreqlist')) {
         fi
         set -u
 
-        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --max-ngram ${ngram} -o corpus . || exit 1
+        FoLiA-stats --class "$inputclass" -s -t ${task.cpus} -e "$extension" --lang=none --collect --max-ngram ${ngram} --separator "_" -o corpus . || exit 1
         mv corpus.wordfreqlist.?to?.tsv corpus.wordfreqlist.tsv
 
         if [ ! -s "corpus.wordfreqlist.tsv" ]; then
