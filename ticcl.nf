@@ -50,9 +50,9 @@ if (params.containsKey('help')) {
     log.info "  --distance INT           Levenshtein/edit distance (default: 2)"
     log.info "  --clip INT               Limit the number of variants per word (default: 10)"
     log.info "  --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)"
-    log.info "  --low INT                skip entries from the anagram file shorter than 'low' characters. (default = 5)"
+    log.info "  --low INT                skip entries from the anagram file shorter than 'low' characters. (default=5)"
     log.info "  --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)"
-    log.info "  --chainclean BOOLINT     enabled chain clean or not (1 = on, 0 = off, default)"
+    log.info "  --chainclean BOOLINT     enable chain clean or not (1 = on, 0 = off, default)"
     exit 2
 }
 

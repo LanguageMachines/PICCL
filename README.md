@@ -147,6 +147,9 @@ information.
       --distance INT           Levenshtein/edit distance (default: 2)
       --clip INT               Limit the number of variants per word (default: 10)
       --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)
+      --low INT                skip entries from the anagram file shorter than 'low' characters. (default=5)
+      --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)
+      --chainclean BOOLINT     enable chain clean or not (1 = on, 0 = off, default)
 
 An example of invoking an OCR workflow for English is provided below, it assumes the sample data are installed in the ``corpora/``
 directory. It OCRs the ``OllevierGeets.pdf`` file, which contains scanned image data, therefore we choose the
