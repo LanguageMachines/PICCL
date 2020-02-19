@@ -297,6 +297,7 @@ process indexer {
         Computes an index from anagram hashes (TICCL-indexerNT)
     */
     publishDir params.outputdir, mode: 'copy', overwrite: true
+    label "multicore"
 
     input:
     file corpusfreqlist from corpusfreqlist_clean_forindexer //only used for naming purposes, not real input
@@ -335,6 +336,7 @@ alphabet_forresolver = Channel.fromPath(params.alphabet).ifEmpty("Alphabet file 
 process resolver {
     //Resolves numerical confusions back to word form confusions using TICCL-LDcalc
     publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
+    label "multicore"
 
 
     input:
@@ -377,6 +379,7 @@ process rank {
     */
 
     publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
+    label "multicore"
 
 
     input:
@@ -492,6 +495,7 @@ process foliacorrect {
     */
 
     publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
+    label "multicore"
 
     input:
     file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect() //collects all files first
