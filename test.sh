@@ -127,7 +127,7 @@ if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]] || [[ "$TEST" == "tmp"
     checkfolia ticcl_output/OllevierGeets.ticcl.folia.xml
 fi
 
-if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]] || [[ "$TEST" == "tmp" ]]; then
+if [[ "$TEST" == "ticcl-eng" ]] || [[ "$TEST" == "all" ]] || [[ "$TEST" == "tmp2" ]]; then
     echo -e "\n\n======== Testing TICCL with bigrams (eng) =========">&2
     if [ -d ticcl_output ]; then rm -Rf ticcl_output; fi
     $PICCL/ticcl.nf --inputdir ocr_output/ --ngram 2 --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion $WITHDOCKER || exit 2
