@@ -408,7 +408,7 @@ alphabet_forchain = Channel.fromPath(params.alphabet)
 
 process chainer {
     /*
-        Chain stuff? (@martinreynaert: update description to be more sensible?)
+        Find more distant variants (variants-of-variants are variants too)
     */
 
     input:
@@ -438,6 +438,44 @@ process chainer {
     fi
     """
 }
+
+// implement TICCL-chainclean, MAKE OPTIONAL!
+
+process chainclean {
+    /*
+        Clean chain file, taking into account splits and merges
+    */
+
+    input:
+    file rankedlist from rankedlist_chained
+    file lexicon from lexicon_forchain
+    val virtualenv from params.virtualenv
+    val artifrq from params.artifrq
+    val low from params.low
+
+    output:
+    file "${rankedlist}.chained.ranked" into rankedlist_chained_output
+
+
+    script:
+    """
+    #!/bin/bash
+    set +u
+    if [ ! -z "${virtualenv}" ]; then
+        source ${virtualenv}/bin/activate
+    fi
+    set -u
+
+    TICCL-chainclean --lexicon ${lexicon} --low ${low} --artifrq ${artifrq} ${rankedlist}
+
+    if [ ! -s "${rankedlist}.chained.ranked.cleaned" ]; then
+        echo "ERROR: Expected output ${rankedlist}.chained.ranked does not exist or is empty">&2
+        exit 6
+    fi
+    """
+
+}
+
 
 process foliacorrect {
     /*
