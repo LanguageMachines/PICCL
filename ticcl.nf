@@ -429,14 +429,8 @@ process chainer {
     fi
     set -u
 
-    if [ $clip -eq 1 ]; then
-        TICCL-chain --caseless ${rankedlist} --alph ${alphabet} || exit 1
-        mv ${rankedlist}.chained ${rankedlist}.chained.ranked || exit 2 #FoLiA-correct requires extension to be *.ranked so we add it
-    else
-        #we can only chain with clip 1, just copy the file unmodified if clip>1
-        echo "(skipping TICCL-chain because clip==$clip)">&2
-        ln -s ${rankedlist} ${rankedlist}.chained.ranked
-    fi
+    TICCL-chain --caseless ${rankedlist} --alph ${alphabet} || exit 1
+    mv ${rankedlist}.chained ${rankedlist}.chained.ranked || exit 2 #FoLiA-correct requires extension to be *.ranked so we add it
 
     if [ ! -s "${rankedlist}.chained.ranked" ]; then
         echo "ERROR: Expected output ${rankedlist}.chained.ranked does not exist or is empty">&2
