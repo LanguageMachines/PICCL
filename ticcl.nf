@@ -25,6 +25,7 @@ params.distance = 2
 params.clip = 1
 params.low = 5
 params.high = 35
+params.chainclean = 0
 
 //Output usage information if --help is specified
 if (params.containsKey('help')) {
@@ -50,6 +51,7 @@ if (params.containsKey('help')) {
     log.info "  --corpusfreqlist FILE    Corpus frequency list (skips the first step that would compute one for you)"
     log.info "  --low INT                skip entries from the anagram file shorter than 'low' characters. (default = 5)"
     log.info "  --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)"
+    log.info "  --chainclean BOOLINT     enabled chain clean or not (1 = on, 0 = off, default)"
     exit 2
 }
 
@@ -440,40 +442,45 @@ process chainer {
 }
 
 // implement TICCL-chainclean, MAKE OPTIONAL!
+if params.chainclean {
 
-process chainclean {
-    /*
-        Clean chain file, taking into account splits and merges
-    */
+    process chainclean {
+        /*
+            Clean chain file, taking into account splits and merges
+        */
 
-    input:
-    file rankedlist from rankedlist_chained
-    file lexicon from lexicon_forchain
-    val virtualenv from params.virtualenv
-    val artifrq from params.artifrq
-    val low from params.low
+        input:
+        file rankedlist from rankedlist_chained
+        file lexicon from lexicon_forchain
+        val virtualenv from params.virtualenv
+        val artifrq from params.artifrq
+        val low from params.low
 
-    output:
-    file "${rankedlist}.chained.ranked.cleaned" into rankedlist_chained_output
+        output:
+        file "${rankedlist}.chained.ranked.cleaned" into rankedlist_chained_cleaned
 
 
-    script:
-    """
-    #!/bin/bash
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
+        script:
+        """
+        #!/bin/bash
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
+        fi
+        set -u
 
-    TICCL-chainclean --lexicon ${lexicon} --low ${low} --artifrq ${artifrq} ${rankedlist}
+        TICCL-chainclean --lexicon ${lexicon} --low ${low} --artifrq ${artifrq} ${rankedlist}
 
-    if [ ! -s "${rankedlist}.chained.ranked.cleaned" ]; then
-        echo "ERROR: Expected output ${rankedlist}.chained.ranked does not exist or is empty">&2
-        exit 6
-    fi
-    """
+        if [ ! -s "${rankedlist}.chained.ranked.cleaned" ]; then
+            echo "ERROR: Expected output ${rankedlist}.chained.ranked does not exist or is empty">&2
+            exit 6
+        fi
+        """
 
+    }
+
+} else {
+    rankedlist_chained_cleaned.set { rankedlist_chained }
 }
 
 
@@ -486,7 +493,7 @@ process foliacorrect {
 
     input:
     file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect() //collects all files first
-    file rankedlist from rankedlist_chained
+    file rankedlist from rankedlist_chained_cleaned
     file punctuationmap from punctuationmap
     file unknownfreqlist from unknownfreqlist
     val extension from params.extension
