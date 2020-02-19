@@ -395,7 +395,7 @@ process rank {
     fi
     set -u
 
-    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" "${wordconfusionlist}.debug.ranked" --artifrq ${artifrq} --clip ${clip} --skipcols=1,10,11,13 -t ${task.cpus} "${wordconfusionlist}" || exit 1
+    TICCL-rank --alph "${alphabet}" --charconf "${charconfuslist}" -o "${wordconfusionlist}.ranked" "${wordconfusionlist}.debug.ranked" --subtractartifrqfeature2 0  0 --clip ${clip} --skipcols=1,10,11,13 -t ${task.cpus} "${wordconfusionlist}" || exit 1
 
     if [ ! -s "${wordconfusionlist}.ranked" ]; then
         echo "ERROR: Expected output ${wordconfusionlist}.ranked does not exist or is empty">&2
