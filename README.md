@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/LanguageMachines/PICCL.svg?branch=master)](https://travis-ci.org/LanguageMachines/PICCL)
 
 [![GitHub release](https://img.shields.io/github/release/LanguageMachines/PICCL.svg)](https://GitHub.com/LanguageMachines/PICCL/releases/)
-[![Project Status: Suspended – Initial development has started, but there has not yet been a stable, usable release; work has been stopped for the time being but the author(s) intend on resuming work.](https://www.repostatus.org/badges/latest/suspended.svg)](https://www.repostatus.org/#suspended)
+[![Project Status: Inactive - The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 # PICCL: Philosophical Integrator of Computational and Corpus Libraries
 
