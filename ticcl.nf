@@ -420,6 +420,7 @@ process chainer {
     /*
         Find more distant variants (variants-of-variants are variants too)
     */
+    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
 
     input:
     file rankedlist from rankedlist
@@ -457,6 +458,7 @@ if (params.chainclean) {
         /*
             Clean chain file, taking into account splits and merges
         */
+        publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (rather than deleting this intermediate output)
 
         input:
         file rankedlist from rankedlist_chained
