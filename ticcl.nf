@@ -53,6 +53,7 @@ if (params.containsKey('help')) {
     log.info "  --low INT                skip entries from the anagram file shorter than 'low' characters. (default=5)"
     log.info "  --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)"
     log.info "  --chainclean BOOLINT     enable chain clean or not (1 = on, 0 = off, default)"
+    log.info "  --nofoliacorrect         skip the FoLiA correct step"
     exit 2
 }
 
@@ -493,58 +494,61 @@ if (params.chainclean) {
 }
 
 
-process foliacorrect {
-    /*
-        Correct the input documents using the ranked list, produces final output documents with <str>, using FoLiA-correct
-    */
+if (!params.containsKey('nofoliacorrect')) {
 
-    publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
-    label "multicore"
+    process foliacorrect {
+        /*
+            Correct the input documents using the ranked list, produces final output documents with <str>, using FoLiA-correct
+        */
 
-    input:
-    file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect() //collects all files first
-    file rankedlist from rankedlist_chained_cleaned
-    file punctuationmap from punctuationmap
-    file unknownfreqlist from unknownfreqlist
-    val extension from params.extension
-    val inputclass from inputclass
-    val virtualenv from params.virtualenv
+        publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
+        label "multicore"
 
-    output:
-    file "*.ticcl.folia.xml" into folia_ticcl_documents
+        input:
+        file folia_ocr_documents from folia_ocr_documents_forfoliacorrect.collect() //collects all files first
+        file rankedlist from rankedlist_chained_cleaned
+        file punctuationmap from punctuationmap
+        file unknownfreqlist from unknownfreqlist
+        val extension from params.extension
+        val inputclass from inputclass
+        val virtualenv from params.virtualenv
 
-    script:
-    """
-    #!/bin/bash
-    set +u
-    if [ ! -z "${virtualenv}" ]; then
-        source ${virtualenv}/bin/activate
-    fi
-    set -u
+        output:
+        file "*.ticcl.folia.xml" into folia_ticcl_documents
 
-    #some bookkeeping
-    mkdir outputdir
-
-
-    FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
-
-    cd outputdir
-    ls
-
-    #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
-    for f in *.xml; do
-        if [[ \$f != "*.xml" ]]; then
-            if [[ \${f%.ticcl.xml} != \$f ]]; then
-                newf="\${f%.ticcl.xml}.ticcl.folia.xml"
-            else
-                newf="\$f"
-            fi
-            mv \$f ../\$newf
+        script:
+        """
+        #!/bin/bash
+        set +u
+        if [ ! -z "${virtualenv}" ]; then
+            source ${virtualenv}/bin/activate
         fi
-    done
-    cd ..
-    """
-}
+        set -u
 
-//explicitly report the final documents created to stdout
-folia_ticcl_documents.subscribe { println "TICCL output document written to " +  params.outputdir + "/" + it.name }
+        #some bookkeeping
+        mkdir outputdir
+
+
+        FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
+
+        cd outputdir
+        ls
+
+        #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
+        for f in *.xml; do
+            if [[ \$f != "*.xml" ]]; then
+                if [[ \${f%.ticcl.xml} != \$f ]]; then
+                    newf="\${f%.ticcl.xml}.ticcl.folia.xml"
+                else
+                    newf="\$f"
+                fi
+                mv \$f ../\$newf
+            fi
+        done
+        cd ..
+        """
+    }
+
+    //explicitly report the final documents created to stdout
+    folia_ticcl_documents.subscribe { println "TICCL output document written to " +  params.outputdir + "/" + it.name }
+}
