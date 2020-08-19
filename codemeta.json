@@ -10,7 +10,7 @@
     "@type": "SoftwareSourceCode",
     "identifier": "piccl",
     "name": "PICCL",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "A set of workflows for corpus building through OCR, post-correction, and normalisation.",
     "license": "https://spdx.org/licenses/GPL-3.0",
 	"url": "https://github.com/LanguageMachines/PICCL",
