@@ -326,9 +326,12 @@ process indexer {
 
     TICCL-indexerNT --hash "${anahashlist}" --charconf "${charconfuslist}" --foci "${corpusfocilist}" -o "${corpusfreqlist}" -t ${task.cpus} --low ${low} --high ${high} || exit 1
 
-    if [ ! -s "${corpusfreqlist}.indexNT" ]; then
-        echo "ERROR: Expected output ${corpusfreqlist}.indexNT does not exist or is empty">&2
+    if [ ! -e "${corpusfreqlist}.indexNT" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.indexNT does not exist.">&2
         exit 6
+    elif [ ! -s "${corpusfreqlist}.indexNT" ]; then
+        echo "ERROR: Expected output ${corpusfreqlist}.indexNT is empty. This means that no correction candidates could be found for any of the words in the input and that the pipeline finishes prematurely because no further processing can be done.">&2
+        exit 22
     fi
     """
     //NOTE: -o option is a prefix only, extension indexNT will be appended !!
