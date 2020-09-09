@@ -60,10 +60,11 @@ We have prepared PICCL for work in many languages, mainly on the basis of availa
     $ nextflow run LanguageMachines/PICCL/download-data.nf -with-docker proycon/lamachine:piccl
 
 This will generate a ``data/`` directory in your current directory, and will be referenced in the usage examples in the
-next section. In addition, you can also download example corpora (>300MB), which will be placed in a ``corpora/`` directory:
+next section. In a LaMachine environment, this directory is already available in ``$LM_PREFIX/opt/PICCL/data``.
+
+In addition, you can also download example corpora (>300MB), which will be placed in a ``corpora/`` directory:
 
     $ nextflow run LanguageMachines/PICCL/download-examples.nf -with-docker proycon/lamachine:piccl
-
 
 ## Architecture
 
@@ -167,13 +168,13 @@ In case of the first example the result will be a file ``OllevierGeets.folia.xml
 input for the TICCL workflow, which will attempt to correct OCR errors. Take care that that the ``--inputclass OCR``
 parameter is mandatory if you want to use the FoLiA output of ``ocr.nf`` as input for TICCL:
 
-    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/eng/eng.aspell.dict --alphabet data/int/eng/eng.aspell.dict.lc.chars --charconfus data/int/eng/eng.aspell.dict.c0.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon $LM_PREFIX/opt/PICCL/data/int/eng/eng.aspell.dict --alphabet $LM_PREFIX/opt/PICCL/data/int/eng/eng.aspell.dict.lc.chars --charconfus $LM_PREFIX/opt/PICCL/data/int/eng/eng.aspell.dict.c0.d2.confusion
 
 Note that here we pass a language-specific lexicon file, alphabet file, and character confusion file from the data files obtained by
 ``download-data.nf``. Result will be a file ``OllevierGeets.folia.ticcl.xml`` in the ``ticcl_output/`` directory,
 containing enriched corrections. The second example, on the dutch corpus data, can be run as follows:
 
-    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon data/int/nld/nld.aspell.dict --alphabet data/int/nld/nld.aspell.dict.lc.chars --charconfus data/int/nld/nld.aspell.dict.c20.d2.confusion
+    $ ticcl.nf --inputdir ocr_output/ --inputclass OCR --lexicon $LM_PREFIX/opt/PICCL/data/int/nld/nld.aspell.dict --alphabet $LM_PREFIX/opt/PICCL/data/int/nld/nld.aspell.dict.lc.chars --charconfus $LM_PREFIX/opt/PICCL/data/int/nld/nld.aspell.dict.c20.d2.confusion
 
 
 ## Webapplication / RESTful webservice
