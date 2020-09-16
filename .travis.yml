@@ -3,13 +3,13 @@ language: generic
 matrix:
     include:
         - os: linux
-          dist: xenial
+          dist: bionic
           sudo: required
           language: generic
           env:
             - CONF_NAME=stablelm FLAVOUR=local VERSION=stable LOCALENV_TYPE=virtualenv
         - os: linux
-          dist: xenial
+          dist: bionic
           sudo: required
           language: generic
           env:
@@ -25,13 +25,12 @@ notifications:
 
 install:
     - echo -e "[hostsecurity]\ndisabletls10warning = true" > ~/.hgrc
-    - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo apt remove mysql-server mysql-server-5.7 postgresql-10 postgresql-9.4 postgresql-9.5 postgresql-9.6; fi
     - if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo rm -rf /opt/pyenv; fi
     - sudo update-java-alternatives -s java-1.8.0-openjdk-amd64
     - mkdir /home/travis/build/LaMachine
     - cd /home/travis/build/LaMachine
     - wget https://raw.githubusercontent.com/proycon/LaMachine/master/bootstrap.sh
-    - bash bootstrap.sh --name $CONF_NAME --branch master --flavour $FLAVOUR --version $VERSION --env $LOCALENV_TYPE --private --minimal --prefer-distro --noninteractive --verbose --install piccl
+    - bash bootstrap.sh --name $CONF_NAME --branch master --flavour $FLAVOUR --version $VERSION --env $LOCALENV_TYPE --private --minimal --prefer-distro --noninteractive --verbose --nosysupdate --install piccl
     - cd /home/travis/build/LanguageMachines/PICCL
 script:
     - USER="travis" bash test.sh
