@@ -18,6 +18,7 @@ params.extension = "folia.xml"
 params.inputtype = "folia"
 params.outputdir = "ticcl_output"
 params.inputclass = "current"
+params.outputclass = "current"
 params.lexicon = ""
 params.artifrq = 10000000
 params.alphabet = ""
@@ -44,6 +45,7 @@ if (params.containsKey('help')) {
     log.info "  --language LANGUAGE      Language"
     log.info "  --extension STR          Extension of FoLiA documents in input directory (default: folia.xml, must always end in xml)!"
     log.info "  --inputclass CLASS       FoLiA text class to use for input, defaults to 'current' for FoLiA input; must be set to 'OCR' for FoLiA documents produced by ocr.nf"
+    log.info "  --outputclass CLASS      FoLiA text class to use for output, defaults to 'current' for FoLiA output, but may not be equal to the class used for --inputclass"
     log.info "  --inputtype STR          Input type can be either 'folia' (default), 'text', or 'pdf' (i.e. pdf with text; no OCR)"
     log.info "  --virtualenv PATH        Path to Virtual Environment to load (usually path to LaMachine)"
     log.info "  --artifrq INT            Default value for missing frequencies in the validated lexicon (default: 10000000)"
@@ -516,6 +518,7 @@ if (!params.containsKey('nofoliacorrect')) {
         file unknownfreqlist from unknownfreqlist
         val extension from params.extension
         val inputclass from inputclass
+        val outputclass from outputclass
         val virtualenv from params.virtualenv
 
         output:
@@ -534,7 +537,7 @@ if (!params.containsKey('nofoliacorrect')) {
         mkdir outputdir
 
 
-        FoLiA-correct --inputclass "${inputclass}" --outputclass current --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
+        FoLiA-correct --inputclass "${inputclass}" --outputclass "${outputclass}" --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
 
         cd outputdir
         ls
