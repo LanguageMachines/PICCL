@@ -518,7 +518,7 @@ if (!params.containsKey('nofoliacorrect')) {
         file unknownfreqlist from unknownfreqlist
         val extension from params.extension
         val inputclass from inputclass
-        val outputclass from outputclass
+        val outputclass from params.outputclass
         val virtualenv from params.virtualenv
 
         output:
