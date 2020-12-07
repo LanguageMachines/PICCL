@@ -56,6 +56,7 @@ if (params.containsKey('help')) {
     log.info "  --high INT               skip entries from the anagram file longer than 'high' characters. (default=35)"
     log.info "  --chainclean BOOLINT     enable chain clean or not (1 = on, 0 = off, default)"
     log.info "  --nofoliacorrect         skip the FoLiA correct step"
+    log.info "  --nostringlinking        skip the final string linking step"
     exit 2
 }
 
@@ -508,7 +509,7 @@ if (!params.containsKey('nofoliacorrect')) {
             Correct the input documents using the ranked list, produces final output documents with <str>, using FoLiA-correct
         */
 
-        publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
+        publishDir params.outputdir, mode: 'copy', overwrite: true
         label "multicore"
 
         input:
@@ -522,7 +523,7 @@ if (!params.containsKey('nofoliacorrect')) {
         val virtualenv from params.virtualenv
 
         output:
-        file "*.ticcl.folia.xml" into folia_ticcl_documents
+        file "*.foliacorrect.folia.xml" into foliacorrect_documents
 
         script:
         """
@@ -540,13 +541,16 @@ if (!params.containsKey('nofoliacorrect')) {
         FoLiA-correct --inputclass "${inputclass}" --outputclass "${outputclass}" --nums 10 -e ${extension} -O outputdir/ --unk "${unknownfreqlist}" --punct "${punctuationmap}" --rank "${rankedlist}"  -t ${task.cpus} . || exit 1
 
         cd outputdir
+        echo "output files:"
         ls
 
         #rename files so they have *.ticcl.folia.xml as extension (rather than .ticcl.xml which FoLiA-correct produces)
         for f in *.xml; do
             if [[ \$f != "*.xml" ]]; then
                 if [[ \${f%.ticcl.xml} != \$f ]]; then
-                    newf="\${f%.ticcl.xml}.ticcl.folia.xml"
+                    newf="\${f%.ticcl.xml}.foliacorrect.folia.xml" #old folia-correc
+                elif [[ \${f%.ticcl.folia.xml} != \$f ]]; then
+                    newf="\${f%.ticcl.folia.xml}.foliacorrect.folia.xml" #new folia-correct
                 else
                     newf="\$f"
                 fi
@@ -555,6 +559,53 @@ if (!params.containsKey('nofoliacorrect')) {
         done
         cd ..
         """
+    }
+
+    if (!params.containsKey('nostringlinking')) {
+        process linkstrings {
+            /*
+             This invokes a tool that adds text markup information (t-str and t-correction) linking to the substrings. It adds a level of redundancy that is needed for proper visualisation in FLAT.
+            */
+
+            publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
+
+            input:
+            file foliadoc from foliacorrect_documents
+            val virtualenv from params.virtualenv
+
+            output:
+            file "*.ticcl.folia.xml" into folia_ticcl_documents
+
+            script:
+            """
+            #!/bin/bash
+            set +u
+            if [ ! -z "${virtualenv}" ]; then
+                source ${virtualenv}/bin/activate
+            fi
+            set -u
+
+            foliatextcontent -M ${foliadoc} > ${foliadoc.simpleName}.ticcl.folia.xml || exit 1
+            """
+        }
+
+    } else {
+        process nolinkstrings {
+            """Simple file rename step"""
+
+            publishDir params.outputdir, mode: 'copy', overwrite: true //publish the output for the end-user to see (this is the final output)
+
+            input:
+            file foliadoc from foliacorrect_documents
+
+            output:
+            file "*.ticcl.folia.xml" into folia_ticcl_documents
+
+            script:
+            """
+            cp ${foliadoc} ${foliadoc.simpleName}.ticcl.folia.xml || exit 1
+            """
+        }
     }
 
     //explicitly report the final documents created to stdout
