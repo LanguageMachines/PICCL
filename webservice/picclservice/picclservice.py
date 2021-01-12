@@ -85,7 +85,6 @@ ADMINS = None #List of usernames that are administrator and can access the admin
 
 #USERS = { user1': '4f8dh8337e2a5a83734b','user2': pwhash('username', REALM, 'secret') }
 
-FLATURL = "https://flat.science.ru.nl"
 
 
 #The secret key is used internally for cryptographically signing session data, in production environments, you'll want to set this to a persistent value. If not set it will be randomly generated.
@@ -105,16 +104,14 @@ STYLE = 'classic'
 #Here you can specify additional interface options (space separated list), see the documentation for all allowed options
 INTERFACEOPTIONS = "disableliveinput inputfromweb"
 
+FLATURL = "https://flat.cls.ru.nl"
+AUTOSEARCH_FORWARD_URL = None
+SWITCHBOARD_FORWARD_URL = None
+
 # ======== LOAD EXTERNAL CONFIGURATION =============
 # Load external configuration file (see piccl.config.yml)
 # This can override any of the variables set until this point, and should take care of setting host specific variables
 loadconfig(__name__)
-
-try:
-    AUTOSEARCH_FORWARD_URL
-except NameError:
-    #make sure it is defined at least
-    AUTOSEARCH_FORWARD_URL = None
 
 # ======== ENABLED FORMATS ===========
 
@@ -225,6 +222,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         outputtemplates += [OutputTemplate('ocrfolia', FoLiAXMLFormat, 'OCR Output (Tesseract)',
             FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
             ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
+            ForwardViewer(id='switchboardforwarder',name="Open in CLARIN Switchboard",forwarder=Forwarder('switchboard','CLARIN Switchboard',SWITCHBOARD_FORWARD_URL),allowdefault=False) if SWITCHBOARD_FORWARD_URL else None,
             removeextension=inputextension,
             extension='ocr.folia.xml',
             multi=True,
@@ -242,6 +240,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
             OutputTemplate('ticclfolia', FoLiAXMLFormat, 'OCR post-correction output (TICCL)',
                 FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
                 ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
+                ForwardViewer(id='switchboardforwarder',name="Open in CLARIN Switchboard",forwarder=Forwarder('switchboard','CLARIN Switchboard',SWITCHBOARD_FORWARD_URL),allowdefault=False) if SWITCHBOARD_FORWARD_URL else None,
                 removeextension=inputextension,
                 extension='ticcl.folia.xml',
                 multi=True,
@@ -252,6 +251,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
             OutputTemplate('frogfolia', FoLiAXMLFormat, 'Linguistic enrichment output (Frog)',
                 FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
                 ForwardViewer(id='autosearchforwarder',name="Open in AutoSearch",forwarder=Forwarder('autosearch','AutoSearch',AUTOSEARCH_FORWARD_URL)) if AUTOSEARCH_FORWARD_URL else None,
+                ForwardViewer(id='switchboardforwarder',name="Open in CLARIN Switchboard",forwarder=Forwarder('switchboard','CLARIN Switchboard',SWITCHBOARD_FORWARD_URL),allowdefault=False) if SWITCHBOARD_FORWARD_URL else None,
                 removeextension=inputextension,
                 extension='frogged.folia.xml',
                 multi=True,
@@ -260,6 +260,7 @@ def generateoutputtemplates(ocrinput=True,inputextension='.pdf'):
         ParameterCondition(ucto="yes", then=
             OutputTemplate('uctofolia', FoLiAXMLFormat, 'Tokeniser Output (ucto)',
                 FLATViewer(url=FLATURL, mode='viewer') if FLATURL else None,
+                ForwardViewer(id='switchboardforwarder',name="Open in CLARIN Switchboard",forwarder=Forwarder('switchboard','CLARIN Switchboard',SWITCHBOARD_FORWARD_URL),allowdefault=False) if SWITCHBOARD_FORWARD_URL else None,
                 removeextensions=[inputextension,"ticcl.folia.xml"],
                 extension='tok.folia.xml',
                 multi=True,
